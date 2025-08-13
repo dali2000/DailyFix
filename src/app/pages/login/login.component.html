@@ -2,16 +2,34 @@
   <h1 class="brand">DailyFix</h1>
   <p class="subtitle">Votre assistant personnel pour une vie organisée</p>
 
-  <section class="card" aria-label="Connexion">
-    <h2 class="title">Bienvenue</h2>
-    <p class="subtext">Connectez-vous pour accéder à votre tableau de bord</p>
+  <section class="card" aria-label="Authentification">
+    <h2 class="title">{{ mode === 'login' ? 'Bienvenue' : 'Créer un compte' }}</h2>
+    <p class="subtext">
+      {{ mode === 'login' ? 'Connectez-vous pour accéder à votre tableau de bord' : 'Inscrivez-vous pour commencer votre organisation' }}
+    </p>
 
     <div class="tabs" role="tablist" aria-label="Mode d'authentification">
-      <button type="button" class="tab active" aria-selected="true">Connexion</button>
-      <button type="button" class="tab" aria-selected="false" disabled>Inscription</button>
+      <button type="button" class="tab" [class.active]="mode === 'login'" (click)="switchMode('login')" [attr.aria-selected]="mode==='login'">Connexion</button>
+      <button type="button" class="tab" [class.active]="mode === 'signup'" (click)="switchMode('signup')" [attr.aria-selected]="mode==='signup'">Inscription</button>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <ng-container *ngIf="mode === 'signup'">
+        <label for="fullName">Nom complet</label>
+        <input
+          id="fullName"
+          type="text"
+          formControlName="fullName"
+          placeholder="Votre nom et prénom"
+          autocomplete="name"
+          required
+          aria-describedby="fullNameHelp"
+        />
+        <div id="fullNameHelp" class="error" *ngIf="form.get('fullName')?.touched && form.get('fullName')?.invalid">
+          Nom requis (2+ caractères)
+        </div>
+      </ng-container>
+
       <label for="email">Email</label>
       <input
         id="email"
@@ -32,7 +50,7 @@
         type="password"
         formControlName="password"
         placeholder="••••••••"
-        autocomplete="current-password"
+        autocomplete="{{ mode === 'login' ? 'current-password' : 'new-password' }}"
         required
         minlength="6"
         aria-describedby="passwordHelp"
@@ -41,7 +59,24 @@
         Mot de passe requis (6+ caractères)
       </div>
 
-      <button class="submit" type="submit">Se connecter</button>
+      <ng-container *ngIf="mode === 'signup'">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="••••••••"
+          autocomplete="new-password"
+          required
+          minlength="6"
+          aria-describedby="confirmPasswordHelp"
+        />
+        <div id="confirmPasswordHelp" class="error" *ngIf="(form.get('confirmPassword')?.touched && form.get('confirmPassword')?.invalid) || form.hasError('passwordsMismatch')">
+          Les mots de passe ne correspondent pas
+        </div>
+      </ng-container>
+
+      <button class="submit" type="submit">{{ mode === 'login' ? 'Se connecter' : "S'inscrire" }}</button>
     </form>
   </section>
 </div>
