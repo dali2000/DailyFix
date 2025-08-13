@@ -1,0 +1,47 @@
+<div class="auth-page">
+  <h1 class="brand">DailyFix</h1>
+  <p class="subtitle">Votre assistant personnel pour une vie organisée</p>
+
+  <section class="card" aria-label="Connexion">
+    <h2 class="title">Bienvenue</h2>
+    <p class="subtext">Connectez-vous pour accéder à votre tableau de bord</p>
+
+    <div class="tabs" role="tablist" aria-label="Mode d'authentification">
+      <button type="button" class="tab active" aria-selected="true">Connexion</button>
+      <button type="button" class="tab" aria-selected="false" disabled>Inscription</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <label for="email">Email</label>
+      <input
+        id="email"
+        type="email"
+        formControlName="email"
+        placeholder="votre@email.com"
+        autocomplete="email"
+        required
+        aria-describedby="emailHelp"
+      />
+      <div id="emailHelp" class="error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+        Entrez un email valide
+      </div>
+
+      <label for="password">Mot de passe</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        placeholder="••••••••"
+        autocomplete="current-password"
+        required
+        minlength="6"
+        aria-describedby="passwordHelp"
+      />
+      <div id="passwordHelp" class="error" *ngIf="form.get('password')?.touched && form.get('password')?.invalid">
+        Mot de passe requis (6+ caractères)
+      </div>
+
+      <button class="submit" type="submit">Se connecter</button>
+    </form>
+  </section>
+</div>
