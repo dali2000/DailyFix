@@ -138,3 +138,62 @@ input:focus {
 .submit:active {
   transform: translateY(1px);
 }
+
+.social-auth {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #64748b;
+  font-size: 0.9rem;
+}
+
+.divider::before,
+.divider::after {
+  content: "";
+  height: 1px;
+  flex: 1 1 0;
+  background: #e2e8f0;
+}
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.02s ease, box-shadow 0.2s ease;
+}
+
+.social svg {
+  width: 20px;
+  height: 20px;
+}
+
+.social:hover {
+  box-shadow: 0 2px 14px rgba(2, 6, 23, 0.08);
+}
+
+.social:active {
+  transform: translateY(1px);
+}
+
+.social.google {
+  border-color: #e5e7eb;
+}
+
+.social.facebook {
+  border-color: #dbeafe;
+}
