@@ -7,9 +7,9 @@
     <p class="subtext">Connectez-vous pour accéder à votre tableau de bord</p>
 
     <div class="tabs" role="tablist" aria-label="Mode d'authentification">
-      <button type="button" class="tab" [class.active]="!isSignup" aria-selected="{{ !isSignup }}"
+      <button type="button" class="tab" [class.active]="!isSignup" [attr.aria-selected]="!isSignup"
         (click)="switchMode('login')">Connexion</button>
-      <button type="button" class="tab" [class.active]="isSignup" aria-selected="{{ isSignup }}"
+      <button type="button" class="tab" [class.active]="isSignup" [attr.aria-selected]="isSignup"
         (click)="switchMode('signup')">Inscription</button>
     </div>
 
