@@ -1,1 +1,146 @@
-<p>home works!</p>
+<div class="home-page">
+  <h1>Bonjour Alex ! 👋</h1>
+  <p>Prêt à organiser votre journée ? Voici vos outils DailyFix.</p>
+
+
+  <div class="cards-container">
+    <!-- Task Card -->
+    <div class="stats-card blue">
+      <div class="card-header">
+        <span>Tâches du jour</span>
+        <i class="bi bi-check2-circle"></i>
+      </div>
+      <div class="card-value">2</div>
+    </div>
+
+    <!-- Health Score Card -->
+    <div class="stats-card green">
+      <div class="card-header">
+        <span>Santé Score</span>
+        <i class="bi bi-heart"></i>
+      </div>
+      <div class="card-value">0%</div>
+    </div>
+
+    <!-- Budget Card -->
+    <div class="stats-card purple">
+      <div class="card-header">
+        <span>Budget mensuel</span>
+        <i class="bi bi-currency-dollar"></i>
+      </div>
+      <div class="card-value">€0</div>
+    </div>
+
+    <!-- Events Card -->
+    <div class="stats-card orange">
+      <div class="card-header">
+        <span>Événements</span>
+        <i class="bi bi-calendar-event"></i>
+      </div>
+      <div class="card-value">3</div>
+    </div>
+  </div>
+  <br><br><br>
+  <div class="dashboard">
+    <!-- Gestion des tâches -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon blue1">✔</div>
+        <div>
+          <h3>Gestion des Tâches</h3>
+          <small>Organisez vos tâches quotidiennes</small>
+        </div>
+      </div>
+      <div>
+        <span>Tâches complétées aujourd'hui {{tasksCompleted}}/{{totalTasks}}</span>
+        <div class="progress">
+          <div class="progress-bar" [style.width.%]="(tasksCompleted / totalTasks) * 100"></div>
+        </div>
+        <button>Gérer les tâches</button>
+      </div>
+    </div>
+
+    <!-- Suivi Santé -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon green1">❤</div>
+        <div>
+          <h3>Suivi Santé</h3>
+          <small>Surveillez votre bien-être</small>
+        </div>
+      </div>
+      <p>Pas aujourd'hui: 0</p>
+      <p>Eau consommée: 0L</p>
+      <p>Sommeil: 0h</p>
+      <button>Mettre à jour</button>
+    </div>
+
+    <!-- Finances -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon purple1">💲</div>
+        <div>
+          <h3>Finances</h3>
+          <small>Gérez votre budget</small>
+        </div>
+      </div>
+      <p>Dépenses ce mois: €0</p>
+      <p class="green-text">Budget restant: €0</p>
+      <div class="progress">
+        <div class="progress-bar grey1"></div>
+      </div>
+      <button>Ajouter une dépense</button>
+    </div>
+
+    <!-- Organisation Domestique -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon yellow1">🏠</div>
+        <div>
+          <h3>Organisation Domestique</h3>
+          <small>Gérez votre foyer</small>
+        </div>
+      </div>
+      <ul>
+        <li *ngFor="let task of upcomingHouseTasks">
+          {{task.name}} {{task.date}}
+        </li>
+      </ul>
+      <button>Planifier tâche</button>
+    </div>
+
+    <!-- Événements Sociaux -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon orange1">📅</div>
+        <div>
+          <h3>Événements Sociaux</h3>
+          <small>Planifiez vos sorties</small>
+        </div>
+      </div>
+      <ul>
+        <li *ngFor="let event of upcomingEvents">
+          {{event.name}} {{event.date}}
+        </li>
+      </ul>
+      <button>Nouvel événement</button>
+    </div>
+
+    <!-- Développement Personnel -->
+    <div class="card">
+      <div class="card-header">
+        <div class="icon violet1">🎯</div>
+        <div>
+          <h3>Développement Personnel</h3>
+          <small>Atteignez vos objectifs</small>
+        </div>
+      </div>
+      <ul>
+        <li *ngFor="let goal of personalGoals">
+          {{goal.name}} <span [class.done]="goal.done">✔</span>
+        </li>
+      </ul>
+      <button>Nouvel objectif</button>
+    </div>
+  </div>
+</div>
