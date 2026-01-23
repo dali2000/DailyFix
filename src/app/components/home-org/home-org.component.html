@@ -1,0 +1,171 @@
+<div class="home-org-page">
+  <h1>Organisation Domestique</h1>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'shopping'" (click)="activeTab = 'shopping'">Listes de courses</button>
+    <button [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">Tâches ménagères</button>
+  </div>
+
+  <!-- Shopping Lists Tab -->
+  <div *ngIf="activeTab === 'shopping'" class="tab-content">
+    <div class="section-header">
+      <h2>Listes de courses</h2>
+      <button class="btn btn-primary" (click)="showShoppingForm = !showShoppingForm">
+        {{ showShoppingForm ? 'Annuler' : '+ Nouvelle liste' }}
+      </button>
+    </div>
+
+    <div *ngIf="showShoppingForm" class="form-card">
+      <h3>Créer une nouvelle liste</h3>
+      <form (ngSubmit)="createShoppingList()">
+        <div class="form-group">
+          <label>Nom de la liste *</label>
+          <input type="text" [(ngModel)]="newListName" name="listName" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </form>
+    </div>
+
+    <div class="shopping-lists-container">
+      <div class="lists-sidebar">
+        <h3>Mes listes</h3>
+        <div *ngFor="let list of shoppingLists" 
+             class="list-item" 
+             [class.active]="selectedList?.id === list.id"
+             (click)="selectList(list)">
+          <span>{{ list.name }}</span>
+          <span class="item-count">{{ list.items.length }} articles</span>
+        </div>
+        <div *ngIf="shoppingLists.length === 0" class="empty-state">
+          Aucune liste. Créez-en une !
+        </div>
+      </div>
+
+      <div *ngIf="selectedList" class="list-details">
+        <div class="list-header">
+          <h3>{{ selectedList.name }}</h3>
+          <button class="btn btn-danger btn-small" (click)="deleteShoppingList(selectedList.id)">Supprimer</button>
+        </div>
+
+        <div class="add-item-form">
+          <h4>Ajouter un article</h4>
+          <form (ngSubmit)="addItemToList()">
+            <div class="form-row">
+              <input type="text" [(ngModel)]="newItem.name" name="itemName" placeholder="Nom de l'article *" required>
+              <input type="text" [(ngModel)]="newItem.quantity" name="quantity" placeholder="Quantité">
+              <select [(ngModel)]="newItem.category" name="category">
+                <option value="">Catégorie</option>
+                <option value="fruits">Fruits & Légumes</option>
+                <option value="dairy">Produits laitiers</option>
+                <option value="meat">Viande & Poisson</option>
+                <option value="bakery">Boulangerie</option>
+                <option value="beverages">Boissons</option>
+                <option value="other">Autre</option>
+              </select>
+              <button type="submit" class="btn btn-primary">Ajouter</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="items-list">
+          <div *ngFor="let item of selectedList.items" class="item-card" [class.purchased]="item.purchased">
+            <input type="checkbox" [checked]="item.purchased" 
+                   (change)="toggleItemPurchase(selectedList.id, item.id)">
+            <span class="item-name">{{ item.name }}</span>
+            <span *ngIf="item.quantity" class="item-quantity">{{ item.quantity }}</span>
+            <span *ngIf="item.category" class="item-category">{{ item.category }}</span>
+          </div>
+          <div *ngIf="selectedList.items.length === 0" class="empty-state">
+            Aucun article. Ajoutez-en !
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedList && shoppingLists.length > 0" class="no-selection">
+        <p>Sélectionnez une liste pour voir ses articles</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Household Tasks Tab -->
+  <div *ngIf="activeTab === 'tasks'" class="tab-content">
+    <div class="section-header">
+      <h2>Tâches ménagères</h2>
+      <button class="btn btn-primary" (click)="showTaskForm = !showTaskForm">
+        {{ showTaskForm ? 'Annuler' : '+ Nouvelle tâche' }}
+      </button>
+    </div>
+
+    <div *ngIf="showTaskForm" class="form-card">
+      <h3>Nouvelle tâche ménagère</h3>
+      <form (ngSubmit)="addHouseholdTask()">
+        <div class="form-group">
+          <label>Nom de la tâche *</label>
+          <input type="text" [(ngModel)]="newTask.name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="newTask.description" name="description" rows="2"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Fréquence</label>
+            <select [(ngModel)]="newTask.frequency" name="frequency">
+              <option value="daily">Quotidienne</option>
+              <option value="weekly">Hebdomadaire</option>
+              <option value="monthly">Mensuelle</option>
+              <option value="one-time">Unique</option>
+            </select>
+          </div>
+          <div class="form-group" *ngIf="newTask.frequency === 'one-time'">
+            <label>Date d'échéance</label>
+            <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </form>
+    </div>
+
+    <div class="upcoming-tasks-section">
+      <h3>Prochaines tâches</h3>
+      <div class="tasks-list">
+        <div *ngFor="let task of getUpcomingTasks()" class="task-card">
+          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)">
+          <div class="task-info">
+            <h4>{{ task.name }}</h4>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <div class="task-meta">
+              <span class="frequency">{{ task.frequency }}</span>
+              <span *ngIf="task.nextDueDate" class="due-date">
+                Prochaine: {{ formatDate(task.nextDueDate) }}
+              </span>
+            </div>
+          </div>
+          <button class="btn btn-small btn-danger" (click)="deleteHouseholdTask(task.id)">Supprimer</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="all-tasks-section">
+      <h3>Toutes les tâches</h3>
+      <div class="tasks-list">
+        <div *ngFor="let task of householdTasks" class="task-card" [class.completed]="task.completed">
+          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)">
+          <div class="task-info">
+            <h4>{{ task.name }}</h4>
+            <p *ngIf="task.description">{{ task.description }}</p>
+            <div class="task-meta">
+              <span class="frequency">{{ task.frequency }}</span>
+              <span *ngIf="task.lastCompleted" class="last-completed">
+                Dernière: {{ formatDate(task.lastCompleted) }}
+              </span>
+            </div>
+          </div>
+          <button class="btn btn-small btn-danger" (click)="deleteHouseholdTask(task.id)">Supprimer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+

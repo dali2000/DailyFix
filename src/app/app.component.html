@@ -1,2 +1,5 @@
-<app-navbar></app-navbar>
-<router-outlet />
+<app-navbar *ngIf="showNavbar"></app-navbar>
+<app-sidebar *ngIf="showSidebar"></app-sidebar>
+<main class="main-content" [class.no-sidebar]="!showSidebar">
+  <router-outlet />
+</main>

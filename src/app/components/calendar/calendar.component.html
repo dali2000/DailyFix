@@ -1,0 +1,180 @@
+<div class="calendar-page">
+  <div class="calendar-header">
+    <h1>Calendrier</h1>
+    <div class="header-actions">
+      <button class="btn btn-primary" (click)="toggleEventForm()">
+        {{ showEventForm ? 'Annuler' : '+ Nouvel événement' }}
+      </button>
+      <div class="view-controls">
+        <button [class.active]="viewMode === 'month'" (click)="setViewMode('month')">Mois</button>
+        <button [class.active]="viewMode === 'week'" (click)="setViewMode('week')">Semaine</button>
+        <button [class.active]="viewMode === 'day'" (click)="setViewMode('day')">Jour</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Form -->
+  <div *ngIf="showEventForm" class="event-form">
+    <h3>{{ editingEvent ? 'Modifier l\'événement' : 'Créer un événement' }}</h3>
+    <form (ngSubmit)="saveEvent()">
+      <div class="form-group">
+        <label>Titre *</label>
+        <input type="text" [(ngModel)]="newEvent.title" name="title" required placeholder="Titre de l'événement">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newEvent.description" name="description" rows="3" placeholder="Description..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newEvent.type" name="type">
+            <option value="event">Événement</option>
+            <option value="reminder">Rappel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Couleur</label>
+          <select [(ngModel)]="newEvent.color" name="color">
+            <option *ngFor="let color of eventColors" [value]="color.value">
+              {{ color.label }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Date de début *</label>
+          <input type="date" [(ngModel)]="newEvent.startDate" name="startDate" required>
+        </div>
+        <div class="form-group">
+          <label>Date de fin</label>
+          <input type="date" [(ngModel)]="newEvent.endDate" name="endDate">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="toggleEventForm()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="calendar-navigation">
+    <button (click)="previousPeriod()">← Précédent</button>
+    <h2>{{ getMonthName() }}</h2>
+    <div>
+      <button (click)="goToToday()">Aujourd'hui</button>
+      <button (click)="nextPeriod()">Suivant →</button>
+    </div>
+  </div>
+
+  <div class="calendar-container">
+    <div *ngIf="viewMode === 'month'" class="month-view">
+      <div class="weekdays-header">
+        <div *ngFor="let day of ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']" class="weekday">
+          {{ day }}
+        </div>
+      </div>
+      <div class="days-grid">
+        <div 
+          *ngFor="let date of daysInMonth" 
+          class="day-cell"
+          [class.today]="isToday(date)"
+          [class.other-month]="!isCurrentMonth(date)"
+          [class.has-events]="hasEventsOnDate(date)"
+          [style.border-left-color]="getEventColorForDate(date)"
+          [style.background-color]="getEventBackgroundColor(date)"
+          (click)="selectDate(date)">
+          <div class="day-number">{{ getDayNumber(date) }}</div>
+          <div class="day-events">
+            <span *ngFor="let event of getEventsForDate(date).slice(0, 3)" 
+                  class="event-dot" 
+                  [style.background-color]="getEventColor(event)"></span>
+            <span *ngIf="getEventsForDate(date).length > 3" class="more-events">
+              +{{ getEventsForDate(date).length - 3 }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="viewMode === 'week'" class="week-view">
+      <div class="weekdays-header">
+        <div *ngFor="let day of weekDays" class="weekday">
+          <div>{{ getDayName(day) }}</div>
+          <div class="day-number">{{ getDayNumber(day) }}</div>
+        </div>
+      </div>
+      <div class="week-days-grid">
+        <div *ngFor="let day of weekDays" 
+             class="week-day-column"
+             [class.has-events]="hasEventsOnDate(day)"
+             [style.border-left-color]="getEventColorForDate(day)"
+             [style.background-color]="getEventBackgroundColor(day)">
+          <div class="day-events-list">
+            <div *ngFor="let event of getEventsForDate(day)" class="event-item" [style.border-left-color]="getEventColor(event)">
+              <div class="event-title">{{ event.title }}</div>
+              <div *ngIf="event.description" class="event-description">{{ event.description }}</div>
+              <div class="event-time">{{ getEventDate(event) | date:'short' }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="viewMode === 'day'" class="day-view">
+      <div class="selected-day-header">
+        <h3>{{ selectedDate ? (selectedDate | date:'fullDate') : (currentDate | date:'fullDate') }}</h3>
+      </div>
+      <div class="day-details">
+        <div class="events-section">
+          <h4>Événements et Rappels</h4>
+          <div *ngIf="getEventsForDate(selectedDate || currentDate).length === 0" class="empty">
+            Aucun événement ou rappel
+          </div>
+          <div *ngFor="let event of getEventsForDate(selectedDate || currentDate)" class="event-card" [style.border-left-color]="getEventColor(event)">
+            <div class="event-header">
+              <h5>{{ event.title }}</h5>
+              <div class="event-actions" *ngIf="isCalendarEvent(event)">
+                <button class="icon-btn" (click)="editEvent(event)" title="Modifier">✏️</button>
+                <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
+              </div>
+            </div>
+            <p *ngIf="event.description">{{ event.description }}</p>
+            <div class="event-meta">
+              <small>{{ getEventDate(event) | date:'short' }}</small>
+              <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
+                {{ event.type === 'reminder' ? '🔔 Rappel' : '📅 Événement' }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="selectedDate" class="selected-date-panel">
+    <h3>{{ selectedDate | date:'fullDate' }}</h3>
+    <div class="selected-events">
+      <h4>Événements et Rappels ({{ eventsForSelectedDate.length }})</h4>
+      <div *ngIf="eventsForSelectedDate.length === 0" class="empty">
+        Aucun événement ou rappel pour cette date
+      </div>
+      <div *ngFor="let event of eventsForSelectedDate" class="event-item" [style.border-left-color]="getEventColor(event)">
+        <div class="event-title">{{ event.title }}</div>
+        <div *ngIf="event.description" class="event-description">{{ event.description }}</div>
+        <div class="event-meta">
+          <small>{{ getEventDate(event) | date:'short' }}</small>
+          <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
+            {{ event.type === 'reminder' ? '🔔 Rappel' : '📅 Événement' }}
+          </span>
+        </div>
+        <div class="event-actions" *ngIf="isCalendarEvent(event)">
+          <button class="icon-btn" (click)="editEvent(event)" title="Modifier">✏️</button>
+          <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

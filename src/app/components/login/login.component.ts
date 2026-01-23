@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -18,7 +19,10 @@ export class LoginComponent {
   form: FormGroup;
   authMode: 'login' | 'signup' = 'login';
 
-  constructor(private formBuilder: FormBuilder) {
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router
+  ) {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
@@ -55,9 +59,13 @@ export class LoginComponent {
     if (this.authMode === 'login') {
       // eslint-disable-next-line no-console
       console.log('Login data', this.form.value);
+      // Navigate to home after successful login
+      this.router.navigate(['/home']);
     } else {
       // eslint-disable-next-line no-console
       console.log('Signup data', this.form.value);
+      // Navigate to home after successful signup
+      this.router.navigate(['/home']);
     }
   }
 

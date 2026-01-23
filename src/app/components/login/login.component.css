@@ -3,163 +3,167 @@
 }
 
 .auth-page {
-  /* min-height: 100dvh; */
+  min-height: 100vh;
   width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1rem;
-  background:
-    radial-gradient(1000px 1000px at -10% -10%, #eef4ff 0%, rgba(238, 244, 255, 0) 60%),
-    radial-gradient(1000px 1000px at 110% 110%, #ecfff5 0%, rgba(236, 255, 245, 0) 60%);
-  background-color: #f8fbff;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  padding: var(--notion-spacing-2xl) var(--notion-spacing-lg);
+  background: var(--notion-bg-secondary);
+  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 .brand {
-  font-size: clamp(2rem, 4vw, 3rem);
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 0.25rem 0;
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--notion-text-primary);
+  margin: 0 0 8px 0;
   text-align: center;
+  letter-spacing: -0.03em;
 }
 
 .subtitle {
-  color: #475569;
-  margin: 0 0 2rem 0;
+  color: var(--notion-text-secondary);
+  margin: 0 0 var(--notion-spacing-2xl) 0;
   text-align: center;
+  font-size: 14px;
 }
 
 .card {
   width: 100%;
-  max-width: 560px;
-  background: #ffffff;
-  border-radius: 18px;
-  box-shadow:
-    0 2px 8px rgba(2, 6, 23, 0.04),
-    0 12px 32px rgba(2, 6, 23, 0.12);
-  padding: 2rem;
+  max-width: 400px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  box-shadow: var(--notion-shadow);
+  padding: var(--notion-spacing-xl);
 }
 
 .title {
   text-align: center;
-  font-size: 1.75rem;
-  margin: 0 0 0.25rem;
-  color: #0f172a;
-  font-weight: 700;
+  font-size: 24px;
+  margin: 0 0 4px;
+  color: var(--notion-text-primary);
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .subtext {
   text-align: center;
-  color: #64748b;
-  margin: 0 0 1rem;
+  color: var(--notion-text-tertiary);
+  margin: 0 0 var(--notion-spacing-lg);
+  font-size: 14px;
 }
 
 .tabs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: #f1f5f9;
-  padding: 0.35rem;
-  border-radius: 12px;
-  margin: 0 auto 1.25rem;
+  gap: 0;
+  background: var(--notion-bg-tertiary);
+  padding: 2px;
+  border-radius: var(--notion-radius);
+  margin: 0 auto var(--notion-spacing-lg);
   width: 100%;
-  max-width: 430px;
+  max-width: 300px;
+  border: 1px solid var(--notion-border);
 }
 
 .tab {
   flex: 1 1 0;
-  border: 1px solid transparent;
+  border: none;
   background: transparent;
-  color: #334155;
-  font-weight: 600;
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
+  color: var(--notion-text-secondary);
+  font-weight: 400;
+  padding: 6px 12px;
+  border-radius: var(--notion-radius-sm);
+  cursor: pointer;
+  transition: all 20ms ease-in 0s;
+  font-size: 14px;
 }
 
 .tab:hover {
-
-  border: 1px solid #3b82f6;
-
+  background: rgba(0, 0, 0, 0.03);
 }
 
 .tab.active {
-  background: #ffffff;
-  color: #0f172a;
-  box-shadow: 0 0 0 1px #e2e8f0 inset;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+  font-weight: 500;
+  box-shadow: var(--notion-shadow-sm);
 }
 
 form {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--notion-spacing-lg);
 }
 
 label {
-  font-size: 0.9rem;
-  color: #0f172a;
-  font-weight: 600;
+  font-size: 12px;
+  color: var(--notion-text-secondary);
+  font-weight: 500;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 input {
-  width: auto;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  font-size: 1rem;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--notion-radius);
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg);
+  font-size: 14px;
   outline: none;
-  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  transition: border-color 20ms ease-in 0s;
+  font-family: inherit;
 }
 
 input:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
 }
 
 .error {
-  color: #dc2626;
-  font-size: 0.8rem;
-  margin-top: -0.25rem;
+  color: var(--notion-red);
+  font-size: 12px;
+  margin-top: -12px;
+  font-weight: 400;
 }
 
 .submit {
-  margin-top: 0.5rem;
+  margin-top: 0;
   width: 100%;
-  padding: 0.9rem 1rem;
-  border-radius: 12px;
-  border: 0;
-  background: #1767ff;
-  color: #ffffff;
-  font-weight: 700;
+  padding: 8px 12px;
+  border-radius: var(--notion-radius);
+  border: none;
+  background: var(--notion-text-primary);
+  color: white;
+  font-weight: 500;
+  font-size: 14px;
   cursor: pointer;
-  transition: background 0.2s ease, transform 0.02s ease;
+  transition: background 20ms ease-in 0s;
 }
 
 .submit:hover {
-  background: #0f5af9;
+  background: #2e2e2c;
 }
-
-.submit:active {
-  transform: translateY(1px);
-}
-
-
 
 .social-auth {
-  margin-top: 1rem;
+  margin-top: var(--notion-spacing-lg);
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
+  gap: var(--notion-spacing);
 }
 
 .divider {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  color: #64748b;
-  font-size: 0.9rem;
+  gap: var(--notion-spacing);
+  color: var(--notion-text-tertiary);
+  font-size: 12px;
+  margin: var(--notion-spacing-lg) 0;
 }
 
 .divider::before,
@@ -167,41 +171,40 @@ input:focus {
   content: "";
   height: 1px;
   flex: 1 1 0;
-  background: #e2e8f0;
+  background: var(--notion-border);
 }
 
 .social {
   display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
+  justify-content: center;
+  gap: var(--notion-spacing);
   width: 100%;
-  padding: 0.75rem 1rem;
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #0f172a;
-  font-weight: 600;
+  padding: 8px 12px;
+  border-radius: var(--notion-radius);
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+  font-weight: 400;
   cursor: pointer;
-  transition: transform 0.02s ease, box-shadow 0.2s ease;
+  transition: background 20ms ease-in 0s;
+  font-size: 14px;
+  font-family: inherit;
 }
 
 .social svg {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
 }
 
 .social:hover {
-  box-shadow: 0 2px 14px rgba(2, 6, 23, 0.08);
-}
-
-.social:active {
-  transform: translateY(1px);
+  background: var(--notion-bg-hover);
 }
 
 .social.google {
-  border-color: #e5e7eb;
+  border-color: var(--notion-border);
 }
 
 .social.facebook {
-  border-color: #dbeafe;
+  border-color: var(--notion-border);
 }

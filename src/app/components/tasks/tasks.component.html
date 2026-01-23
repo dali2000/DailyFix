@@ -1,0 +1,211 @@
+<div class="tasks-page">
+  <div class="header">
+    <h1>Gestion des Tâches</h1>
+    <div class="actions">
+      <button class="btn btn-secondary" (click)="viewMode = viewMode === 'kanban' ? 'list' : 'kanban'">
+        {{ viewMode === 'kanban' ? '📋 Liste' : '📊 Kanban' }}
+      </button>
+      <button class="btn btn-primary" (click)="toggleAddForm()">
+        {{ showAddForm ? 'Annuler' : '+ Créer une tâche' }}
+      </button>
+      <button class="btn btn-secondary" (click)="navigateToCalendar()">📅 Calendrier</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters-bar">
+    <div class="search-box">
+      <input 
+        type="text" 
+        [(ngModel)]="searchQuery" 
+        (input)="applyFilters()"
+        placeholder="Rechercher des tâches...">
+    </div>
+    <div class="filter-controls">
+      <select [(ngModel)]="filter" (change)="applyFilters()">
+        <option value="all">Tous les statuts</option>
+        <option value="todo">À faire</option>
+        <option value="in-progress">En cours</option>
+        <option value="in-review">En révision</option>
+        <option value="done">Terminé</option>
+      </select>
+      <select [(ngModel)]="priorityFilter" (change)="applyFilters()">
+        <option value="all">Toutes les priorités</option>
+        <option value="highest">Très haute</option>
+        <option value="high">Haute</option>
+        <option value="medium">Moyenne</option>
+        <option value="low">Basse</option>
+        <option value="lowest">Très basse</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Add/Edit Form -->
+  <div class="add-form" *ngIf="showAddForm">
+    <h3>{{ editingTask ? 'Modifier la tâche' : 'Créer une nouvelle tâche' }}</h3>
+    <form (ngSubmit)="saveTask()">
+      <div class="form-group">
+        <label>Titre *</label>
+        <input type="text" [(ngModel)]="newTask.title" name="title" required placeholder="Résumé de la tâche">
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newTask.description" name="description" rows="4" placeholder="Décrivez la tâche..."></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Statut</label>
+          <select [(ngModel)]="newTask.status" name="status">
+            <option value="todo">À faire</option>
+            <option value="in-progress">En cours</option>
+            <option value="in-review">En révision</option>
+            <option value="done">Terminé</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Priorité</label>
+          <select [(ngModel)]="newTask.priority" name="priority">
+            <option *ngFor="let p of priorityOptions" [value]="p.value">
+              {{ p.icon }} {{ p.label }}
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigné à</label>
+          <input type="text" [(ngModel)]="newTask.assignee" name="assignee" placeholder="Nom">
+        </div>
+        <div class="form-group">
+          <label>Story Points</label>
+          <input type="number" [(ngModel)]="newTask.storyPoints" name="storyPoints" min="0" max="100">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Labels (séparés par des virgules)</label>
+          <input type="text" [(ngModel)]="newTask.labels" name="labels" placeholder="bug, feature, urgent">
+        </div>
+        <div class="form-group">
+          <label>Date d'échéance</label>
+          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="toggleAddForm()">Annuler</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Kanban View -->
+  <div *ngIf="viewMode === 'kanban'" class="kanban-board">
+    <div 
+      *ngFor="let column of statusColumns" 
+      class="kanban-column"
+      (dragover)="onDragOver($event)"
+      (drop)="onDrop($event, column.id)">
+      <div class="column-header" [style.border-left-color]="column.color">
+        <h3>{{ column.label }}</h3>
+        <span class="task-count">{{ getTasksForStatus(column.id).length }}</span>
+      </div>
+      <div class="column-content">
+        <div 
+          *ngFor="let task of getTasksForStatus(column.id)" 
+          class="task-card"
+          [attr.draggable]="true"
+          (dragstart)="onDragStart(task)"
+          (dragend)="onDragEnd()"
+          [class.dragging]="draggedTask?.id === task.id">
+          <div class="task-card-header">
+            <div class="task-id">{{ task.id.substring(0, 8) }}</div>
+            <div class="task-actions">
+              <button class="icon-btn" (click)="editTask(task)" title="Modifier">✏️</button>
+              <button class="icon-btn" (click)="deleteTask(task)" title="Supprimer">🗑️</button>
+            </div>
+          </div>
+          <h4 class="task-title">{{ task.title }}</h4>
+          <p *ngIf="task.description" class="task-description">{{ task.description }}</p>
+          <div class="task-meta">
+            <span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">
+              {{ getPriorityLabel(task.priority) }}
+            </span>
+            <span *ngIf="task.storyPoints" class="story-points">⚡ {{ task.storyPoints }}</span>
+          </div>
+          <div class="task-footer">
+            <div class="task-labels" *ngIf="task.labels && task.labels.length > 0">
+              <span *ngFor="let label of task.labels" class="label">{{ label }}</span>
+            </div>
+            <div class="task-assignee" *ngIf="task.assignee">
+              <span class="assignee-avatar">{{ task.assignee.charAt(0).toUpperCase() }}</span>
+              <span class="assignee-name">{{ task.assignee }}</span>
+            </div>
+            <div *ngIf="task.dueDate" class="due-date">
+              📅 {{ task.dueDate | date:'shortDate' }}
+            </div>
+          </div>
+        </div>
+        <div *ngIf="getTasksForStatus(column.id).length === 0" class="empty-column">
+          Aucune tâche
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- List View -->
+  <div *ngIf="viewMode === 'list'" class="list-view">
+    <table class="tasks-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Titre</th>
+          <th>Statut</th>
+          <th>Priorité</th>
+          <th>Assigné</th>
+          <th>Labels</th>
+          <th>Date d'échéance</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let task of filteredTasks" class="table-row">
+          <td class="task-id-cell">{{ task.id.substring(0, 8) }}</td>
+          <td class="task-title-cell">
+            <strong>{{ task.title }}</strong>
+            <small *ngIf="task.description">{{ task.description }}</small>
+          </td>
+          <td>
+            <span class="status-badge" [style.background-color]="getStatusColor(task.status)">
+              {{ getStatusLabel(task.status) }}
+            </span>
+          </td>
+          <td>
+            <span class="priority-badge" [ngClass]="getPriorityClass(task.priority)">
+              {{ getPriorityLabel(task.priority) }}
+            </span>
+          </td>
+          <td>
+            <span *ngIf="task.assignee" class="assignee">
+              <span class="assignee-avatar">{{ task.assignee.charAt(0).toUpperCase() }}</span>
+              {{ task.assignee }}
+            </span>
+            <span *ngIf="!task.assignee" class="no-assignee">—</span>
+          </td>
+          <td>
+            <span *ngFor="let label of task.labels" class="label">{{ label }}</span>
+            <span *ngIf="!task.labels || task.labels.length === 0">—</span>
+          </td>
+          <td>
+            <span *ngIf="task.dueDate">{{ task.dueDate | date:'shortDate' }}</span>
+            <span *ngIf="!task.dueDate">—</span>
+          </td>
+          <td class="actions-cell">
+            <button class="icon-btn" (click)="editTask(task)" title="Modifier">✏️</button>
+            <button class="icon-btn" (click)="deleteTask(task)" title="Supprimer">🗑️</button>
+          </td>
+        </tr>
+        <tr *ngIf="filteredTasks.length === 0">
+          <td colspan="8" class="empty-state">Aucune tâche trouvée</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

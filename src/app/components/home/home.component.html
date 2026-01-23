@@ -10,7 +10,7 @@
         <span>Tâches du jour</span>
         <i class="bi bi-check2-circle"></i>
       </div>
-      <div class="card-value">2</div>
+      <div class="card-value">{{ tasksCompleted }}</div>
     </div>
 
     <!-- Health Score Card -->
@@ -19,16 +19,16 @@
         <span>Santé Score</span>
         <i class="bi bi-heart"></i>
       </div>
-      <div class="card-value">0%</div>
+      <div class="card-value">{{ healthScore }}%</div>
     </div>
 
     <!-- Budget Card -->
     <div class="stats-card purple">
       <div class="card-header">
-        <span>Budget mensuel</span>
+        <span>Reste disponible</span>
         <i class="bi bi-currency-dollar"></i>
       </div>
-      <div class="card-value">€0</div>
+      <div class="card-value" [class.negative]="remainingBalance < 0">€{{ remainingBalance | number:'1.0-0' }}</div>
     </div>
 
     <!-- Events Card -->
@@ -37,9 +37,10 @@
         <span>Événements</span>
         <i class="bi bi-calendar-event"></i>
       </div>
-      <div class="card-value">3</div>
+      <div class="card-value">{{ upcomingEventsCount }}</div>
     </div>
   </div>
+
   <br><br><br>
   <div class="dashboard">
     <!-- Gestion des tâches -->
@@ -56,7 +57,7 @@
         <div class="progress">
           <div class="progress-bar" [style.width.%]="(tasksCompleted / totalTasks) * 100"></div>
         </div>
-        <button>Gérer les tâches</button>
+        <button (click)="navigateTo('/tasks')">Gérer les tâches</button>
       </div>
     </div>
 
@@ -72,7 +73,7 @@
       <p>Pas aujourd'hui: 0</p>
       <p>Eau consommée: 0L</p>
       <p>Sommeil: 0h</p>
-      <button>Mettre à jour</button>
+      <button (click)="navigateTo('/health')">Mettre à jour</button>
     </div>
 
     <!-- Finances -->
@@ -84,12 +85,14 @@
           <small>Gérez votre budget</small>
         </div>
       </div>
-      <p>Dépenses ce mois: €0</p>
-      <p class="green-text">Budget restant: €0</p>
+      <p>Dépenses ce mois: €{{ monthlyExpenses | number:'1.0-0' }}</p>
+      <p [class.green-text]="remainingBalance >= 0" [class.red-text]="remainingBalance < 0">
+        Reste disponible: €{{ remainingBalance | number:'1.0-0' }}
+      </p>
       <div class="progress">
         <div class="progress-bar grey1"></div>
       </div>
-      <button>Ajouter une dépense</button>
+      <button (click)="navigateTo('/finance')">Ajouter une dépense</button>
     </div>
 
     <!-- Organisation Domestique -->
@@ -106,7 +109,7 @@
           {{task.name}} {{task.date}}
         </li>
       </ul>
-      <button>Planifier tâche</button>
+      <button (click)="navigateTo('/home-org')">Planifier tâche</button>
     </div>
 
     <!-- Événements Sociaux -->
@@ -123,7 +126,7 @@
           {{event.name}} {{event.date}}
         </li>
       </ul>
-      <button>Nouvel événement</button>
+      <button (click)="navigateTo('/social')">Nouvel événement</button>
     </div>
 
     <!-- Développement Personnel -->
@@ -140,7 +143,135 @@
           {{goal.name}} <span [class.done]="goal.done">✔</span>
         </li>
       </ul>
-      <button>Nouvel objectif</button>
+      <button (click)="navigateTo('/wellness')">Nouvel objectif</button>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section">
+    <!-- Tasks Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>📊 Avancement des Tâches</h3>
+      </div>
+      <div class="chart-content">
+        <div class="task-status-chart">
+          <div *ngFor="let item of taskStatusData" class="status-bar-item">
+            <div class="status-label">
+              <span>{{ item.status }}</span>
+              <span class="status-count">{{ item.count }}</span>
+            </div>
+            <div class="status-bar">
+              <div class="status-bar-fill" [style.width.%]="item.percentage" [class]="'status-' + item.status.toLowerCase().replace(' ', '-')"></div>
+            </div>
+            <span class="status-percentage">{{ item.percentage | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+        <div class="task-progress-circle">
+          <div class="progress-circle" [style.--progress]="taskProgressPercentage + '%'">
+            <svg viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" class="progress-bg"></circle>
+              <circle cx="50" cy="50" r="45" class="progress-fill" [style.stroke-dashoffset]="283 - (283 * taskProgressPercentage / 100)"></circle>
+            </svg>
+            <div class="progress-text">
+              <span class="progress-value">{{ taskProgressPercentage | number:'1.0-0' }}%</span>
+              <span class="progress-label">Complété</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Finance Chart -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>💰 Dépenses par Catégorie</h3>
+      </div>
+      <div class="chart-content">
+        <div class="expense-category-chart">
+          <div *ngFor="let item of expenseCategoryData" class="category-bar-item">
+            <div class="category-label">
+              <span>{{ item.category }}</span>
+              <span class="category-amount">€{{ item.amount | number:'1.0-0' }}</span>
+            </div>
+            <div class="category-bar">
+              <div class="category-bar-fill" [style.width.%]="item.percentage"></div>
+            </div>
+            <span class="category-percentage">{{ item.percentage | number:'1.0-0' }}%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Expense History -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h3>📈 Évolution des Dépenses (6 mois)</h3>
+      </div>
+      <div class="chart-content">
+        <div class="expense-history-chart">
+          <div class="history-bars">
+            <div *ngFor="let item of monthlyExpenseHistory" class="history-bar-item">
+              <div class="history-bar" [style.height.%]="getMaxExpense() > 0 ? (item.amount / getMaxExpense()) * 100 : 0">
+                <span class="history-amount">€{{ item.amount | number:'1.0-0' }}</span>
+              </div>
+              <span class="history-month">{{ item.month }}</span>
+            </div>
+          </div>
+          <div *ngIf="monthlyExpenseHistory.length === 0" class="no-data">
+            <p>Aucune donnée disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- App Statistics -->
+  <div class="stats-section">
+    <h2>📈 Statistiques de l'Application</h2>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">💸</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Dépenses</div>
+          <div class="stat-value">€{{ totalExpenses | number:'1.0-0' }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-info">
+          <div class="stat-label">Objectifs d'Épargne</div>
+          <div class="stat-value">{{ totalSavingsGoals }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-label">Objectifs Actifs</div>
+          <div class="stat-value">{{ activeSavingsGoals }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-info">
+          <div class="stat-label">Enregistrements Santé</div>
+          <div class="stat-value">{{ totalHealthRecords }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <div class="stat-label">Événements Sociaux</div>
+          <div class="stat-value">{{ totalSocialEvents }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">✓</div>
+        <div class="stat-info">
+          <div class="stat-label">Total Tâches</div>
+          <div class="stat-value">{{ totalTasks }}</div>
+        </div>
+      </div>
     </div>
   </div>
 </div>

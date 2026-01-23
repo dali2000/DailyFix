@@ -1,0 +1,167 @@
+<div class="social-page">
+  <h1>Événements Sociaux et Activités</h1>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'events'" (click)="activeTab = 'events'">Événements</button>
+    <button [class.active]="activeTab === 'suggestions'" (click)="activeTab = 'suggestions'">Suggestions d'activités</button>
+  </div>
+
+  <!-- Events Tab -->
+  <div *ngIf="activeTab === 'events'" class="tab-content">
+    <div class="section-header">
+      <h2>Événements sociaux</h2>
+      <button class="btn btn-primary" (click)="showEventForm ? cancelEventForm() : (showEventForm = true)">
+        {{ showEventForm ? 'Annuler' : '+ Nouvel événement' }}
+      </button>
+    </div>
+
+    <div *ngIf="showEventForm" class="form-card">
+      <h3>{{ editingEvent ? 'Modifier l\'événement' : 'Nouvel événement' }}</h3>
+      <form (ngSubmit)="addEvent()">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" [(ngModel)]="newEvent.title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea [(ngModel)]="newEvent.description" name="description" rows="2"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date *</label>
+            <input type="datetime-local" [(ngModel)]="newEvent.dateString" name="date" required>
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newEvent.type" name="type">
+              <option *ngFor="let type of eventTypes" [value]="type">{{ getEventTypeName(type) }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Lieu</label>
+            <input type="text" [(ngModel)]="newEvent.location" name="location">
+          </div>
+          <div class="form-group">
+            <label>Rappel</label>
+            <input type="datetime-local" [(ngModel)]="newEvent.reminderString" name="reminder">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Participants (séparés par des virgules)</label>
+          <input type="text" [(ngModel)]="newEvent.attendeesString" name="attendees" 
+                 placeholder="Marie, Paul, Sophie">
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">{{ editingEvent ? 'Modifier' : 'Créer' }}</button>
+          <button type="button" class="btn btn-secondary" (click)="cancelEventForm()">Annuler</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="birthdays-section">
+      <h3>🎂 Anniversaires</h3>
+      <div class="events-list">
+        <div *ngFor="let birthday of getBirthdays()" class="event-card birthday">
+          <h4>{{ birthday.title }}</h4>
+          <p>{{ birthday.date | date:'fullDate' }}</p>
+          <div class="event-actions">
+            <button class="btn btn-small" (click)="editEvent(birthday)">✏️ Modifier</button>
+            <button class="btn btn-small btn-danger" (click)="deleteEvent(birthday.id)">🗑️ Supprimer</button>
+          </div>
+        </div>
+        <div *ngIf="getBirthdays().length === 0" class="empty-state">
+          Aucun anniversaire enregistré
+        </div>
+      </div>
+    </div>
+
+    <div class="upcoming-events-section">
+      <h3>Prochains événements</h3>
+      <div class="events-list">
+        <div *ngFor="let event of getUpcomingEvents()" class="event-card">
+          <div class="event-header">
+            <h4>{{ event.title }}</h4>
+            <span class="event-type">{{ getEventTypeName(event.type) }}</span>
+          </div>
+          <p *ngIf="event.description">{{ event.description }}</p>
+          <div class="event-meta">
+            <span>📅 {{ event.date | date:'full' }}</span>
+            <span *ngIf="event.location">📍 {{ event.location }}</span>
+            <span *ngIf="event.attendees && event.attendees.length > 0">
+              👥 {{ event.attendees.join(', ') }}
+            </span>
+          </div>
+          <div class="event-actions">
+            <button class="btn btn-small" (click)="editEvent(event)">✏️ Modifier</button>
+            <button class="btn btn-small btn-danger" (click)="deleteEvent(event.id)">🗑️ Supprimer</button>
+          </div>
+        </div>
+        <div *ngIf="getUpcomingEvents().length === 0" class="empty-state">
+          Aucun événement à venir
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suggestions Tab -->
+  <div *ngIf="activeTab === 'suggestions'" class="tab-content">
+    <div class="section-header">
+      <h2>Suggestions d'activités</h2>
+      <button class="btn btn-primary" (click)="showSuggestionForm = !showSuggestionForm">
+        {{ showSuggestionForm ? 'Annuler' : '+ Ajouter une suggestion' }}
+      </button>
+    </div>
+
+    <div *ngIf="showSuggestionForm" class="form-card">
+      <h3>Nouvelle suggestion</h3>
+      <form (ngSubmit)="addCustomSuggestion()">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" [(ngModel)]="newSuggestion.title" name="title" required>
+        </div>
+        <div class="form-group">
+          <label>Description *</label>
+          <textarea [(ngModel)]="newSuggestion.description" name="description" rows="3" required></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Catégorie</label>
+            <select [(ngModel)]="newSuggestion.category" name="category">
+              <option *ngFor="let cat of suggestionCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Coût estimé (€)</label>
+            <input type="number" [(ngModel)]="newSuggestion.estimatedCost" name="cost">
+          </div>
+          <div class="form-group">
+            <label>Durée (minutes)</label>
+            <input type="number" [(ngModel)]="newSuggestion.estimatedDuration" name="duration">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </form>
+    </div>
+
+    <div *ngFor="let category of suggestionCategories" class="category-section">
+      <h3>{{ getCategoryName(category) }}</h3>
+      <div class="suggestions-grid">
+        <div *ngFor="let suggestion of getSuggestionsByCategory(category)" class="suggestion-card">
+          <h4>{{ suggestion.title }}</h4>
+          <p>{{ suggestion.description }}</p>
+          <div class="suggestion-meta">
+            <span *ngIf="suggestion.estimatedCost !== undefined">
+              💰 {{ suggestion.estimatedCost }} €
+            </span>
+            <span *ngIf="suggestion.estimatedDuration">
+              ⏱️ {{ suggestion.estimatedDuration }} min
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

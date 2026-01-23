@@ -1,0 +1,248 @@
+<div class="health-page">
+  <h1>Suivi de la Santé et du Bien-être</h1>
+
+  <div class="tabs">
+    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Vue d'ensemble</button>
+    <button [class.active]="activeTab === 'meals'" (click)="activeTab = 'meals'">Alimentation</button>
+    <button [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">Activité physique</button>
+    <button [class.active]="activeTab === 'sleep'" (click)="activeTab = 'sleep'">Sommeil</button>
+    <button [class.active]="activeTab === 'meditation'" (click)="activeTab = 'meditation'">Méditation</button>
+  </div>
+
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <div class="health-score-card">
+      <h2>Score de Santé</h2>
+      <div class="score-circle">
+        <span class="score-value">{{ getHealthScore() }}%</span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <h3>Calories aujourd'hui</h3>
+        <p class="stat-value">{{ todayCalories }} kcal</p>
+        <small>Objectif: 2000 kcal</small>
+      </div>
+      <div class="stat-card">
+        <h3>Activité physique</h3>
+        <p class="stat-value">{{ todayActivityMinutes }} min</p>
+        <small>Objectif: 30 min/jour</small>
+      </div>
+      <div class="stat-card">
+        <h3>Eau consommée</h3>
+        <p class="stat-value">{{ todayWaterIntake }}L</p>
+        <small>Objectif: 2L/jour</small>
+      </div>
+      <div class="stat-card">
+        <h3>Sommeil (dernière nuit)</h3>
+        <p class="stat-value">{{ lastSleepHours }}h</p>
+        <small>Recommandé: 7-9h</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meals Tab -->
+  <div *ngIf="activeTab === 'meals'" class="tab-content">
+    <div class="section-header">
+      <h2>Suivi Alimentaire</h2>
+      <button class="btn btn-primary" (click)="showMealForm = !showMealForm">
+        {{ showMealForm ? 'Annuler' : '+ Ajouter un repas' }}
+      </button>
+    </div>
+
+    <div *ngIf="showMealForm" class="form-card">
+      <h3>Nouveau repas</h3>
+      <form (ngSubmit)="addMeal()">
+        <div class="form-group">
+          <label>Nom du repas *</label>
+          <input type="text" [(ngModel)]="newMeal.name" name="name" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newMeal.type" name="type">
+              <option value="breakfast">Petit-déjeuner</option>
+              <option value="lunch">Déjeuner</option>
+              <option value="dinner">Dîner</option>
+              <option value="snack">Collation</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Calories</label>
+            <input type="number" [(ngModel)]="newMeal.calories" name="calories">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea [(ngModel)]="newMeal.notes" name="notes" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </form>
+    </div>
+
+    <div class="meals-list">
+      <div *ngFor="let meal of meals.slice().reverse()" class="meal-card">
+        <div class="meal-header">
+          <h4>{{ meal.name }}</h4>
+          <span class="meal-type">{{ meal.type }}</span>
+        </div>
+        <p *ngIf="meal.calories" class="calories">{{ meal.calories }} kcal</p>
+        <p *ngIf="meal.notes" class="notes">{{ meal.notes }}</p>
+        <small>{{ meal.date | date:'short' }}</small>
+        <button class="btn btn-small btn-danger" (click)="deleteMeal(meal.id)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity Tab -->
+  <div *ngIf="activeTab === 'activity'" class="tab-content">
+    <div class="section-header">
+      <h2>Activité Physique</h2>
+      <button class="btn btn-primary" (click)="showActivityForm = !showActivityForm">
+        {{ showActivityForm ? 'Annuler' : '+ Ajouter une activité' }}
+      </button>
+    </div>
+
+    <div *ngIf="showActivityForm" class="form-card">
+      <h3>Nouvelle activité</h3>
+      <form (ngSubmit)="addActivity()">
+        <div class="form-group">
+          <label>Type d'activité *</label>
+          <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Durée (minutes) *</label>
+            <input type="number" [(ngModel)]="newActivity.duration" name="duration" required>
+          </div>
+          <div class="form-group">
+            <label>Calories brûlées</label>
+            <input type="number" [(ngModel)]="newActivity.calories" name="calories">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea [(ngModel)]="newActivity.notes" name="notes" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </form>
+    </div>
+
+    <div class="activities-list">
+      <div *ngFor="let activity of activities.slice().reverse()" class="activity-card">
+        <h4>{{ activity.type }}</h4>
+        <p class="duration">{{ activity.duration }} minutes</p>
+        <p *ngIf="activity.calories" class="calories">{{ activity.calories }} kcal brûlées</p>
+        <p *ngIf="activity.notes" class="notes">{{ activity.notes }}</p>
+        <small>{{ activity.date | date:'short' }}</small>
+        <button class="btn btn-small btn-danger" (click)="deleteActivity(activity.id)">Supprimer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sleep Tab -->
+  <div *ngIf="activeTab === 'sleep'" class="tab-content">
+    <div class="section-header">
+      <h2>Suivi du Sommeil</h2>
+      <button class="btn btn-primary" (click)="showSleepForm = !showSleepForm">
+        {{ showSleepForm ? 'Annuler' : '+ Enregistrer le sommeil' }}
+      </button>
+    </div>
+
+    <div *ngIf="showSleepForm" class="form-card">
+      <h3>Enregistrer le sommeil</h3>
+      <form (ngSubmit)="addSleepRecord()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Heure de coucher *</label>
+            <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" required>
+          </div>
+          <div class="form-group">
+            <label>Heure de réveil *</label>
+            <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Qualité du sommeil</label>
+          <select [(ngModel)]="newSleep.quality" name="quality">
+            <option value="poor">Mauvaise</option>
+            <option value="fair">Moyenne</option>
+            <option value="good">Bonne</option>
+            <option value="excellent">Excellente</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </form>
+    </div>
+
+    <div class="sleep-records">
+      <div *ngFor="let record of sleepRecords.slice().reverse()" class="sleep-card">
+        <h4>{{ record.hours }} heures de sommeil</h4>
+        <p>Coucher: {{ record.sleepTime | date:'short' }}</p>
+        <p>Réveil: {{ record.wakeTime | date:'short' }}</p>
+        <p>Qualité: {{ record.quality }}</p>
+        <small>{{ record.date | date:'short' }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meditation Tab -->
+  <div *ngIf="activeTab === 'meditation'" class="tab-content">
+    <div class="section-header">
+      <h2>Méditation et Relaxation</h2>
+      <button class="btn btn-primary" (click)="showMeditationForm = !showMeditationForm">
+        {{ showMeditationForm ? 'Annuler' : '+ Nouvelle session' }}
+      </button>
+    </div>
+
+    <div *ngIf="showMeditationForm" class="form-card">
+      <h3>Nouvelle session de méditation</h3>
+      <form (ngSubmit)="addMeditationSession()">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Durée (minutes)</label>
+            <input type="number" [(ngModel)]="newMeditation.duration" name="duration" value="10">
+          </div>
+          <div class="form-group">
+            <label>Type</label>
+            <select [(ngModel)]="newMeditation.type" name="type">
+              <option value="guided">Guidée</option>
+              <option value="breathing">Respiration</option>
+              <option value="mindfulness">Pleine conscience</option>
+              <option value="body-scan">Balayage corporel</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea [(ngModel)]="newMeditation.notes" name="notes" rows="2"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </form>
+    </div>
+
+    <div class="meditation-sessions">
+      <div *ngFor="let session of meditationSessions.slice().reverse()" class="meditation-card">
+        <h4>{{ session.type }}</h4>
+        <p class="duration">{{ session.duration }} minutes</p>
+        <p *ngIf="session.notes" class="notes">{{ session.notes }}</p>
+        <small>{{ session.date | date:'short' }}</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- Water Intake (Quick Add) -->
+  <div class="water-quick-add">
+    <button class="btn btn-secondary" (click)="showWaterForm = !showWaterForm">
+      💧 Ajouter de l'eau
+    </button>
+    <div *ngIf="showWaterForm" class="water-form">
+      <input type="number" [(ngModel)]="waterAmount" step="0.25" min="0.25" max="2">
+      <span>L</span>
+      <button class="btn btn-primary" (click)="addWaterIntake()">Ajouter</button>
+    </div>
+  </div>
+</div>
+
+

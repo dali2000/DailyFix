@@ -1,7 +1,18 @@
 <nav class="navbar">
   <div class="navbar-left">
-    <a class="brand" href="#" aria-label="DailyFix home">DailyFix</a>
+    <a class="brand" routerLink="/home" aria-label="DailyFix home">DailyFix</a>
     <span class="badge">Version Gratuite</span>
+    <!-- Weather Widget -->
+    <div class="weather-widget" *ngIf="weather && !weatherLoading">
+      <span class="weather-icon">{{ weather.icon }}</span>
+      <div class="weather-info">
+        <span class="weather-temp">{{ weather.temperature }}°C</span>
+        <span class="weather-city">{{ weather.city }}</span>
+      </div>
+    </div>
+    <div class="weather-widget weather-loading" *ngIf="weatherLoading">
+      <span>Chargement...</span>
+    </div>
   </div>
   <div class="navbar-right">
     <button class="icon-btn" aria-label="Notifications" title="Notifications">

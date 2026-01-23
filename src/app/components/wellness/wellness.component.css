@@ -1,0 +1,471 @@
+.wellness-page {
+  padding: 48px 96px 96px 96px;
+  width: 100%;
+  margin: 0;
+  background: var(--notion-bg-secondary);
+  min-height: calc(100vh - 45px);
+}
+
+@media (max-width: 1200px) {
+  .wellness-page {
+    padding: 48px 48px 48px 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  .wellness-page {
+    padding: 48px 24px;
+  }
+}
+
+.wellness-page h1 {
+  font-size: 40px;
+  font-weight: 700;
+  color: var(--notion-text-primary);
+  margin-bottom: 4px;
+  letter-spacing: -0.03em;
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 24px;
+  background: var(--notion-bg-tertiary);
+  padding: 2px;
+  border-radius: var(--notion-radius);
+  border: 1px solid var(--notion-border);
+  width: fit-content;
+}
+
+.tabs button {
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--notion-text-secondary);
+  border-radius: var(--notion-radius-sm);
+  transition: all 20ms ease-in 0s;
+  font-family: inherit;
+}
+
+.tabs button:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.tabs button.active {
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+  font-weight: 500;
+  box-shadow: var(--notion-shadow-sm);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.form-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  padding: 24px;
+  border-radius: var(--notion-radius);
+  margin-bottom: 24px;
+}
+
+.form-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 14px;
+  transition: border-color 20ms ease-in 0s;
+  font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.btn {
+  padding: 6px 12px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 400;
+  transition: background 20ms ease-in 0s;
+  background: transparent;
+  color: var(--notion-text-primary);
+  font-family: inherit;
+}
+
+.btn:hover {
+  background: var(--notion-bg-hover);
+}
+
+.btn-primary {
+  background: var(--notion-text-primary);
+  color: white;
+  border-color: var(--notion-text-primary);
+}
+
+.btn-primary:hover {
+  background: #2e2e2c;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--notion-text-primary);
+}
+
+.btn-danger {
+  background: var(--notion-red);
+  color: white;
+  border-color: var(--notion-red);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-small {
+  padding: 4px 10px;
+  font-size: 13px;
+}
+
+.journal-entries {
+  display: grid;
+  gap: 12px;
+}
+
+.entry-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  padding: 24px;
+  border-radius: var(--notion-radius);
+  transition: background 20ms ease-in 0s;
+}
+
+.entry-card:hover {
+  background: var(--notion-bg-hover);
+}
+
+.entry-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.entry-header h4 {
+  margin: 0;
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+}
+
+.mood {
+  font-size: 20px;
+}
+
+.entry-content {
+  color: var(--notion-text-secondary);
+  line-height: 1.6;
+  margin: 12px 0;
+  white-space: pre-wrap;
+  font-size: 14px;
+}
+
+.entry-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--notion-text-tertiary);
+}
+
+.tags {
+  color: var(--notion-blue);
+  font-weight: 400;
+}
+
+.entry-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.active-goals-section,
+.completed-goals-section {
+  margin-bottom: 32px;
+}
+
+.active-goals-section h3,
+.completed-goals-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.goals-list {
+  display: grid;
+  gap: 12px;
+}
+
+.goal-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  padding: 16px;
+  border-radius: var(--notion-radius);
+  transition: background 20ms ease-in 0s;
+}
+
+.goal-card:hover {
+  background: var(--notion-bg-hover);
+}
+
+.goal-card.completed {
+  opacity: 0.6;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.goal-header h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--notion-text-primary);
+}
+
+.category-badge {
+  padding: 2px 8px;
+  background: var(--notion-gray-bg);
+  border-radius: var(--notion-radius);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.goal-progress {
+  margin: 16px 0;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: var(--notion-bg-tertiary);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--notion-text-primary);
+  transition: width 200ms ease-in 0s;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-input {
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 14px;
+}
+
+.goal-meta {
+  margin: 12px 0;
+  font-size: 12px;
+  color: var(--notion-text-tertiary);
+}
+
+.completed-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  background: var(--notion-green-bg);
+  color: var(--notion-green);
+  border-radius: var(--notion-radius);
+  font-weight: 500;
+  font-size: 12px;
+}
+
+.stress-overview {
+  margin-bottom: 24px;
+}
+
+.stress-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  padding: 24px;
+  border-radius: var(--notion-radius);
+  text-align: center;
+}
+
+.stress-card h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  margin: 0 0 16px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stress-level-display {
+  margin-top: 12px;
+}
+
+.stress-value {
+  font-size: 32px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.stress-level-value {
+  display: inline-block;
+  margin-left: 12px;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.stress-tips-section {
+  margin-bottom: 24px;
+}
+
+.stress-tips-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0 0 16px 0;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.tip-card {
+  background: var(--notion-yellow-bg);
+  border: 1px solid var(--notion-border);
+  padding: 16px;
+  border-radius: var(--notion-radius);
+  border-left: 3px solid var(--notion-yellow);
+  font-size: 14px;
+  color: var(--notion-text-primary);
+  line-height: 1.5;
+}
+
+.stress-records {
+  display: grid;
+  gap: 12px;
+}
+
+.stress-record-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  padding: 16px;
+  border-radius: var(--notion-radius);
+  transition: background 20ms ease-in 0s;
+}
+
+.stress-record-card:hover {
+  background: var(--notion-bg-hover);
+}
+
+.stress-record-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.stress-level {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.triggers,
+.strategies {
+  margin: 4px 0;
+  color: var(--notion-text-secondary);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.triggers strong,
+.strategies strong {
+  color: var(--notion-text-primary);
+  font-weight: 500;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 48px;
+  color: var(--notion-text-tertiary);
+  font-size: 14px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+}
