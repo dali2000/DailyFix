@@ -112,9 +112,86 @@ const connectDB = async () => {
     
     await sequelize.sync(syncOptions);
     console.log('✅ Database models synchronized (tables created if needed)');
+    
+    // Ajouter la colonne role si elle n'existe pas
+    await addRoleColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
+  }
+};
+
+// Fonction pour ajouter la colonne role si elle n'existe pas
+const addRoleColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+    
+    if (dialect === 'postgres') {
+      // Vérifier si la colonne existe déjà (PostgreSQL)
+      const [results] = await sequelize.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'role'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "role" already exists');
+        return;
+      }
+
+      // Créer le type ENUM s'il n'existe pas
+      try {
+        await sequelize.query(`CREATE TYPE user_role AS ENUM ('user', 'admin')`);
+        console.log('✅ ENUM type user_role created');
+      } catch (error) {
+        if (error.message && error.message.includes('already exists')) {
+          console.log('✅ ENUM type user_role already exists');
+        } else {
+          throw error;
+        }
+      }
+
+      // Ajouter la colonne role
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN role user_role DEFAULT 'user'::user_role NOT NULL
+      `);
+      console.log('✅ Column "role" added successfully to users table');
+    } else if (dialect === 'mysql') {
+      // Vérifier si la colonne existe déjà (MySQL)
+      const [results] = await sequelize.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'users' 
+        AND COLUMN_NAME = 'role'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "role" already exists');
+        return;
+      }
+
+      // Ajouter la colonne role
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN role ENUM('user', 'admin') DEFAULT 'user' NOT NULL
+      `);
+      console.log('✅ Column "role" added successfully to users table');
+    }
+  } catch (error) {
+    // Ne pas faire échouer le démarrage si la colonne existe déjà ou autre erreur mineure
+    if (error.message && (
+      error.message.includes('already exists') || 
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Column "role" already exists (or similar column)');
+    } else {
+      console.warn('⚠️ Warning: Could not add role column:', error.message);
+      // Ne pas faire échouer le démarrage, juste logger l'avertissement
+    }
   }
 };
 
