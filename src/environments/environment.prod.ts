@@ -1,5 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:3000/api' // Changez cette URL pour votre serveur de production
+  apiUrl: 'https://dailyfix-backend.onrender.com/api' // Changez cette URL pour votre serveur de production
 };
 
