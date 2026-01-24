@@ -22,18 +22,21 @@
 
 @media (max-width: 768px) {
   .calendar-page {
-    padding: 24px 16px !important;
+    padding: 8px 0 !important;
   }
 
   .calendar-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+    margin-bottom: 12px;
+    padding: 0 12px;
   }
 
   .calendar-header h1 {
-    font-size: 28px;
+    font-size: 20px;
     word-break: break-word;
+    margin: 0;
   }
 
   .header-actions {
@@ -42,60 +45,269 @@
     gap: 8px;
   }
 
+  .header-actions .btn-primary {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+  }
+
   .view-controls {
     width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
   }
 
   .view-controls button {
     flex: 1;
-    padding: 8px;
+    padding: 10px 8px;
     font-size: 12px;
   }
 
   .calendar-navigation {
-    flex-direction: column;
-    gap: 12px;
-    padding: 16px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 10px;
+    margin-bottom: 0;
+    background: var(--notion-bg);
+    border: 1px solid var(--notion-border);
+    border-radius: var(--notion-radius);
+    flex-wrap: nowrap;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .calendar-navigation > button:first-of-type {
+    flex-shrink: 0;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .calendar-navigation > div {
+    flex-shrink: 0;
+    display: flex;
+    gap: 4px;
+  }
+
+  .calendar-navigation > div button {
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
   .calendar-navigation h2 {
-    font-size: 20px;
+    font-size: 14px;
+    text-align: left;
+    margin: 0;
+    font-weight: 600;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--notion-text-primary) !important;
+    position: absolute;
+    left: 45%;
+    transform: translateX(-50%);
+    align-self: center;
+    align-items: center;
+    gap: 5px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+    max-width: calc(100% - 240px);
+  }
+
+  .month-name {
+    font-size: 16px;
+    text-transform: lowercase;
+    white-space: nowrap;
+  }
+
+  .year-box {
+    font-size: 16px;
+    padding: 2px 8px;
+    border-width: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+
+  .calendar-navigation button {
+    padding: 7px 12px;
+    font-size: 13px;
+    min-width: auto;
+    flex-shrink: 0;
+    background: var(--notion-text-primary);
+    border: 1px solid var(--notion-text-primary);
+    color: white;
+    white-space: nowrap;
+    border-radius: var(--notion-radius);
+  }
+
+  .calendar-navigation button:hover {
+    background: #2e2e2c;
+    border-color: #2e2e2c;
   }
 
   .calendar-navigation > div {
     display: flex;
-    gap: 8px;
-    width: 100%;
+    gap: 6px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
   }
 
-  .calendar-navigation button {
-    flex: 1;
-  }
 
   .month-view,
   .week-view {
-    padding: 12px;
-    margin: 0 -16px;
-    width: calc(100% + 32px);
+    padding: 0;
+    margin: 0;
+    width: 100%;
     border-radius: 0;
-    border-left: none;
-    border-right: none;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    border: none;
+    overflow-x: visible;
+    background: var(--notion-bg);
   }
 
   .weekdays-header {
-    min-width: 600px;
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 0;
+    margin-bottom: 0;
+    background: var(--notion-bg);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding: 12px 8px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .weekday {
+    font-size: 12px;
+    padding: 0;
+    text-align: center;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 0;
   }
 
   .days-grid {
-    min-width: 600px;
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    gap: 0;
+    border: none;
+    background: var(--notion-bg);
+    width: 100%;
+    box-sizing: border-box;
   }
 
+  .day-cell {
+    min-height: 120px;
+    padding: 12px 8px;
+    border: none;
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    background: var(--notion-bg);
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+  }
+
+  .day-cell:nth-child(7n) {
+    border-right: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .day-cell.other-month {
+    opacity: 1;
+    background: var(--notion-bg);
+  }
+
+  .day-cell.today {
+    background: transparent;
+  }
+
+  .day-cell.today .day-number {
+    background: #ff3b30;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .day-cell.has-events {
+    border-left: none;
+  }
+
+  .day-number {
+    font-size: 14px;
+    font-weight: 400;
+    margin: 0;
+    text-align: center;
+    width: 100%;
+    color: rgba(0, 0, 0, 0.35);
+    line-height: 1;
+    padding-bottom: 8px;
+  }
+
+  .day-cell.other-month .day-number {
+    color: rgba(0, 0, 0, 0.3);
+  }
+
+  .day-cell.today .day-number {
+    color: white;
+  }
+
+  .day-events {
+    display: none;
+  }
+
+  .event-dot {
+    display: none;
+  }
+
+  .more-events {
+    display: none;
+  }
+
+  .day-cell.has-events .day-events {
+    display: flex;
+  }
+
+
   .week-days-grid {
-    min-width: 700px;
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 8px;
+  }
+
+  .week-day-column {
+    min-height: auto;
+    padding: 12px;
+    border: 1px solid var(--notion-border);
+    border-radius: var(--notion-radius);
+  }
+
+  .week-day-column .weekday {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--notion-border);
+    margin-bottom: 8px;
   }
 
   .day-details {
@@ -104,44 +316,379 @@
 
   .event-form {
     padding: 16px;
+    margin: 0 -8px 16px -8px;
+    width: calc(100% + 16px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
   }
 
   .event-form .form-row {
     grid-template-columns: 1fr !important;
   }
+
+  .selected-date-panel {
+    padding: 16px;
+    margin-top: 16px;
+    margin: 16px -8px 0 -8px;
+    width: calc(100% + 16px);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .event-item {
+    padding: 10px;
+    font-size: 12px;
+  }
+
+  .event-title {
+    font-size: 13px;
+  }
+
+  .event-description {
+    font-size: 11px;
+  }
 }
 
 @media (max-width: 480px) {
   .calendar-page {
-    padding: 16px 12px !important;
+    padding: 4px 0 !important;
+  }
+
+  .calendar-header {
+    padding: 0 8px;
+    margin-bottom: 8px;
   }
 
   .calendar-header h1 {
-    font-size: 24px;
+    font-size: 18px;
+    margin-bottom: 8px;
   }
+
+  .header-actions {
+    width: 100%;
+  }
+
+  .header-actions .btn-primary {
+    width: 100%;
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  .view-controls {
+    width: 100%;
+  }
+
+  .view-controls button {
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+
+  .calendar-navigation {
+    padding: 6px 4px;
+    margin-bottom: 0;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+    background: var(--notion-bg);
+    border: 1px solid var(--notion-border);
+    border-radius: var(--notion-radius);
+    position: relative;
+    overflow: visible;
+    min-height: 36px;
+  }
+
+  .calendar-navigation > button:first-of-type {
+    flex-shrink: 0;
+    z-index: 2;
+    position: relative;
+  }
+
+  .calendar-navigation > div {
+    flex-shrink: 0;
+    z-index: 2;
+    position: relative;
+  }
+
+  .calendar-navigation > button:first-of-type {
+    flex-shrink: 0;
+    padding: 5px 8px;
+    font-size: 11px;
+    min-width: auto;
+  }
+
+  .calendar-navigation > div {
+    flex-shrink: 0;
+    display: flex;
+    gap: 3px;
+  }
+
+  .calendar-navigation > div button {
+    padding: 5px 8px;
+    font-size: 11px;
+    min-width: auto;
+  }
+
+  .calendar-navigation {
+    overflow: visible;
+  }
+
+  .calendar-navigation > button:first-of-type {
+    flex-shrink: 0;
+    min-width: auto;
+    z-index: 1;
+  }
+
+  .calendar-navigation > div {
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .calendar-navigation h2 {
+    font-size: 13px;
+    text-align: left;
+    margin: 0;
+    font-weight: 600;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: var(--notion-text-primary) !important;
+    position: absolute;
+    left: 45%;
+    transform: translateX(-50%);
+    align-items: center;
+    gap: 4px;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    z-index: 1;
+    pointer-events: none;
+    max-width: calc(100% - 180px);
+  }
+
+  .month-name {
+    font-size: 12px;
+    text-transform: lowercase;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+
+  .year-box {
+    font-size: 12px;
+    padding: 2px 5px;
+    border-width: 2px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    line-height: 1.2;
+  }
+
+  .calendar-navigation > button:first-of-type {
+    flex-shrink: 0;
+    min-width: auto;
+    padding: 6px 10px;
+    font-size: 11px;
+    background: var(--notion-text-primary);
+    border: 1px solid var(--notion-text-primary);
+    color: white;
+    border-radius: var(--notion-radius);
+  }
+
+  .calendar-navigation > button:first-of-type:hover {
+    background: #2e2e2c;
+    border-color: #2e2e2c;
+  }
+
+  .calendar-navigation > div {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .calendar-navigation button {
+    font-size: 11px;
+    padding: 6px 10px;
+    white-space: nowrap;
+    min-width: auto;
+    background: var(--notion-text-primary);
+    border: 1px solid var(--notion-text-primary);
+    color: white;
+    border-radius: var(--notion-radius);
+  }
+
+  .calendar-navigation button:hover {
+    background: #2e2e2c;
+    border-color: #2e2e2c;
+  }
+
 
   .month-view,
   .week-view {
-    margin: 0 -12px;
-    width: calc(100% + 24px);
-    padding: 8px;
+    margin: 0;
+    width: 100%;
   }
 
   .weekdays-header {
-    min-width: 500px;
+    padding: 8px 4px;
+  }
+
+  .weekday {
+    font-size: 10px;
+    padding: 0;
   }
 
   .days-grid {
-    min-width: 500px;
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .day-cell {
-    min-height: 50px;
-    padding: 2px;
+    min-height: 70px;
+    padding: 8px 4px;
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
   }
 
-  .week-days-grid {
-    min-width: 600px;
+  .day-number {
+    font-size: 13px;
+    padding-bottom: 6px;
+    color: rgba(0, 0, 0, 0.35);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .day-cell.other-month .day-number {
+    color: rgba(0, 0, 0, 0.3);
+  }
+
+  .day-cell.today .day-number {
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
+    color: white;
+  }
+
+  .weekdays-header {
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    padding: 8px 4px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .weekday {
+    font-size: 10px;
+    color: rgba(0, 0, 0, 0.6);
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .event-dot {
+    width: 3px;
+    height: 3px;
+  }
+
+  .weekday {
+    font-size: 11px;
+    padding: 8px 2px;
+  }
+
+  .weekdays-header {
+    background: var(--notion-bg);
+  }
+
+  .more-events {
+    font-size: 8px;
+  }
+
+  .week-day-column {
+    padding: 10px;
+  }
+
+  .event-item {
+    padding: 8px;
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .event-title {
+    font-size: 12px;
+  }
+
+  .event-description {
+    font-size: 10px;
+  }
+
+  .selected-date-panel {
+    padding: 12px;
+    margin: 12px -4px 0 -4px;
+    width: calc(100% + 8px);
+  }
+
+  .selected-date-panel h3 {
+    font-size: 16px;
+  }
+
+  .event-form {
+    padding: 12px;
+    margin: 0 -4px 12px -4px;
+    width: calc(100% + 8px);
+  }
+
+  .event-form h3 {
+    font-size: 14px;
+  }
+
+  .event-form .form-group {
+    margin-bottom: 12px;
+  }
+
+  .event-form .form-group input,
+  .event-form .form-group textarea,
+  .event-form .form-group select {
+    font-size: 13px;
+    padding: 6px;
+  }
+
+  .event-form .form-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .event-form .btn {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .day-view {
+    padding: 12px;
+    margin: 0 -4px;
+    width: calc(100% + 8px);
+  }
+
+  .selected-day-header h3 {
+    font-size: 16px;
+  }
+
+  .event-card {
+    padding: 10px;
+  }
+
+  .event-card h5 {
+    font-size: 13px;
+  }
+
+  .event-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }
 
@@ -211,33 +758,86 @@
   background: var(--notion-bg);
   border: 1px solid var(--notion-border);
   border-radius: var(--notion-radius);
+  flex-wrap: wrap;
+  gap: 12px;
+  position: relative;
 }
 
 .calendar-navigation h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 18px;
   font-weight: 600;
   color: var(--notion-text-primary);
   text-transform: capitalize;
   letter-spacing: -0.02em;
+  flex: 1;
+  text-align: left;
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  position: absolute;
+  left: 45%;
+  transform: translateX(-50%);
+  align-self: center;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.month-year-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+}
+
+.month-name {
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  text-transform: lowercase;
+  font-size: 18px;
+  line-height: 1.2;
+}
+
+.year-box {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--notion-text-primary);
+  line-height: 1.2;
 }
 
 .calendar-navigation button {
-  padding: 6px 12px;
-  border: 1px solid var(--notion-border);
-  background: var(--notion-bg);
+  padding: 8px 16px;
+  border: 1px solid var(--notion-text-primary);
+  background: var(--notion-text-primary);
   cursor: pointer;
   border-radius: var(--notion-radius);
   font-weight: 400;
-  color: var(--notion-text-primary);
-  transition: background 20ms ease-in 0s;
+  color: white;
+  transition: all 20ms ease-in 0s;
   font-size: 14px;
   font-family: inherit;
+  white-space: nowrap;
+  min-width: auto;
+  flex-shrink: 0;
 }
 
 .calendar-navigation button:hover {
-  background: var(--notion-bg-hover);
+  background: #2e2e2c;
+  border-color: #2e2e2c;
 }
+
+.calendar-navigation > div {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
 
 .month-view,
 .week-view,
@@ -248,6 +848,8 @@
   padding: var(--notion-spacing-lg);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .weekdays-header {
@@ -255,6 +857,8 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
   margin-bottom: 2px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .weekday {
@@ -271,6 +875,8 @@
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .day-cell {
@@ -283,6 +889,9 @@
   transition: all 20ms ease-in 0s;
   background: var(--notion-bg);
   position: relative;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .day-cell:hover {
@@ -368,6 +977,8 @@
   grid-template-columns: repeat(7, 1fr);
   gap: var(--notion-spacing);
   margin-top: var(--notion-spacing);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .week-day-column {
@@ -378,6 +989,9 @@
   padding: var(--notion-spacing);
   background: var(--notion-bg);
   transition: all 20ms ease-in 0s;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
 }
 
 .week-day-column.has-events {
@@ -593,6 +1207,16 @@
 @media (max-width: 768px) {
   .event-form .form-row {
     grid-template-columns: 1fr !important;
+  }
+
+  .calendar-container {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .month-view,
+  .week-view {
+    overflow-x: visible;
   }
 }
 

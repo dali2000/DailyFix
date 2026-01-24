@@ -663,17 +663,28 @@ ul li::before {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1024px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
 }
 
 @media (max-width: 768px) {
   .stats-grid {
     grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr !important;
+    gap: 8px;
   }
 }
 
@@ -686,6 +697,10 @@ ul li::before {
   align-items: center;
   gap: 16px;
   transition: border-color 20ms ease-in 0s, background 20ms ease-in 0s;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+  width: 100%;
 }
 
 .stat-item:hover {
@@ -703,10 +718,13 @@ ul li::before {
   background: var(--notion-bg-tertiary);
   border-radius: 12px;
   flex-shrink: 0;
+  min-width: 56px;
 }
 
 .stat-info {
   flex: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .stat-label {
@@ -715,6 +733,8 @@ ul li::before {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   margin-bottom: 4px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .stat-value {
@@ -722,6 +742,8 @@ ul li::before {
   font-weight: 600;
   color: var(--notion-text-primary);
   line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 @media (max-width: 1024px) {
@@ -776,12 +798,22 @@ ul li::before {
   .stat-item {
     padding: 16px;
     min-width: 0;
+    gap: 12px;
   }
 
   .stat-icon {
     width: 48px;
     height: 48px;
     font-size: 24px;
+    min-width: 48px;
+  }
+
+  .stat-label {
+    font-size: 11px;
+  }
+
+  .stat-value {
+    font-size: 18px;
   }
 
   .history-bars {
@@ -833,16 +865,29 @@ ul li::before {
 
   .stat-item {
     padding: 12px;
+    gap: 10px;
+    flex-wrap: wrap;
   }
 
   .stat-icon {
     width: 40px;
     height: 40px;
     font-size: 20px;
+    min-width: 40px;
+  }
+
+  .stat-info {
+    min-width: 0;
+    flex: 1 1 100%;
+  }
+
+  .stat-label {
+    font-size: 10px;
+    margin-bottom: 2px;
   }
 
   .stat-value {
-    font-size: 18px;
+    font-size: 16px;
   }
 
   .history-bars {

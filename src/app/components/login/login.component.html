@@ -38,7 +38,10 @@
         Mot de passe requis (6+ caractères)
       </div>
 
-      <button class="submit" type="submit">{{ isSignup ? 'Créer un compte' : 'Se connecter' }}</button>
+      <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
+      <button class="submit" type="submit" [disabled]="isLoading">
+        {{ isLoading ? 'Chargement...' : (isSignup ? 'Créer un compte' : 'Se connecter') }}
+      </button>
     </form>
 
     <div *ngIf="isSignup" class="social-auth">

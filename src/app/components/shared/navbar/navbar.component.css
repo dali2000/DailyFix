@@ -257,6 +257,10 @@
   height: 16px;
 }
 
+.profile-container {
+  position: relative;
+}
+
 .profile {
   display: inline-flex;
   align-items: center;
@@ -265,6 +269,7 @@
   border-radius: var(--notion-radius);
   cursor: pointer;
   transition: background 20ms ease-in 0s;
+  position: relative;
 }
 
 .profile:hover {
@@ -288,4 +293,78 @@
   color: var(--notion-text-primary);
   font-weight: 400;
   font-size: 14px;
+}
+
+.dropdown-arrow {
+  color: var(--notion-text-tertiary);
+  transition: transform 20ms ease-in 0s;
+  flex-shrink: 0;
+}
+
+.profile:hover .dropdown-arrow {
+  color: var(--notion-text-secondary);
+}
+
+.profile-container:hover .dropdown-arrow {
+  transform: rotate(180deg);
+}
+
+.profile-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  box-shadow: var(--notion-shadow-lg);
+  min-width: 160px;
+  z-index: 1001;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--notion-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 20ms ease-in 0s;
+}
+
+.dropdown-item:hover {
+  background: var(--notion-bg-hover);
+}
+
+.dropdown-item svg {
+  color: var(--notion-text-secondary);
+  flex-shrink: 0;
+}
+
+.dropdown-item:hover svg {
+  color: var(--notion-text-primary);
+}
+
+.dropdown-item span {
+  flex: 1;
+}
+
+@media (max-width: 768px) {
+  .profile-dropdown {
+    right: -8px;
+    min-width: 140px;
+  }
 }

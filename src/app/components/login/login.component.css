@@ -152,6 +152,27 @@ input:focus {
   background: #2e2e2c;
 }
 
+.submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.submit:disabled:hover {
+  background: var(--notion-text-primary);
+}
+
+.error-message {
+  color: var(--notion-red);
+  font-size: 13px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  text-align: center;
+  padding: 8px;
+  background: var(--notion-red-bg);
+  border-radius: var(--notion-radius);
+  border: 1px solid var(--notion-red);
+}
+
 .social-auth {
   margin-top: var(--notion-spacing-lg);
   display: flex;

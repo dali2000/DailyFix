@@ -7,6 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -18,10 +19,13 @@ import {
 export class LoginComponent {
   form: FormGroup;
   authMode: 'login' | 'signup' = 'login';
+  errorMessage: string = '';
+  isLoading: boolean = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private authService: AuthService
   ) {
     this.form = this.formBuilder.group({
       email: ['', [Validators.required, Validators.email]],
@@ -33,6 +37,7 @@ export class LoginComponent {
       return;
     }
     this.authMode = mode;
+    this.errorMessage = '';
     this.form = this.buildForm();
   }
     private buildForm(): FormGroup {
@@ -56,16 +61,36 @@ export class LoginComponent {
       return;
     }
 
+    this.errorMessage = '';
+    this.isLoading = true;
+
     if (this.authMode === 'login') {
-      // eslint-disable-next-line no-console
-      console.log('Login data', this.form.value);
-      // Navigate to home after successful login
-      this.router.navigate(['/home']);
+      const result = this.authService.login({
+        email: this.form.value.email,
+        password: this.form.value.password
+      });
+
+      this.isLoading = false;
+
+      if (result.success) {
+        this.router.navigate(['/home']);
+      } else {
+        this.errorMessage = result.error || 'Erreur de connexion';
+      }
     } else {
-      // eslint-disable-next-line no-console
-      console.log('Signup data', this.form.value);
-      // Navigate to home after successful signup
-      this.router.navigate(['/home']);
+      const result = this.authService.signup({
+        fullName: this.form.value.fullName,
+        email: this.form.value.email,
+        password: this.form.value.password
+      });
+
+      this.isLoading = false;
+
+      if (result.success) {
+        this.router.navigate(['/home']);
+      } else {
+        this.errorMessage = result.error || 'Erreur lors de l\'inscription';
+      }
     }
   }
 

@@ -228,6 +228,44 @@
   display: none;
 }
 
+/* Sidebar Footer */
+.sidebar-footer {
+  border-top: 1px solid var(--notion-border);
+  padding: 4px 0;
+  margin-top: auto;
+}
+
+.logout-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px 4px 12px;
+  color: var(--notion-text-secondary);
+  background: transparent;
+  border: none;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 20ms ease-in 0s, color 20ms ease-in 0s;
+  min-height: 28px;
+}
+
+.logout-item:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-red);
+}
+
+.logout-item .nav-icon {
+  color: inherit;
+}
+
+.sidebar.collapsed .logout-item {
+  justify-content: center;
+  padding: 4px;
+}
+
 /* Scrollbar */
 .sidebar::-webkit-scrollbar {
   width: 6px;

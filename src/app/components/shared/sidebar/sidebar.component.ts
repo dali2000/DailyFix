@@ -1,7 +1,8 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, Router } from '@angular/router';
 import { SidebarService } from '../../../services/sidebar.service';
+import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -27,7 +28,11 @@ export class SidebarComponent implements OnInit, OnDestroy {
     { icon: '🧘', label: 'Bien-être', route: '/wellness' }
   ];
 
-  constructor(private sidebarService: SidebarService) {}
+  constructor(
+    private sidebarService: SidebarService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
@@ -97,6 +102,17 @@ export class SidebarComponent implements OnInit, OnDestroy {
       document.body.style.overflow = '';
       this.updateMainContentMargin();
     }
+  }
+
+  logout(): void {
+    // Fermer la sidebar sur mobile avant de déconnecter
+    if (this.isMobile) {
+      this.isCollapsed = true;
+      document.body.style.overflow = '';
+    }
+    // Déconnecter l'utilisateur
+    this.authService.logout();
+    // La navigation sera gérée par AuthService
   }
 
   ngOnDestroy(): void {

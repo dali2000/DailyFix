@@ -266,6 +266,14 @@ export class CalendarComponent implements OnInit {
     return this.currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
   }
 
+  getMonthNameOnly(): string {
+    return this.currentDate.toLocaleDateString('fr-FR', { month: 'long' });
+  }
+
+  getYear(): number {
+    return this.currentDate.getFullYear();
+  }
+
   getDayName(date: Date): string {
     return date.toLocaleDateString('fr-FR', { weekday: 'short' });
   }
