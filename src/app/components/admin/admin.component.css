@@ -1,0 +1,439 @@
+.admin-dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  background: var(--notion-bg-secondary);
+  min-height: 100vh;
+  color: var(--notion-text-primary);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid var(--notion-border);
+}
+
+.admin-header h1 {
+  margin: 0;
+  color: var(--notion-text-primary);
+  font-size: 2rem;
+}
+
+.btn-back {
+  padding: 0.5rem 1rem;
+  background: var(--notion-gray);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 20ms ease-in 0s;
+}
+
+.btn-back:hover {
+  background: var(--notion-gray-bg);
+  opacity: 0.9;
+}
+
+.alert {
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.alert-error {
+  background: var(--notion-red-bg);
+  color: var(--notion-red);
+  border: 1px solid var(--notion-red);
+}
+
+.stats-section, .users-section {
+  background: var(--notion-bg);
+  padding: 2rem;
+  border-radius: var(--notion-radius-md);
+  margin-bottom: 2rem;
+  box-shadow: var(--notion-shadow);
+  border: 1px solid var(--notion-border);
+}
+
+.stats-section h2, .users-section h2 {
+  margin-top: 0;
+  color: var(--notion-text-primary);
+  font-size: 1.5rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.stat-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.stat-card:nth-child(2) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.stat-card:nth-child(3) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.stat-card:nth-child(4) {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.stat-card:nth-child(5) {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.stat-card:nth-child(6) {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.stat-icon {
+  font-size: 3rem;
+}
+
+.stat-content h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0.5rem 0;
+}
+
+.stat-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: var(--notion-blue);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: background 20ms ease-in 0s;
+}
+
+.btn-primary:hover {
+  background: var(--notion-blue-bg);
+  opacity: 0.9;
+}
+
+.search-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.search-bar input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 1rem;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+}
+
+.search-bar input:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
+}
+
+.search-bar button {
+  padding: 0.75rem 1.5rem;
+  background: var(--notion-green);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  transition: background 20ms ease-in 0s;
+}
+
+.search-bar button:hover {
+  background: var(--notion-green-bg);
+  opacity: 0.9;
+}
+
+.table-container {
+  overflow-x: auto;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.users-table th {
+  background: var(--notion-bg-tertiary);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  border-bottom: 2px solid var(--notion-border);
+}
+
+.users-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--notion-border);
+  color: var(--notion-text-primary);
+}
+
+.users-table tr:hover {
+  background: var(--notion-bg-hover);
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.badge-admin {
+  background: var(--notion-red);
+  color: white;
+}
+
+.badge-user {
+  background: var(--notion-green);
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-edit {
+  padding: 0.5rem 1rem;
+  background: var(--notion-yellow);
+  color: var(--notion-text-primary);
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 20ms ease-in 0s;
+}
+
+.btn-edit:hover {
+  background: var(--notion-yellow-bg);
+  opacity: 0.9;
+}
+
+.btn-delete {
+  padding: 0.5rem 1rem;
+  background: var(--notion-red);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 20ms ease-in 0s;
+}
+
+.btn-delete:hover {
+  background: var(--notion-red-bg);
+  opacity: 0.9;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  background: var(--notion-blue);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  transition: background 20ms ease-in 0s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--notion-blue-bg);
+  opacity: 0.9;
+}
+
+.pagination button:disabled {
+  background: var(--notion-gray);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--notion-text-secondary);
+}
+
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: var(--notion-bg);
+  border-radius: var(--notion-radius-md);
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--notion-shadow-lg);
+  border: 1px solid var(--notion-border);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--notion-border);
+}
+
+.modal-header h3 {
+  margin: 0;
+  color: var(--notion-text-primary);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: var(--notion-text-tertiary);
+  line-height: 1;
+  transition: color 20ms ease-in 0s;
+}
+
+.close-btn:hover {
+  color: var(--notion-text-primary);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--notion-text-primary);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.btn-secondary {
+  padding: 0.75rem 1.5rem;
+  background: var(--notion-gray);
+  color: white;
+  border: none;
+  border-radius: var(--notion-radius);
+  cursor: pointer;
+  transition: background 20ms ease-in 0s;
+}
+
+.btn-secondary:hover {
+  background: var(--notion-gray-bg);
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .admin-dashboard {
+    padding: 1rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .users-table {
+    font-size: 0.9rem;
+  }
+
+  .users-table th,
+  .users-table td {
+    padding: 0.5rem;
+  }
+}
+

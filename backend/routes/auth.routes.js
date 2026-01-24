@@ -62,7 +62,8 @@ router.post('/register', [
         id: user.id,
         fullName: user.fullName,
         email: user.email,
-        provider: user.provider
+        provider: user.provider,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -145,7 +146,8 @@ router.post('/login', [
         id: user.id,
         fullName: user.fullName,
         email: user.email,
-        provider: user.provider
+        provider: user.provider,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -257,7 +259,8 @@ router.post('/google', [
         id: user.id,
         fullName: user.fullName,
         email: user.email,
-        provider: user.provider
+        provider: user.provider,
+        role: user.role || 'user'
       }
     });
   } catch (error) {
@@ -312,7 +315,8 @@ router.get('/me', protect, async (req, res) => {
         id: user.id,
         fullName: user.fullName,
         email: user.email,
-        provider: user.provider
+        provider: user.provider,
+        role: user.role || 'user'
       }
     });
   } catch (error) {

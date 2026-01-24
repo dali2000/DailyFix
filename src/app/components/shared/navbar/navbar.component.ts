@@ -91,6 +91,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     return this.currentUser ? this.currentUser.fullName : 'Alex Martin';
   }
 
+  get isAdmin(): boolean {
+    return this.currentUser?.role === 'admin';
+  }
+
   toggleMenu(): void {
     this.showMenu = !this.showMenu;
   }

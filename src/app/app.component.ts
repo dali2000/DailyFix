@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from "./components/shared/navbar/navbar.component";
 import { SidebarComponent } from "./components/shared/sidebar/sidebar.component";
+import { AdminSidebarComponent } from "./components/shared/admin-sidebar/admin-sidebar.component";
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
@@ -12,7 +13,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, SidebarComponent, CommonModule],
+  imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -20,6 +21,7 @@ export class AppComponent implements OnInit, OnDestroy {
   title = 'dailyFix';
   showNavbar = false;
   showSidebar = false;
+  showAdminSidebar = false;
   private userSubscription?: Subscription;
   private routerSubscription?: Subscription;
 
@@ -74,11 +76,31 @@ export class AppComponent implements OnInit, OnDestroy {
     // Vérifier si c'est la page de login
     const isLoginPage = url === '/login' || url === '/' || url.startsWith('/#/login');
     
+    // Vérifier si c'est la page admin (enlever le hash si présent)
+    const cleanUrl = url.replace(/^\/#/, '');
+    const isAdminPage = cleanUrl.startsWith('/admin');
+    
     // Vérifier si l'utilisateur est authentifié (doit avoir un token ET un utilisateur)
     const isAuthenticated = this.authService.isAuthenticated();
+    const currentUser = this.authService.getCurrentUser();
     
-    // Afficher navbar et sidebar seulement si l'utilisateur est authentifié ET pas sur la page de login
+    // Vérification stricte : l'utilisateur doit être admin
+    const isAdmin = !!(currentUser && currentUser.role === 'admin');
+    
+    // Afficher navbar seulement si l'utilisateur est authentifié ET pas sur la page de login
     this.showNavbar = isAuthenticated && !isLoginPage;
-    this.showSidebar = isAuthenticated && !isLoginPage;
+    
+    // Afficher la sidebar admin UNIQUEMENT si :
+    // 1. L'utilisateur est authentifié
+    // 2. Ce n'est pas la page de login
+    // 3. C'est la page admin (/admin)
+    // 4. L'utilisateur est admin
+    this.showAdminSidebar = !!(isAuthenticated && !isLoginPage && isAdminPage && isAdmin);
+    
+    // Afficher la sidebar normale si :
+    // 1. L'utilisateur est authentifié
+    // 2. Ce n'est pas la page de login
+    // 3. Ce n'est PAS la page admin (ou l'utilisateur n'est pas admin)
+    this.showSidebar = !!(isAuthenticated && !isLoginPage && !isAdminPage);
   }
 }

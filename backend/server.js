@@ -92,6 +92,16 @@ if (process.env.NODE_ENV === 'development') {
   });
 }
 
+// Load all models to ensure they are registered with Sequelize
+require('./models/User.model');
+require('./models/Task.model');
+require('./models/Event.model');
+require('./models/Health.model');
+require('./models/Finance.model');
+require('./models/Home.model');
+require('./models/Wellness.model');
+require('./models/Social.model');
+
 // Routes
 app.use('/api/auth', require('./routes/auth.routes'));
 app.use('/api/tasks', require('./routes/tasks.routes'));
@@ -101,6 +111,7 @@ app.use('/api/finance', require('./routes/finance.routes'));
 app.use('/api/home', require('./routes/home.routes'));
 app.use('/api/wellness', require('./routes/wellness.routes'));
 app.use('/api/social', require('./routes/social.routes'));
+app.use('/api/admin', require('./routes/admin.routes'));
 
 // Root endpoint
 app.get('/', (req, res) => {

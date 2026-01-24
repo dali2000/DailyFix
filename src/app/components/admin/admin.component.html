@@ -1,0 +1,244 @@
+<div class="admin-dashboard">
+  <div class="admin-header">
+    <h1>Dashboard Administrateur</h1>
+    <button class="btn-back" (click)="router.navigate(['/home'])">
+      ← Retour à l'accueil
+    </button>
+  </div>
+
+  <div *ngIf="error" class="alert alert-error">
+    {{ error }}
+    <button (click)="error = null">×</button>
+  </div>
+
+  <!-- Statistics Section -->
+  <div class="stats-section" *ngIf="stats">
+    <h2>Statistiques Générales</h2>
+    <div class="stats-grid">
+      <!-- Users Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <h3>Utilisateurs</h3>
+          <div class="stat-value">{{ stats.users.total }}</div>
+          <div class="stat-details">
+            <span>+{{ stats.users.newThisMonth }} ce mois</span>
+            <span>+{{ stats.users.newThisWeek }} cette semaine</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">✅</div>
+        <div class="stat-content">
+          <h3>Tâches</h3>
+          <div class="stat-value">{{ stats.tasks.total }}</div>
+          <div class="stat-details">
+            <span>{{ stats.tasks.completed }} complétées</span>
+            <span>{{ stats.tasks.completionRate }}% complétion</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-content">
+          <h3>Événements</h3>
+          <div class="stat-value">{{ stats.events.total }}</div>
+          <div class="stat-details">
+            <span>{{ stats.events.upcoming }} à venir</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Health Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">🏥</div>
+        <div class="stat-content">
+          <h3>Santé</h3>
+          <div class="stat-value">{{ stats.health.meals + stats.health.activities + stats.health.sleepRecords }}</div>
+          <div class="stat-details">
+            <span>{{ stats.health.meals }} repas</span>
+            <span>{{ stats.health.activities }} activités</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Finance Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <h3>Finance</h3>
+          <div class="stat-value">{{ stats.finance.expenses }}</div>
+          <div class="stat-details">
+            <span>{{ stats.finance.budgets }} budgets</span>
+            <span>{{ stats.finance.savingsGoals }} objectifs</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wellness Stats -->
+      <div class="stat-card">
+        <div class="stat-icon">🧘</div>
+        <div class="stat-content">
+          <h3>Bien-être</h3>
+          <div class="stat-value">{{ stats.wellness.journalEntries + stats.wellness.personalGoals }}</div>
+          <div class="stat-details">
+            <span>{{ stats.wellness.journalEntries }} journaux</span>
+            <span>{{ stats.wellness.personalGoals }} objectifs</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Users Management Section -->
+  <div class="users-section">
+    <div class="section-header">
+      <h2>Gestion des Utilisateurs</h2>
+      <button class="btn-primary" (click)="openCreateModal()">+ Nouvel Utilisateur</button>
+    </div>
+
+    <!-- Search -->
+    <div class="search-bar">
+      <input 
+        type="text" 
+        placeholder="Rechercher un utilisateur..." 
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="searchUsers()"
+      />
+      <button (click)="searchUsers()">Rechercher</button>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container" *ngIf="!loading">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Email</th>
+            <th>Rôle</th>
+            <th>Provider</th>
+            <th>Date d'inscription</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td>{{ user.id }}</td>
+            <td>{{ user.fullName }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>{{ user.provider }}</td>
+            <td>{{ user.createdAt | date:'short' }}</td>
+            <td class="actions">
+              <button class="btn-edit" (click)="openEditModal(user)">Modifier</button>
+              <button class="btn-delete" (click)="deleteUser(user)">Supprimer</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button 
+        [disabled]="currentPage === 1" 
+        (click)="changePage(currentPage - 1)"
+      >
+        Précédent
+      </button>
+      <span>Page {{ currentPage }} sur {{ totalPages }} ({{ totalUsers }} utilisateurs)</span>
+      <button 
+        [disabled]="currentPage === totalPages" 
+        (click)="changePage(currentPage + 1)"
+      >
+        Suivant
+      </button>
+    </div>
+
+    <div *ngIf="loading" class="loading">Chargement...</div>
+  </div>
+
+  <!-- Create User Modal -->
+  <div class="modal" *ngIf="showCreateModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Créer un nouvel utilisateur</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="createUser()">
+          <div class="form-group">
+            <label>Nom complet *</label>
+            <input type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="userForm.email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label>Mot de passe</label>
+            <input type="password" [(ngModel)]="userForm.password" name="password" />
+          </div>
+          <div class="form-group">
+            <label>Rôle</label>
+            <select [(ngModel)]="userForm.role" name="role">
+              <option value="user">Utilisateur</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+            <button type="submit" class="btn-primary">Créer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal" *ngIf="showUserModal" (click)="closeModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Modifier l'utilisateur</h3>
+        <button class="close-btn" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="updateUser()">
+          <div class="form-group">
+            <label>Nom complet *</label>
+            <input type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" [(ngModel)]="userForm.email" name="email" required />
+          </div>
+          <div class="form-group">
+            <label>Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+            <input type="password" [(ngModel)]="userForm.password" name="password" />
+          </div>
+          <div class="form-group">
+            <label>Rôle</label>
+            <select [(ngModel)]="userForm.role" name="role">
+              <option value="user">Utilisateur</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
+            <button type="submit" class="btn-primary">Enregistrer</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+

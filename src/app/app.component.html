@@ -1,5 +1,7 @@
 <app-navbar *ngIf="showNavbar"></app-navbar>
 <app-sidebar *ngIf="showSidebar"></app-sidebar>
-<main class="main-content" [class.no-sidebar]="!showSidebar">
+<!-- Sidebar admin : affichée uniquement pour les admins sur la page admin -->
+<app-admin-sidebar *ngIf="showAdminSidebar"></app-admin-sidebar>
+<main class="main-content" [class.no-sidebar]="!showSidebar && !showAdminSidebar">
   <router-outlet />
 </main>

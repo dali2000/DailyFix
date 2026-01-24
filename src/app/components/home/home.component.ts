@@ -63,6 +63,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Les admins peuvent accéder à /home s'ils le souhaitent (via le lien "Application" dans la sidebar admin)
+    // On ne redirige plus automatiquement les admins vers /admin
+    
     // Charger le nom de l'utilisateur
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       if (user && user.fullName) {

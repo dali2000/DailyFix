@@ -127,7 +127,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
-            this.router.navigate(['/home']);
+            // Rediriger vers admin si l'utilisateur est admin
+            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
+            if (response.user && response.user.role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/home']);
+            }
           } else {
             this.errorMessage = response.error || response.message || 'Erreur de connexion';
           }
@@ -146,7 +152,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
-            this.router.navigate(['/home']);
+            // Rediriger vers admin si l'utilisateur est admin
+            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
+            if (response.user && response.user.role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/home']);
+            }
           } else {
             this.errorMessage = response.error || response.message || 'Erreur lors de l\'inscription';
           }
@@ -248,7 +260,13 @@ export class LoginComponent implements OnInit, OnDestroy {
             next: (result) => {
               this.isLoading = false;
               if (result.success) {
-                this.router.navigate(['/home']);
+                // Rediriger vers admin si l'utilisateur est admin
+                // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
+                if (result.user && result.user.role === 'admin') {
+                  this.router.navigate(['/admin']);
+                } else {
+                  this.router.navigate(['/home']);
+                }
               } else {
                 this.errorMessage = result.message || 'Erreur lors de l\'inscription avec Google';
               }
@@ -293,7 +311,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            this.router.navigate(['/home']);
+            // Rediriger vers admin si l'utilisateur est admin
+            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
+            if (result.user && result.user.role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/home']);
+            }
           } else {
             this.errorMessage = result.message || 'Erreur lors de l\'inscription avec Google';
           }
@@ -325,7 +349,13 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            this.router.navigate(['/home']);
+            // Rediriger vers admin si l'utilisateur est admin
+            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
+            if (result.user && result.user.role === 'admin') {
+              this.router.navigate(['/admin']);
+            } else {
+              this.router.navigate(['/home']);
+            }
           } else {
             this.errorMessage = result.error || result.message || 'Erreur lors de l\'inscription avec Google';
           }
