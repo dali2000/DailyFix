@@ -1,7 +1,38 @@
 const { Sequelize } = require('sequelize');
 
 // Détecter le type de base de données depuis les variables d'environnement
-const dbDialect = process.env.DB_DIALECT || (process.env.DB_PORT === '5432' ? 'postgres' : 'mysql');
+// Priorité : DB_DIALECT > détection par port > détection par host > MySQL par défaut
+let dbDialect = process.env.DB_DIALECT;
+
+if (!dbDialect) {
+  // Détection par port
+  const port = process.env.DB_PORT;
+  if (port === '5432' || port === 5432) {
+    dbDialect = 'postgres';
+  } 
+  // Détection par host (si contient postgres ou render.com)
+  else if (process.env.DB_HOST && (
+    process.env.DB_HOST.includes('postgres') || 
+    process.env.DB_HOST.includes('render.com')
+  )) {
+    dbDialect = 'postgres';
+  } 
+  // Par défaut MySQL
+  else {
+    dbDialect = 'mysql';
+  }
+}
+
+// Log pour déboguer (seulement en développement)
+if (process.env.NODE_ENV === 'development') {
+  console.log(`🔍 Database detection:`, {
+    DB_DIALECT: process.env.DB_DIALECT,
+    DB_PORT: process.env.DB_PORT,
+    DB_HOST: process.env.DB_HOST,
+    detected: dbDialect
+  });
+}
+
 const defaultPort = dbDialect === 'postgres' ? 5432 : 3306;
 const defaultUser = dbDialect === 'postgres' ? 'dailyfix_user' : 'root';
 
