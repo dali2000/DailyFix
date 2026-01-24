@@ -16,6 +16,8 @@
         <span class="weather-temp">{{ weather.temperature }}°C</span>
         <span class="weather-city">{{ weather.city }}</span>
       </div>
+      <!-- Version compacte pour mobile (affichée via CSS) -->
+      <span class="weather-temp-mobile">{{ weather.temperature }}°C</span>
     </div>
     <div class="weather-widget weather-loading" *ngIf="weatherLoading">
       <span>Chargement...</span>
