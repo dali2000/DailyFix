@@ -1,6 +1,7 @@
 :host {
   display: block;
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 .main-content {
@@ -9,11 +10,32 @@
   min-height: calc(100vh - 45px);
   background: var(--notion-bg-secondary);
   transition: margin-left 100ms ease-in 0s;
+  width: calc(100% - 240px);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .main-content.no-sidebar {
   margin-left: 0;
   margin-top: 0;
   min-height: 100vh;
+  width: 100%;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 48px;
+    width: calc(100% - 48px);
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .main-content {
+    margin-left: 0;
+    margin-top: 45px;
+    width: 100%;
+  }
 }
 

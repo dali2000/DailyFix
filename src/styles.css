@@ -61,6 +61,12 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
 body {
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, "Apple Color Emoji", Arial, sans-serif, "Segoe UI Emoji", "Segoe UI Symbol";
   background: var(--notion-bg-secondary);
@@ -71,6 +77,9 @@ body {
   font-size: 14px;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
 }
 
 /* Minimal Scrollbar */
@@ -104,22 +113,67 @@ h1 {
   font-size: 40px;
   font-weight: 700;
   letter-spacing: -0.03em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 h2 {
   font-size: 30px;
   font-weight: 600;
   letter-spacing: -0.02em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 h3 {
   font-size: 24px;
   font-weight: 600;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 h4 {
   font-size: 20px;
   font-weight: 600;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  h1 {
+    font-size: 28px;
+  }
+
+  h2 {
+    font-size: 24px;
+  }
+
+  h3 {
+    font-size: 20px;
+  }
+
+  h4 {
+    font-size: 18px;
+  }
+
+  body {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 24px;
+  }
+
+  h2 {
+    font-size: 20px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
 }
 
 /* Buttons - Notion style */
@@ -232,6 +286,93 @@ input::placeholder, textarea::placeholder {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--notion-spacing-lg);
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0 var(--notion-spacing);
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 var(--notion-spacing-sm);
+  }
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+  .flex {
+    flex-wrap: wrap;
+  }
+}
+
+/* Prevent text overflow */
+p, span, div, label {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Responsive images and media */
+img, video, iframe {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* All page containers */
+[class*="-page"] {
+  box-sizing: border-box;
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Force responsive on all grids */
+@media (max-width: 768px) {
+  [class*="grid"],
+  [class*="-grid"],
+  [class*="container"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Force single column on mobile */
+  .cards-container,
+  .dashboard,
+  .charts-section,
+  .stats-grid,
+  .overview-grid,
+  .suggestions-grid,
+  .tips-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Prevent horizontal overflow */
+* {
+  max-width: 100%;
+}
+
+img, video, iframe, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Force responsive tables */
+@media (max-width: 768px) {
+  table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    white-space: nowrap;
+  }
 }
 
 .flex {

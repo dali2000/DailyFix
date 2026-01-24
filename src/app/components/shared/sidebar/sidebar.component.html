@@ -1,3 +1,4 @@
+<div class="sidebar-overlay" *ngIf="!isCollapsed && isMobile" (click)="toggleSidebar()"></div>
 <aside class="sidebar" [class.collapsed]="isCollapsed">
   <div class="sidebar-header">
     <div class="sidebar-brand">
@@ -23,7 +24,8 @@
          [routerLink]="item.route" 
          routerLinkActive="active"
          class="nav-item"
-         [title]="isCollapsed ? item.label : ''">
+         [title]="isCollapsed ? item.label : ''"
+         (click)="onNavItemClick()">
         <span class="nav-icon">{{ item.icon }}</span>
         <span class="nav-label" *ngIf="!isCollapsed">{{ item.label }}</span>
       </a>

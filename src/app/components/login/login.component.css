@@ -12,6 +12,8 @@
   padding: var(--notion-spacing-2xl) var(--notion-spacing-lg);
   background: var(--notion-bg-secondary);
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 .brand {
@@ -207,4 +209,82 @@ input:focus {
 
 .social.facebook {
   border-color: var(--notion-border);
+}
+
+@media (max-width: 768px) {
+  .auth-page {
+    padding: var(--notion-spacing-xl) var(--notion-spacing);
+  }
+
+  .brand {
+    font-size: 32px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+  }
+
+  .card {
+    max-width: 100%;
+    padding: var(--notion-spacing-lg);
+  }
+
+  .title {
+    font-size: 20px;
+  }
+
+  .tabs {
+    max-width: 100%;
+  }
+
+  .social {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .social svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-page {
+    padding: var(--notion-spacing-lg) var(--notion-spacing-sm);
+  }
+
+  .brand {
+    font-size: 28px;
+  }
+
+  .card {
+    padding: var(--notion-spacing);
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .subtext {
+    font-size: 13px;
+  }
+
+  form {
+    gap: var(--notion-spacing);
+  }
+
+  input {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .submit {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .social {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
 }

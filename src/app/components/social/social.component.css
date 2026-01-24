@@ -4,6 +4,8 @@
   margin: 0;
   background: var(--notion-bg-secondary);
   min-height: calc(100vh - 45px);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1200px) {
@@ -12,9 +14,94 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .social-page {
+    padding: 32px 32px 32px 32px;
+  }
+}
+
 @media (max-width: 768px) {
   .social-page {
-    padding: 48px 24px;
+    padding: 24px 16px !important;
+  }
+
+  .social-page h1 {
+    font-size: 28px;
+    word-break: break-word;
+  }
+
+  .tabs {
+    width: 100% !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .tabs button {
+    white-space: nowrap;
+    padding: 6px 10px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-header h2 {
+    font-size: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .event-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .event-meta {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .event-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .suggestions-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .social-page {
+    padding: 16px 12px !important;
+  }
+
+  .social-page h1 {
+    font-size: 24px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .event-card {
+    padding: 12px;
+  }
+
+  .event-card h4 {
+    font-size: 13px;
+  }
+
+  .suggestion-card {
+    padding: 12px;
   }
 }
 
@@ -35,6 +122,8 @@
   border-radius: var(--notion-radius);
   border: 1px solid var(--notion-border);
   width: fit-content;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tabs button {
@@ -127,8 +216,14 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .btn {
@@ -267,8 +362,14 @@
 
 .suggestions-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .suggestions-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .suggestion-card {
@@ -313,4 +414,16 @@
   background: var(--notion-bg);
   border: 1px solid var(--notion-border);
   border-radius: var(--notion-radius);
+}
+
+@media (max-width: 768px) {
+  .empty-state {
+    padding: 32px 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .empty-state {
+    padding: 24px 12px !important;
+  }
 }

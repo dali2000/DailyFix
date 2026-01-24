@@ -4,6 +4,8 @@
   margin: 0;
   background: var(--notion-bg-secondary);
   min-height: calc(100vh - 45px);
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
 @media (max-width: 1200px) {
@@ -12,9 +14,125 @@
   }
 }
 
+@media (max-width: 1024px) {
+  .health-page {
+    padding: 32px 32px 32px 32px;
+  }
+}
+
 @media (max-width: 768px) {
   .health-page {
-    padding: 48px 24px;
+    padding: 24px 16px !important;
+  }
+
+  .health-page h1 {
+    font-size: 28px;
+    word-break: break-word;
+  }
+
+  .tabs {
+    width: 100% !important;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+  }
+
+  .tabs button {
+    white-space: nowrap;
+    padding: 6px 10px;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .health-score-card {
+    padding: 24px 16px;
+  }
+
+  .score-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  .score-value {
+    font-size: 28px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px;
+    min-width: 0;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-header h2 {
+    font-size: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  .water-quick-add {
+    bottom: 16px;
+    right: 16px;
+    max-width: calc(100vw - 32px);
+  }
+
+  .water-form {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .water-form input {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .health-page {
+    padding: 16px 12px !important;
+  }
+
+  .health-page h1 {
+    font-size: 24px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .score-circle {
+    width: 80px;
+    height: 80px;
+  }
+
+  .score-value {
+    font-size: 24px;
+  }
+
+  .form-card {
+    padding: 16px;
+  }
+
+  .water-quick-add {
+    bottom: 12px;
+    right: 12px;
+    left: 12px;
+    max-width: none;
+    width: auto;
   }
 }
 
@@ -35,6 +153,8 @@
   border-radius: var(--notion-radius);
   border: 1px solid var(--notion-border);
   width: fit-content;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tabs button {
@@ -101,9 +221,15 @@
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 12px;
   margin-bottom: 24px;
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .stat-card {
@@ -206,8 +332,14 @@
 
 .form-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr !important;
+  }
 }
 
 .btn {
@@ -338,6 +470,7 @@
   border-radius: var(--notion-radius);
   box-shadow: var(--notion-shadow-lg);
   border: 1px solid var(--notion-border);
+  z-index: 100;
 }
 
 .water-form {
