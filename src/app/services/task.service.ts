@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
 import { Task, CalendarEvent } from '../models/task.model';
 import { AuthService } from './auth.service';
+import { ApiService } from './api.service';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  count?: number;
+  message?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -9,12 +18,24 @@ export class TaskService {
   private tasks: Task[] = [];
   private events: CalendarEvent[] = [];
 
-  constructor(private authService: AuthService) {
-    // Écouter les changements d'utilisateur pour recharger les données
-    this.authService.currentUser$.subscribe(() => {
-      this.loadFromStorage();
+  constructor(
+    private authService: AuthService,
+    private apiService: ApiService
+  ) {
+    // Charger les données seulement quand l'utilisateur est authentifié
+    this.authService.currentUser$.pipe(
+      distinctUntilChanged()
+    ).subscribe((user) => {
+      if (user !== null) {
+        // Utilisateur connecté - charger les données
+        this.loadTasks();
+        this.loadEvents();
+      } else {
+        // Utilisateur déconnecté - vider les données
+        this.tasks = [];
+        this.events = [];
+      }
     });
-    this.loadFromStorage();
   }
 
   // Task methods
@@ -22,42 +43,54 @@ export class TaskService {
     return [...this.tasks];
   }
 
+  getTasksObservable(): Observable<Task[]> {
+    return this.apiService.get<ApiResponse<Task[]>>('/tasks').pipe(
+      map(response => response.data || []),
+      tap(tasks => this.tasks = tasks)
+    );
+  }
+
   getTaskById(id: string): Task | undefined {
     return this.tasks.find(t => t.id === id);
   }
 
-  addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Task {
-    const newTask: Task = {
-      ...task,
-      id: this.generateId(),
-      status: task.status || 'todo',
-      priority: task.priority || 'medium',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-    this.tasks.push(newTask);
-    this.saveToStorage();
-    return newTask;
+  getTaskByIdObservable(id: string): Observable<Task> {
+    return this.apiService.get<ApiResponse<Task>>(`/tasks/${id}`).pipe(
+      map(response => response.data!)
+    );
   }
 
-  updateTask(id: string, updates: Partial<Task>): Task | null {
-    const index = this.tasks.findIndex(t => t.id === id);
-    if (index === -1) return null;
-    this.tasks[index] = { 
-      ...this.tasks[index], 
-      ...updates,
-      updatedAt: new Date()
-    };
-    this.saveToStorage();
-    return this.tasks[index];
+  addTask(task: Omit<Task, 'id' | 'createdAt' | 'updatedAt'>): Observable<Task> {
+    return this.apiService.post<ApiResponse<Task>>('/tasks', task).pipe(
+      map(response => response.data!),
+      tap(newTask => {
+        this.tasks.push(newTask);
+      })
+    );
   }
 
-  deleteTask(id: string): boolean {
-    const index = this.tasks.findIndex(t => t.id === id);
-    if (index === -1) return false;
-    this.tasks.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  updateTask(id: string, updates: Partial<Task>): Observable<Task> {
+    return this.apiService.put<ApiResponse<Task>>(`/tasks/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedTask => {
+        const index = this.tasks.findIndex(t => t.id === id);
+        if (index !== -1) {
+          this.tasks[index] = updatedTask;
+        }
+      })
+    );
+  }
+
+  deleteTask(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/tasks/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.tasks.findIndex(t => t.id === id);
+        if (index !== -1) {
+          this.tasks.splice(index, 1);
+        }
+      })
+    );
   }
 
   getTasksForDate(date: Date): Task[] {
@@ -67,11 +100,13 @@ export class TaskService {
     );
   }
 
-  getTasksByStatus(status: Task['status']): Task[] {
-    return this.tasks.filter(t => t.status === status);
+  getTasksByStatus(status: Task['status']): Observable<Task[]> {
+    return this.apiService.get<ApiResponse<Task[]>>(`/tasks/status/${status}`).pipe(
+      map(response => response.data || [])
+    );
   }
 
-  updateTaskStatus(id: string, status: Task['status']): Task | null {
+  updateTaskStatus(id: string, status: Task['status']): Observable<Task> {
     return this.updateTask(id, { status });
   }
 
@@ -88,30 +123,44 @@ export class TaskService {
     return [...this.events];
   }
 
-  addEvent(event: Omit<CalendarEvent, 'id'>): CalendarEvent {
-    const newEvent: CalendarEvent = {
-      ...event,
-      id: this.generateId()
-    };
-    this.events.push(newEvent);
-    this.saveToStorage();
-    return newEvent;
+  getEventsObservable(): Observable<CalendarEvent[]> {
+    return this.apiService.get<ApiResponse<CalendarEvent[]>>('/events').pipe(
+      map(response => response.data || []),
+      tap(events => this.events = events)
+    );
   }
 
-  updateEvent(id: string, updates: Partial<CalendarEvent>): CalendarEvent | null {
-    const index = this.events.findIndex(e => e.id === id);
-    if (index === -1) return null;
-    this.events[index] = { ...this.events[index], ...updates };
-    this.saveToStorage();
-    return this.events[index];
+  addEvent(event: Omit<CalendarEvent, 'id'>): Observable<CalendarEvent> {
+    return this.apiService.post<ApiResponse<CalendarEvent>>('/events', event).pipe(
+      map(response => response.data!),
+      tap(newEvent => {
+        this.events.push(newEvent);
+      })
+    );
   }
 
-  deleteEvent(id: string): boolean {
-    const index = this.events.findIndex(e => e.id === id);
-    if (index === -1) return false;
-    this.events.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  updateEvent(id: string, updates: Partial<CalendarEvent>): Observable<CalendarEvent> {
+    return this.apiService.put<ApiResponse<CalendarEvent>>(`/events/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedEvent => {
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events[index] = updatedEvent;
+        }
+      })
+    );
+  }
+
+  deleteEvent(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/events/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events.splice(index, 1);
+        }
+      })
+    );
   }
 
   getEventsForDate(date: Date): CalendarEvent[] {
@@ -121,40 +170,56 @@ export class TaskService {
     );
   }
 
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  getEventsForDateObservable(date: Date): Observable<CalendarEvent[]> {
+    const dateStr = date.toISOString().split('T')[0];
+    return this.apiService.get<ApiResponse<CalendarEvent[]>>(`/events/date/${dateStr}`).pipe(
+      map(response => response.data || [])
+    );
   }
 
-  private saveToStorage(): void {
-    const tasksKey = this.authService.getUserStorageKey('tasks');
-    const eventsKey = this.authService.getUserStorageKey('events');
-    localStorage.setItem(tasksKey, JSON.stringify(this.tasks));
-    localStorage.setItem(eventsKey, JSON.stringify(this.events));
-  }
-
-  private loadFromStorage(): void {
-    const tasksKey = this.authService.getUserStorageKey('tasks');
-    const eventsKey = this.authService.getUserStorageKey('events');
-    const tasksStr = localStorage.getItem(tasksKey);
-    const eventsStr = localStorage.getItem(eventsKey);
-    if (tasksStr) {
-      this.tasks = JSON.parse(tasksStr).map((t: any) => ({
-        ...t,
-        status: t.status || (t.completed ? 'done' : 'todo'),
-        priority: t.priority || 'medium',
-        dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-        reminder: t.reminder ? new Date(t.reminder) : undefined,
-        createdAt: new Date(t.createdAt),
-        updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(t.createdAt)
-      }));
+  private loadTasks(): void {
+    if (this.authService.isAuthenticated()) {
+      this.getTasksObservable().subscribe({
+        next: (tasks) => {
+          this.tasks = tasks.map((t: any) => ({
+            ...t,
+            id: t.id.toString(),
+            status: t.status || (t.completed ? 'done' : 'todo'),
+            priority: t.priority || 'medium',
+            dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+            reminder: t.reminder ? new Date(t.reminder) : undefined,
+            createdAt: new Date(t.createdAt),
+            updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(t.createdAt)
+          }));
+        },
+        error: (error) => {
+          console.error('Error loading tasks:', error);
+          this.tasks = [];
+        }
+      });
+    } else {
+      this.tasks = [];
     }
-    if (eventsStr) {
-      this.events = JSON.parse(eventsStr).map((e: any) => ({
-        ...e,
-        startDate: new Date(e.startDate),
-        endDate: e.endDate ? new Date(e.endDate) : undefined
-      }));
+  }
+
+  private loadEvents(): void {
+    if (this.authService.isAuthenticated()) {
+      this.getEventsObservable().subscribe({
+        next: (events) => {
+          this.events = events.map((e: any) => ({
+            ...e,
+            id: e.id.toString(),
+            startDate: new Date(e.startDate),
+            endDate: e.endDate ? new Date(e.endDate) : undefined
+          }));
+        },
+        error: (error) => {
+          console.error('Error loading events:', error);
+          this.events = [];
+        }
+      });
+    } else {
+      this.events = [];
     }
   }
 }
-

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { HealthService } from '../../services/health.service';
@@ -7,6 +7,8 @@ import { FinanceService } from '../../services/finance.service';
 import { HomeService } from '../../services/home.service';
 import { SocialService } from '../../services/social.service';
 import { WellnessService } from '../../services/wellness.service';
+import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -15,7 +17,7 @@ import { WellnessService } from '../../services/wellness.service';
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, OnDestroy {
   tasksCompleted = 0;
   totalTasks = 0;
   healthScore = 0;
@@ -25,6 +27,10 @@ export class HomeComponent implements OnInit {
   remainingBalance = 0;
   monthlySalary = 0;
   upcomingEventsCount = 0;
+  todayHouseholdTasksCount = 0;
+  shoppingListsCount = 0;
+  userName: string = '';
+  private userSubscription?: Subscription;
 
   upcomingHouseTasks: Array<{ name: string; date: string }> = [];
   upcomingEvents: Array<{ name: string; date: string }> = [];
@@ -52,95 +58,164 @@ export class HomeComponent implements OnInit {
     private homeService: HomeService,
     private socialService: SocialService,
     private wellnessService: WellnessService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Charger le nom de l'utilisateur
+    this.userSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user && user.fullName) {
+        // Extraire le prénom (premier mot du nom complet)
+        const firstName = user.fullName.split(' ')[0];
+        this.userName = firstName;
+      } else {
+        this.userName = '';
+      }
+    });
+    
     this.loadDashboardData();
   }
 
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
+
   loadDashboardData(): void {
-    // Tasks
-    this.tasksCompleted = this.taskService.getCompletedTasksCount();
-    this.totalTasks = this.taskService.getTotalTasksCount();
-
-    // Health
-    const todayCalories = this.healthService.getTodayCalories();
-    const todayActivity = this.healthService.getTodayActivityMinutes();
-    const todayWater = this.healthService.getTodayWaterIntake();
-    const lastSleep = this.healthService.getLastSleepRecord();
-    let score = 0;
-    if (todayCalories > 0 && todayCalories < 2500) score += 25;
-    if (todayActivity >= 30) score += 25;
-    if (todayWater >= 2) score += 25;
-    if (lastSleep && lastSleep.hours >= 7 && lastSleep.hours <= 9) score += 25;
-    this.healthScore = score;
-
-    // Finance
-    const now = new Date();
-    this.monthlyBudget = this.financeService.getMonthlyBudget();
-    this.monthlyExpenses = this.financeService.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
-    this.remainingBudget = this.financeService.getRemainingBudget();
-    this.monthlySalary = this.financeService.getMonthlySalary();
-    this.remainingBalance = this.financeService.getRemainingBalance();
-
-    // Home tasks
-    const upcomingTasks = this.homeService.getUpcomingHouseholdTasks();
-    this.upcomingHouseTasks = upcomingTasks.slice(0, 3).map(task => ({
-      name: task.name,
-      date: task.nextDueDate ? this.formatDate(task.nextDueDate) : ''
-    }));
-
-    // Calendar events and reminders
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const allCalendarEvents = this.taskService.getEvents();
-    const upcomingCalendarEvents = allCalendarEvents.filter(e => {
-      if (e.type !== 'event' && e.type !== 'reminder') return false;
-      const eventDate = new Date(e.startDate);
-      eventDate.setHours(0, 0, 0, 0);
-      const endDate = e.endDate ? new Date(e.endDate) : eventDate;
-      endDate.setHours(23, 59, 59, 999);
-      return endDate >= today;
+    // S'assurer que toutes les données sont chargées depuis l'API
+    // Les services chargent automatiquement, on utilise les données en cache
+    
+    // Tasks - les données sont déjà chargées par le service
+    this.taskService.getTasksObservable().subscribe({
+      next: () => {
+        this.tasksCompleted = this.taskService.getCompletedTasksCount();
+        this.totalTasks = this.taskService.getTotalTasksCount();
+        this.loadTaskChartData();
+        this.loadAppStatistics();
+      }
     });
 
-    // Social events
-    const upcomingSocialEvents = this.socialService.getUpcomingEvents();
+    // Health - les données sont déjà chargées par le service
+    this.healthService.getMealsObservable().subscribe({
+      next: () => {
+        const todayCalories = this.healthService.getTodayCalories();
+        const todayActivity = this.healthService.getTodayActivityMinutes();
+        const todayWater = this.healthService.getTodayWaterIntake();
+        const lastSleep = this.healthService.getLastSleepRecord();
+        let score = 0;
+        if (todayCalories > 0 && todayCalories < 2500) score += 25;
+        if (todayActivity >= 30) score += 25;
+        if (todayWater >= 2) score += 25;
+        if (lastSleep && lastSleep.hours >= 7 && lastSleep.hours <= 9) score += 25;
+        this.healthScore = score;
+      }
+    });
+
+    // Finance - les données sont déjà chargées par le service
+    this.financeService.getExpensesObservable().subscribe({
+      next: () => {
+        const now = new Date();
+        this.monthlyBudget = this.financeService.getMonthlyBudget();
+        this.monthlyExpenses = this.financeService.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
+        this.remainingBudget = this.financeService.getRemainingBudget();
+        this.monthlySalary = this.financeService.getMonthlySalary();
+        this.remainingBalance = this.financeService.getRemainingBalance();
+        this.loadFinanceChartData();
+        this.loadAppStatistics();
+      }
+    });
+
+    // Home tasks - les données sont déjà chargées par le service
+    this.homeService.getHouseholdTasksObservable().subscribe({
+      next: () => {
+        const upcomingTasks = this.homeService.getUpcomingHouseholdTasks();
+      }
+    });
     
-    // Combine all events
-    const allUpcomingEvents = [
-      ...upcomingCalendarEvents.map(e => ({
-        name: e.title,
-        date: e.startDate,
-        type: 'calendar'
-      })),
-      ...upcomingSocialEvents.map(e => ({
-        name: e.title,
-        date: e.date,
-        type: 'social'
-      }))
-    ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Shopping lists - les données sont déjà chargées par le service
+    this.homeService.getShoppingListsObservable().subscribe({
+      next: () => {
+        const allLists = this.homeService.getShoppingLists();
+        this.shoppingListsCount = allLists.length;
+      }
+    });
+    
+    // Calculer le nombre de tâches ménagères non complétées
+    this.homeService.getHouseholdTasksObservable().subscribe({
+      next: () => {
+        const allTasks = this.homeService.getHouseholdTasks();
+        const incompleteTasks = allTasks.filter(task => !task.completed);
+        this.todayHouseholdTasksCount = incompleteTasks.length;
+        
+        // Mettre à jour aussi les tâches à venir pour la section dashboard
+        const upcomingTasks = this.homeService.getUpcomingHouseholdTasks();
+        this.upcomingHouseTasks = upcomingTasks.slice(0, 3).map(task => ({
+          name: task.name,
+          date: task.nextDueDate ? this.formatDate(task.nextDueDate) : ''
+        }));
+      }
+    });
 
-    this.upcomingEventsCount = allUpcomingEvents.length;
-    this.upcomingEvents = allUpcomingEvents.slice(0, 3).map(event => ({
-      name: event.name,
-      date: this.formatDate(event.date)
-    }));
+    // Calendar events - les données sont déjà chargées par le service
+    this.taskService.getEventsObservable().subscribe({
+      next: () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const allCalendarEvents = this.taskService.getEvents();
+        const upcomingCalendarEvents = allCalendarEvents.filter(e => {
+          if (e.type !== 'event' && e.type !== 'reminder') return false;
+          const eventDate = new Date(e.startDate);
+          eventDate.setHours(0, 0, 0, 0);
+          const endDate = e.endDate ? new Date(e.endDate) : eventDate;
+          endDate.setHours(23, 59, 59, 999);
+          return endDate >= today;
+        });
 
-    // Personal goals
-    const activeGoals = this.wellnessService.getActiveGoals();
-    this.personalGoals = activeGoals.slice(0, 3).map(goal => ({
-      name: goal.title,
-      done: goal.completed
-    }));
+        // Social events
+        this.socialService.getEventsObservable().subscribe({
+          next: () => {
+            const upcomingSocialEvents = this.socialService.getUpcomingEvents();
+            
+            // Combine all events
+            const allUpcomingEvents = [
+              ...upcomingCalendarEvents.map(e => ({
+                name: e.title,
+                date: e.startDate,
+                type: 'calendar'
+              })),
+              ...upcomingSocialEvents.map(e => ({
+                name: e.title,
+                date: e.date,
+                type: 'social'
+              }))
+            ].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-    // Load chart data
-    this.loadTaskChartData();
-    this.loadFinanceChartData();
-    this.loadAppStatistics();
+            this.upcomingEventsCount = allUpcomingEvents.length;
+            this.upcomingEvents = allUpcomingEvents.slice(0, 3).map(event => ({
+              name: event.name,
+              date: this.formatDate(event.date)
+            }));
+          }
+        });
+      }
+    });
+
+    // Personal goals - les données sont déjà chargées par le service
+    this.wellnessService.getPersonalGoalsObservable().subscribe({
+      next: () => {
+        const activeGoals = this.wellnessService.getActiveGoals();
+        this.personalGoals = activeGoals.slice(0, 3).map(goal => ({
+          name: goal.title,
+          done: goal.completed
+        }));
+      }
+    });
   }
 
   loadTaskChartData(): void {
+    // Les tâches sont déjà chargées par le service
     const allTasks = this.taskService.getTasks();
     const statusCounts: { [key: string]: number } = {
       'todo': 0,

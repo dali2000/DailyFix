@@ -34,7 +34,7 @@
              [class.active]="selectedList?.id === list.id"
              (click)="selectList(list)">
           <span>{{ list.name }}</span>
-          <span class="item-count">{{ list.items.length }} articles</span>
+          <span class="item-count">{{ (list.items || []).length }} articles</span>
         </div>
         <div *ngIf="shoppingLists.length === 0" class="empty-state">
           Aucune liste. Créez-en une !
@@ -49,7 +49,7 @@
 
         <div class="add-item-form">
           <h4>Ajouter un article</h4>
-          <form (ngSubmit)="addItemToList()">
+          <form (ngSubmit)="addItemToList($event)">
             <div class="form-row">
               <input type="text" [(ngModel)]="newItem.name" name="itemName" placeholder="Nom de l'article *" required>
               <input type="text" [(ngModel)]="newItem.quantity" name="quantity" placeholder="Quantité">
@@ -68,14 +68,22 @@
         </div>
 
         <div class="items-list">
-          <div *ngFor="let item of selectedList.items" class="item-card" [class.purchased]="item.purchased">
-            <input type="checkbox" [checked]="item.purchased" 
-                   (change)="toggleItemPurchase(selectedList.id, item.id)">
-            <span class="item-name">{{ item.name }}</span>
-            <span *ngIf="item.quantity" class="item-quantity">{{ item.quantity }}</span>
-            <span *ngIf="item.category" class="item-category">{{ item.category }}</span>
+          <div *ngFor="let item of (selectedList.items || [])" class="item-card" [class.purchased]="item.purchased">
+            <div class="item-checkbox">
+              <input type="checkbox" [checked]="item.purchased" 
+                     (change)="toggleItemPurchase(selectedList.id, item.id)"
+                     id="item-{{item.id}}">
+              <label for="item-{{item.id}}" class="checkbox-label"></label>
+            </div>
+            <div class="item-content">
+              <div class="item-main">
+                <span class="item-name">{{ item.name }}</span>
+                <span *ngIf="item.quantity" class="item-quantity">x{{ item.quantity }}</span>
+              </div>
+              <div *ngIf="item.category" class="item-category">{{ getCategoryLabel(item.category) }}</div>
+            </div>
           </div>
-          <div *ngIf="selectedList.items.length === 0" class="empty-state">
+          <div *ngIf="!selectedList.items || selectedList.items.length === 0" class="empty-state">
             Aucun article. Ajoutez-en !
           </div>
         </div>

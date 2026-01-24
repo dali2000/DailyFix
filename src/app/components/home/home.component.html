@@ -1,5 +1,5 @@
 <div class="home-page">
-  <h1>Bonjour Alex ! 👋</h1>
+  <h1>Bonjour {{ userName || 'Utilisateur' }} ! 👋</h1>
   <p>Prêt à organiser votre journée ? Voici vos outils DailyFix.</p>
 
 
@@ -10,7 +10,15 @@
         <span>Tâches du jour</span>
         <i class="bi bi-check2-circle"></i>
       </div>
-      <div class="card-value">{{ tasksCompleted }}</div>
+      <div class="card-value">{{ todayHouseholdTasksCount + shoppingListsCount }}</div>
+      <div class="card-subtitle" *ngIf="todayHouseholdTasksCount > 0 || shoppingListsCount > 0">
+        <span *ngIf="todayHouseholdTasksCount > 0">{{ todayHouseholdTasksCount }} tâche(s) ménagère(s)</span>
+        <span *ngIf="todayHouseholdTasksCount > 0 && shoppingListsCount > 0"> • </span>
+        <span *ngIf="shoppingListsCount > 0">{{ shoppingListsCount }} liste(s) de courses</span>
+      </div>
+      <div class="card-subtitle" *ngIf="todayHouseholdTasksCount === 0 && shoppingListsCount === 0">
+        Aucune tâche ou liste
+      </div>
     </div>
 
     <!-- Health Score Card -->

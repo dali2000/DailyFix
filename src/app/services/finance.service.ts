@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
 import { Expense, Budget, SavingsGoal, Salary } from '../models/finance.model';
 import { AuthService } from './auth.service';
+import { ApiService } from './api.service';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  count?: number;
+  message?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,12 +20,25 @@ export class FinanceService {
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
 
-  constructor(private authService: AuthService) {
-    // Écouter les changements d'utilisateur pour recharger les données
-    this.authService.currentUser$.subscribe(() => {
-      this.loadFromStorage();
+  constructor(
+    private authService: AuthService,
+    private apiService: ApiService
+  ) {
+    // Charger les données seulement quand l'utilisateur est authentifié
+    this.authService.currentUser$.pipe(
+      distinctUntilChanged()
+    ).subscribe((user) => {
+      if (user !== null) {
+        // Utilisateur connecté - charger les données
+        this.loadAll();
+      } else {
+        // Utilisateur déconnecté - vider les données
+        this.expenses = [];
+        this.budgets = [];
+        this.savingsGoals = [];
+        this.salaries = [];
+      }
     });
-    this.loadFromStorage();
   }
 
   // Expense methods
@@ -24,41 +46,48 @@ export class FinanceService {
     return [...this.expenses];
   }
 
-  addExpense(expense: Omit<Expense, 'id'>): Expense {
-    const newExpense: Expense = {
-      ...expense,
-      id: this.generateId()
-    };
-    this.expenses.push(newExpense);
-    this.saveToStorage();
-    return newExpense;
+  getExpensesObservable(): Observable<Expense[]> {
+    return this.apiService.get<ApiResponse<Expense[]>>('/finance/expenses').pipe(
+      map(response => response.data || []),
+      tap(expenses => this.expenses = expenses.map(e => ({ ...e, id: e.id.toString(), date: new Date(e.date) })))
+    );
   }
 
-  updateExpense(id: string, updates: Partial<Expense>): Expense | null {
-    const index = this.expenses.findIndex(e => e.id === id);
-    if (index === -1) return null;
-    this.expenses[index] = { ...this.expenses[index], ...updates };
-    this.saveToStorage();
-    return this.expenses[index];
+  addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
+    return this.apiService.post<ApiResponse<Expense>>('/finance/expenses', expense).pipe(
+      map(response => response.data!),
+      tap(newExpense => {
+        this.expenses.push({ ...newExpense, id: newExpense.id.toString(), date: new Date(newExpense.date) });
+      })
+    );
   }
 
-  deleteExpense(id: string): boolean {
-    const index = this.expenses.findIndex(e => e.id === id);
-    if (index === -1) return false;
-    this.expenses.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  updateExpense(id: string, updates: Partial<Expense>): Observable<Expense> {
+    return this.apiService.put<ApiResponse<Expense>>(`/finance/expenses/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedExpense => {
+        const index = this.expenses.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.expenses[index] = { ...updatedExpense, id: updatedExpense.id.toString(), date: new Date(updatedExpense.date) };
+        }
+      })
+    );
   }
 
-  getExpensesForMonth(year: number, month: number): Expense[] {
-    return this.expenses.filter(e => {
-      const expenseDate = new Date(e.date);
-      return expenseDate.getFullYear() === year && expenseDate.getMonth() === month;
-    });
+  deleteExpense(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/finance/expenses/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.expenses.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.expenses.splice(index, 1);
+        }
+      })
+    );
   }
 
-  getTotalExpensesForMonth(year: number, month: number): number {
-    return this.getExpensesForMonth(year, month).reduce((sum, e) => sum + e.amount, 0);
+  getTotalExpenses(): number {
+    return this.expenses.reduce((sum, e) => sum + e.amount, 0);
   }
 
   getExpensesByCategory(category: Expense['category']): Expense[] {
@@ -70,42 +99,88 @@ export class FinanceService {
     return [...this.budgets];
   }
 
-  addBudget(budget: Omit<Budget, 'id' | 'spent'>): Budget {
-    const newBudget: Budget = {
-      ...budget,
-      id: this.generateId(),
-      spent: 0
-    };
-    this.budgets.push(newBudget);
-    this.saveToStorage();
-    return newBudget;
+  getBudgetsObservable(): Observable<Budget[]> {
+    return this.apiService.get<ApiResponse<Budget[]>>('/finance/budgets').pipe(
+      map(response => response.data || []),
+      tap(budgets => this.budgets = budgets.map(b => ({ ...b, id: b.id.toString() })))
+    );
   }
 
-  updateBudget(id: string, updates: Partial<Budget>): Budget | null {
-    const index = this.budgets.findIndex(b => b.id === id);
-    if (index === -1) return null;
-    this.budgets[index] = { ...this.budgets[index], ...updates };
-    this.saveToStorage();
-    return this.budgets[index];
+  addBudget(budget: Omit<Budget, 'id' | 'spent'>): Observable<Budget> {
+    return this.apiService.post<ApiResponse<Budget>>('/finance/budgets', budget).pipe(
+      map(response => response.data!),
+      tap(newBudget => {
+        this.budgets.push({ ...newBudget, id: newBudget.id.toString() });
+      })
+    );
   }
 
-  deleteBudget(id: string): boolean {
-    const index = this.budgets.findIndex(b => b.id === id);
-    if (index === -1) return false;
-    this.budgets.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  updateBudget(id: string, updates: Partial<Budget>): Observable<Budget> {
+    return this.apiService.put<ApiResponse<Budget>>(`/finance/budgets/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedBudget => {
+        const index = this.budgets.findIndex(b => b.id === id);
+        if (index !== -1) {
+          this.budgets[index] = { ...updatedBudget, id: updatedBudget.id.toString() };
+        }
+      })
+    );
   }
 
-  getMonthlyBudget(): number {
-    const monthlyBudgets = this.budgets.filter(b => b.period === 'monthly');
-    return monthlyBudgets.reduce((sum, b) => sum + b.limit, 0);
+  deleteBudget(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/finance/budgets/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.budgets.findIndex(b => b.id === id);
+        if (index !== -1) {
+          this.budgets.splice(index, 1);
+        }
+      })
+    );
   }
 
-  getRemainingBudget(): number {
-    const now = new Date();
-    const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
-    return this.getMonthlyBudget() - monthlyExpenses;
+  // Savings Goal methods
+  getSavingsGoals(): SavingsGoal[] {
+    return [...this.savingsGoals];
+  }
+
+  getSavingsGoalsObservable(): Observable<SavingsGoal[]> {
+    return this.apiService.get<ApiResponse<SavingsGoal[]>>('/finance/savings-goals').pipe(
+      map(response => response.data || []),
+      tap(goals => this.savingsGoals = goals.map(g => ({
+        ...g,
+        id: g.id.toString(),
+        deadline: g.deadline ? new Date(g.deadline) : undefined
+      })))
+    );
+  }
+
+  updateSavingsGoal(id: string, updates: Partial<SavingsGoal>): Observable<SavingsGoal> {
+    return this.apiService.put<ApiResponse<SavingsGoal>>(`/finance/savings-goals/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedGoal => {
+        const index = this.savingsGoals.findIndex(g => g.id === id);
+        if (index !== -1) {
+          this.savingsGoals[index] = {
+            ...updatedGoal,
+            id: updatedGoal.id.toString(),
+            deadline: updatedGoal.deadline ? new Date(updatedGoal.deadline) : undefined
+          };
+        }
+      })
+    );
+  }
+
+  deleteSavingsGoal(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/finance/savings-goals/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.savingsGoals.findIndex(g => g.id === id);
+        if (index !== -1) {
+          this.savingsGoals.splice(index, 1);
+        }
+      })
+    );
   }
 
   // Salary methods
@@ -113,30 +188,57 @@ export class FinanceService {
     return [...this.salaries];
   }
 
-  addSalary(salary: Omit<Salary, 'id'>): Salary {
-    const newSalary: Salary = {
-      ...salary,
-      id: this.generateId()
-    };
-    this.salaries.push(newSalary);
-    this.saveToStorage();
-    return newSalary;
+  getSalariesObservable(): Observable<Salary[]> {
+    return this.apiService.get<ApiResponse<Salary[]>>('/finance/salaries').pipe(
+      map(response => response.data || []),
+      tap(salaries => this.salaries = salaries.map(s => ({ ...s, id: s.id.toString(), date: new Date(s.date) })))
+    );
   }
 
-  updateSalary(id: string, updates: Partial<Salary>): Salary | null {
-    const index = this.salaries.findIndex(s => s.id === id);
-    if (index === -1) return null;
-    this.salaries[index] = { ...this.salaries[index], ...updates };
-    this.saveToStorage();
-    return this.salaries[index];
+  addSalary(salary: Omit<Salary, 'id'>): Observable<Salary> {
+    return this.apiService.post<ApiResponse<Salary>>('/finance/salaries', salary).pipe(
+      map(response => response.data!),
+      tap(newSalary => {
+        this.salaries.push({ ...newSalary, id: newSalary.id.toString(), date: new Date(newSalary.date) });
+      })
+    );
   }
 
-  deleteSalary(id: string): boolean {
-    const index = this.salaries.findIndex(s => s.id === id);
-    if (index === -1) return false;
-    this.salaries.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  updateSalary(id: string, updates: Partial<Salary>): Observable<Salary> {
+    return this.apiService.put<ApiResponse<Salary>>(`/finance/salaries/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedSalary => {
+        const index = this.salaries.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.salaries[index] = { ...updatedSalary, id: updatedSalary.id.toString(), date: new Date(updatedSalary.date) };
+        }
+      })
+    );
+  }
+
+  deleteSalary(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/finance/salaries/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.salaries.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.salaries.splice(index, 1);
+        }
+      })
+    );
+  }
+
+  getTotalIncome(): number {
+    return this.salaries.reduce((sum, s) => sum + s.amount, 0);
+  }
+
+  getTotalExpensesForMonth(year: number, month: number): number {
+    return this.expenses
+      .filter(e => {
+        const expenseDate = new Date(e.date);
+        return expenseDate.getFullYear() === year && expenseDate.getMonth() === month;
+      })
+      .reduce((sum, e) => sum + e.amount, 0);
   }
 
   getMonthlySalary(): number {
@@ -160,42 +262,22 @@ export class FinanceService {
     return totalMonthly + totalYearly;
   }
 
+  getMonthlyBudget(): number {
+    const monthlyBudgets = this.budgets.filter(b => b.period === 'monthly');
+    return monthlyBudgets.reduce((sum, b) => sum + b.limit, 0);
+  }
+
+  getRemainingBudget(): number {
+    const now = new Date();
+    const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
+    return this.getMonthlyBudget() - monthlyExpenses;
+  }
+
   getRemainingBalance(): number {
     const monthlySalary = this.getMonthlySalary();
     const now = new Date();
     const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
     return monthlySalary - monthlyExpenses;
-  }
-
-  // Savings Goal methods
-  getSavingsGoals(): SavingsGoal[] {
-    return [...this.savingsGoals];
-  }
-
-  addSavingsGoal(goal: Omit<SavingsGoal, 'id'>): SavingsGoal {
-    const newGoal: SavingsGoal = {
-      ...goal,
-      id: this.generateId()
-    };
-    this.savingsGoals.push(newGoal);
-    this.saveToStorage();
-    return newGoal;
-  }
-
-  updateSavingsGoal(id: string, updates: Partial<SavingsGoal>): SavingsGoal | null {
-    const index = this.savingsGoals.findIndex(g => g.id === id);
-    if (index === -1) return null;
-    this.savingsGoals[index] = { ...this.savingsGoals[index], ...updates };
-    this.saveToStorage();
-    return this.savingsGoals[index];
-  }
-
-  deleteSavingsGoal(id: string): boolean {
-    const index = this.savingsGoals.findIndex(g => g.id === id);
-    if (index === -1) return false;
-    this.savingsGoals.splice(index, 1);
-    this.saveToStorage();
-    return true;
   }
 
   getSavingsSuggestions(): string[] {
@@ -218,49 +300,39 @@ export class FinanceService {
     return suggestions;
   }
 
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+  addSavingsGoal(goal: Omit<SavingsGoal, 'id'> | Omit<SavingsGoal, 'id' | 'currentAmount'>): Observable<SavingsGoal> {
+    const goalData = 'currentAmount' in goal ? { ...goal, currentAmount: goal.currentAmount || 0 } : { ...goal, currentAmount: 0 };
+    return this.apiService.post<ApiResponse<SavingsGoal>>('/finance/savings-goals', goalData).pipe(
+      map(response => response.data!),
+      tap(newGoal => {
+        this.savingsGoals.push({
+          ...newGoal,
+          id: newGoal.id.toString(),
+          deadline: newGoal.deadline ? new Date(newGoal.deadline) : undefined
+        });
+      })
+    );
   }
 
-  private saveToStorage(): void {
-    const expensesKey = this.authService.getUserStorageKey('expenses');
-    const budgetsKey = this.authService.getUserStorageKey('budgets');
-    const savingsKey = this.authService.getUserStorageKey('savingsGoals');
-    const salariesKey = this.authService.getUserStorageKey('salaries');
-    localStorage.setItem(expensesKey, JSON.stringify(this.expenses));
-    localStorage.setItem(budgetsKey, JSON.stringify(this.budgets));
-    localStorage.setItem(savingsKey, JSON.stringify(this.savingsGoals));
-    localStorage.setItem(salariesKey, JSON.stringify(this.salaries));
-  }
-
-  private loadFromStorage(): void {
-    const expensesKey = this.authService.getUserStorageKey('expenses');
-    const budgetsKey = this.authService.getUserStorageKey('budgets');
-    const savingsKey = this.authService.getUserStorageKey('savingsGoals');
-    const salariesKey = this.authService.getUserStorageKey('salaries');
-    const expensesStr = localStorage.getItem(expensesKey);
-    const budgetsStr = localStorage.getItem(budgetsKey);
-    const savingsStr = localStorage.getItem(savingsKey);
-    const salariesStr = localStorage.getItem(salariesKey);
-
-    if (expensesStr) {
-      this.expenses = JSON.parse(expensesStr).map((e: any) => ({ ...e, date: new Date(e.date) }));
-    }
-    if (budgetsStr) {
-      this.budgets = JSON.parse(budgetsStr);
-    }
-    if (savingsStr) {
-      this.savingsGoals = JSON.parse(savingsStr).map((g: any) => ({
-        ...g,
-        deadline: g.deadline ? new Date(g.deadline) : undefined
-      }));
-    }
-    if (salariesStr) {
-      this.salaries = JSON.parse(salariesStr).map((s: any) => ({
-        ...s,
-        date: new Date(s.date)
-      }));
+  private loadAll(): void {
+    if (this.authService.isAuthenticated()) {
+      this.getExpensesObservable().subscribe({
+        error: (error) => console.error('Error loading expenses:', error)
+      });
+      this.getBudgetsObservable().subscribe({
+        error: (error) => console.error('Error loading budgets:', error)
+      });
+      this.getSavingsGoalsObservable().subscribe({
+        error: (error) => console.error('Error loading savings goals:', error)
+      });
+      this.getSalariesObservable().subscribe({
+        error: (error) => console.error('Error loading salaries:', error)
+      });
+    } else {
+      this.expenses = [];
+      this.budgets = [];
+      this.savingsGoals = [];
+      this.salaries = [];
     }
   }
 }
-

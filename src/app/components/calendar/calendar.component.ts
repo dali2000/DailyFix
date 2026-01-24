@@ -138,6 +138,7 @@ export class CalendarComponent implements OnInit {
   getEventsForDate(date: Date): (CalendarEvent | SocialEvent)[] {
     const dateStart = new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
     
+    // Utiliser les données chargées depuis l'API (déjà dans le cache du service)
     const events = this.taskService.getEvents();
     const socialEvents = this.socialService.getEventsForDate(date);
     
@@ -225,17 +226,28 @@ export class CalendarComponent implements OnInit {
     };
 
     if (this.editingEvent) {
-      this.taskService.updateEvent(this.editingEvent.id, eventData);
-      this.editingEvent = null;
+      this.taskService.updateEvent(this.editingEvent.id, eventData).subscribe({
+        next: () => {
+          this.editingEvent = null;
+          this.showEventForm = false;
+          this.resetEventForm();
+          this.loadCalendar();
+          if (this.selectedDate) {
+            this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
+          }
+        }
+      });
     } else {
-      this.taskService.addEvent(eventData as Omit<CalendarEvent, 'id'>);
-    }
-
-    this.showEventForm = false;
-    this.resetEventForm();
-    this.loadCalendar();
-    if (this.selectedDate) {
-      this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
+      this.taskService.addEvent(eventData as Omit<CalendarEvent, 'id'>).subscribe({
+        next: () => {
+          this.showEventForm = false;
+          this.resetEventForm();
+          this.loadCalendar();
+          if (this.selectedDate) {
+            this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
+          }
+        }
+      });
     }
   }
 
@@ -254,11 +266,14 @@ export class CalendarComponent implements OnInit {
 
   deleteEvent(event: CalendarEvent): void {
     if (confirm('Supprimer cet événement ?')) {
-      this.taskService.deleteEvent(event.id);
-      this.loadCalendar();
-      if (this.selectedDate) {
-        this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
-      }
+      this.taskService.deleteEvent(event.id).subscribe({
+        next: () => {
+          this.loadCalendar();
+          if (this.selectedDate) {
+            this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
+          }
+        }
+      });
     }
   }
 

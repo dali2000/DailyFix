@@ -1,14 +1,15 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { ApiService } from './api.service';
+import { environment } from '../../environments/environment';
 
 export interface User {
-  id: string;
+  id: number | string;
   fullName: string;
   email: string;
-  password?: string; // Optionnel pour les utilisateurs Google
-  provider?: 'local' | 'google'; // Source d'authentification
-  createdAt: string;
+  provider?: 'local' | 'google';
 }
 
 export interface LoginCredentials {
@@ -22,147 +23,78 @@ export interface SignupData {
   password: string;
 }
 
+interface AuthResponse {
+  success: boolean;
+  token?: string;
+  user?: User;
+  message?: string;
+  error?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly USERS_KEY = 'dailyfix_users';
-  private readonly CURRENT_USER_KEY = 'dailyfix_current_user';
-  private currentUserSubject = new BehaviorSubject<User | null>(this.getCurrentUserFromStorage());
+  private readonly TOKEN_KEY = 'dailyfix_token';
+  private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
 
-  constructor(private router: Router) {
-    // Initialiser avec un utilisateur par défaut si aucun utilisateur n'existe
-    this.initializeDefaultUser();
-  }
-
-  private initializeDefaultUser(): void {
-    const users = this.getUsers();
-    if (users.length === 0) {
-      // Créer un utilisateur par défaut pour les tests
-      const defaultUser: User = {
-        id: this.generateId(),
-        fullName: 'Alex Martin',
-        email: 'alex@example.com',
-        password: 'password123',
-        provider: 'local',
-        createdAt: new Date().toISOString()
-      };
-      this.saveUser(defaultUser);
-    }
-  }
-
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  private getUsers(): User[] {
-    const usersJson = localStorage.getItem(this.USERS_KEY);
-    return usersJson ? JSON.parse(usersJson) : [];
-  }
-
-  private saveUsers(users: User[]): void {
-    localStorage.setItem(this.USERS_KEY, JSON.stringify(users));
-  }
-
-  private saveUser(user: User): void {
-    const users = this.getUsers();
-    const existingUserIndex = users.findIndex(u => u.id === user.id);
-    
-    if (existingUserIndex >= 0) {
-      users[existingUserIndex] = user;
-    } else {
-      users.push(user);
-    }
-    
-    this.saveUsers(users);
-  }
-
-  private getCurrentUserFromStorage(): User | null {
-    const userJson = localStorage.getItem(this.CURRENT_USER_KEY);
-    return userJson ? JSON.parse(userJson) : null;
+  constructor(
+    private router: Router,
+    private apiService: ApiService,
+    private http: HttpClient
+  ) {
+    // Vérifier si le token est valide au démarrage
+    this.validateToken();
   }
 
   private setCurrentUser(user: User | null): void {
-    if (user) {
-      localStorage.setItem(this.CURRENT_USER_KEY, JSON.stringify(user));
-    } else {
-      localStorage.removeItem(this.CURRENT_USER_KEY);
+    if (!user) {
+      // Supprimer le token quand l'utilisateur est null
+      localStorage.removeItem(this.TOKEN_KEY);
     }
     this.currentUserSubject.next(user);
   }
 
-  signup(signupData: SignupData): { success: boolean; error?: string } {
-    const users = this.getUsers();
-    
-    // Vérifier si l'email existe déjà
-    const existingUser = users.find(u => u.email.toLowerCase() === signupData.email.toLowerCase());
-    if (existingUser) {
-      return { success: false, error: 'Cet email est déjà utilisé' };
-    }
-
-    // Créer le nouvel utilisateur
-    const newUser: User = {
-      id: this.generateId(),
-      fullName: signupData.fullName,
-      email: signupData.email,
-      password: signupData.password, // En production, hasher le mot de passe
-      provider: 'local',
-      createdAt: new Date().toISOString()
-    };
-
-    this.saveUser(newUser);
-    this.setCurrentUser(newUser);
-    
-    return { success: true };
+  private setToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
   }
 
-  login(credentials: LoginCredentials): { success: boolean; error?: string } {
-    const users = this.getUsers();
-    const user = users.find(
-      u => u.email.toLowerCase() === credentials.email.toLowerCase() &&
-           u.password === credentials.password
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  signup(signupData: SignupData): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/register', signupData).pipe(
+      tap(response => {
+        if (response.success && response.token && response.user) {
+          this.setToken(response.token);
+          this.setCurrentUser(response.user);
+        }
+      })
     );
-
-    if (!user) {
-      return { success: false, error: 'Email ou mot de passe incorrect' };
-    }
-
-    // Vérifier que l'utilisateur n'est pas un utilisateur Google (qui n'a pas de mot de passe)
-    if (user.provider === 'google') {
-      return { success: false, error: 'Veuillez vous connecter avec Google' };
-    }
-
-    this.setCurrentUser(user);
-    return { success: true };
   }
 
-  // Inscription avec Google
-  signupWithGoogle(googleUser: { name: string; email: string; sub: string }): { success: boolean; error?: string } {
-    const users = this.getUsers();
-    
-    // Vérifier si l'utilisateur existe déjà
-    let existingUser = users.find(u => u.email.toLowerCase() === googleUser.email.toLowerCase());
-    
-    if (existingUser) {
-      // Si l'utilisateur existe, se connecter directement
-      this.setCurrentUser(existingUser);
-      return { success: true };
-    }
+  login(credentials: LoginCredentials): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/login', credentials).pipe(
+      tap(response => {
+        if (response.success && response.token && response.user) {
+          this.setToken(response.token);
+          this.setCurrentUser(response.user);
+        }
+      })
+    );
+  }
 
-    // Créer un nouvel utilisateur Google
-    const newUser: User = {
-      id: googleUser.sub || this.generateId(),
-      fullName: googleUser.name,
-      email: googleUser.email,
-      provider: 'google',
-      createdAt: new Date().toISOString()
-    };
-
-    this.saveUser(newUser);
-    this.setCurrentUser(newUser);
-    
-    return { success: true };
+  signupWithGoogle(googleUser: { name: string; email: string; sub: string }): Observable<AuthResponse> {
+    return this.apiService.post<AuthResponse>('/auth/google', googleUser).pipe(
+      tap(response => {
+        if (response.success && response.token && response.user) {
+          this.setToken(response.token);
+          this.setCurrentUser(response.user);
+        }
+      })
+    );
   }
 
   logout(): void {
@@ -175,7 +107,52 @@ export class AuthService {
   }
 
   isAuthenticated(): boolean {
-    return this.getCurrentUser() !== null;
+    return this.getToken() !== null && this.getCurrentUser() !== null;
+  }
+
+  // Valider le token avec le backend
+  validateToken(): void {
+    const token = this.getToken();
+    if (!token) {
+      this.setCurrentUser(null);
+      return;
+    }
+
+    // Utiliser HttpClient directement pour avoir accès au status de l'erreur HTTP
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+
+    this.http.get<AuthResponse>(`${environment.apiUrl}/auth/me`, { headers })
+      .subscribe({
+        next: (response: AuthResponse) => {
+          if (response.success && response.user) {
+            this.setCurrentUser(response.user);
+          } else {
+            console.warn('Token validation failed: invalid response', response);
+            this.setCurrentUser(null);
+          }
+        },
+        error: (error: any) => {
+          // Ne supprimer le token que si c'est une erreur 401 (Unauthorized)
+          // Pour les autres erreurs (connexion, serveur, etc.), garder le token
+          const status = error?.status || 0;
+          const isUnauthorized = status === 401;
+          
+          if (isUnauthorized) {
+            console.warn('Token validation failed: unauthorized (401)', error);
+            // Token invalide ou expiré - supprimer le token
+            this.setCurrentUser(null);
+          } else {
+            // Erreur de connexion (status 0) ou serveur (500, etc.) - garder le token
+            console.warn('Token validation error (keeping token, status:', status, ')', error);
+            // Ne pas définir l'utilisateur mais garder le token
+            // L'utilisateur restera null jusqu'à ce que la connexion soit rétablie
+            // Le token reste dans localStorage pour une nouvelle tentative
+          }
+        }
+      });
   }
 
   // Méthode pour mettre à jour le profil utilisateur
@@ -190,24 +167,12 @@ export class AuthService {
       ...userData
     };
 
-    this.saveUser(updatedUser);
     this.setCurrentUser(updatedUser);
   }
 
-  // Méthode pour obtenir la clé de stockage basée sur l'ID utilisateur
-  getUserStorageKey(key: string): string {
-    const currentUser = this.getCurrentUser();
-    if (!currentUser) {
-      // Si aucun utilisateur n'est connecté, utiliser une clé par défaut (ne devrait pas arriver)
-      return `dailyFix_${key}`;
-    }
-    return `dailyFix_${currentUser.id}_${key}`;
-  }
-
   // Méthode pour obtenir l'ID de l'utilisateur actuel
-  getCurrentUserId(): string | null {
+  getCurrentUserId(): number | string | null {
     const currentUser = this.getCurrentUser();
     return currentUser ? currentUser.id : null;
   }
 }
-

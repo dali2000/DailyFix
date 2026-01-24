@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
+import { Subscription } from 'rxjs';
 
 // Types pour Google Identity Services
 declare global {
@@ -43,6 +44,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   isLoading: boolean = false;
   // Client ID Google OAuth 2.0 configuré
   private googleClientId: string = '248580902178-3s8374jnjcm4o3g0k2oi98md1sl9r7av.apps.googleusercontent.com';
+  private authSubscription: Subscription = new Subscription();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -61,7 +63,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Nettoyage si nécessaire
+    if (this.authSubscription) {
+      this.authSubscription.unsubscribe();
+    }
   }
 
   private initializeGoogleSignIn(): void {
@@ -116,32 +120,42 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.isLoading = true;
 
     if (this.authMode === 'login') {
-      const result = this.authService.login({
+      this.authService.login({
         email: this.form.value.email,
         password: this.form.value.password
+      }).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          if (response.success) {
+            this.router.navigate(['/home']);
+          } else {
+            this.errorMessage = response.error || response.message || 'Erreur de connexion';
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Erreur de connexion';
+        }
       });
-
-      this.isLoading = false;
-
-      if (result.success) {
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage = result.error || 'Erreur de connexion';
-      }
     } else {
-      const result = this.authService.signup({
+      this.authService.signup({
         fullName: this.form.value.fullName,
         email: this.form.value.email,
         password: this.form.value.password
+      }).subscribe({
+        next: (response) => {
+          this.isLoading = false;
+          if (response.success) {
+            this.router.navigate(['/home']);
+          } else {
+            this.errorMessage = response.error || response.message || 'Erreur lors de l\'inscription';
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Erreur lors de l\'inscription';
+        }
       });
-
-      this.isLoading = false;
-
-      if (result.success) {
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage = result.error || 'Erreur lors de l\'inscription';
-      }
     }
   }
 
@@ -205,64 +219,95 @@ export class LoginComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getGoogleUserInfo(accessToken: string): Promise<void> {
-    try {
-      // Appeler l'API Google pour obtenir les informations utilisateur
-      const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
-        headers: {
-          'Authorization': `Bearer ${accessToken}`
+      private async getGoogleUserInfo(accessToken: string): Promise<void> {
+        try {
+          const response = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`
+            }
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error?.message || `HTTP ${response.status}: ${response.statusText}`);
+          }
+
+          const userInfo = await response.json();
+          
+          if (!userInfo.email || !userInfo.id) {
+            throw new Error('Informations utilisateur incomplètes depuis Google');
+          }
+
+          const googleUser = {
+            name: userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim() || 'Utilisateur Google',
+            email: userInfo.email,
+            sub: userInfo.id
+          };
+
+          this.authSubscription.add(this.authService.signupWithGoogle(googleUser).subscribe({
+            next: (result) => {
+              this.isLoading = false;
+              if (result.success) {
+                this.router.navigate(['/home']);
+              } else {
+                this.errorMessage = result.message || 'Erreur lors de l\'inscription avec Google';
+              }
+            },
+            error: (error) => {
+              console.error('Erreur lors de la connexion avec Google:', error);
+              this.isLoading = false;
+              this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
+            }
+          }));
+        } catch (error: any) {
+          console.error('Erreur lors de la récupération des infos Google:', error);
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
         }
-      });
-
-      if (response.ok) {
-        const userInfo = await response.json();
-        const googleUser = {
-          name: userInfo.name || `${userInfo.given_name || ''} ${userInfo.family_name || ''}`.trim(),
-          email: userInfo.email,
-          sub: userInfo.id
-        };
-
-        const result = this.authService.signupWithGoogle(googleUser);
-        this.isLoading = false;
-
-        if (result.success) {
-          this.router.navigate(['/home']);
-        } else {
-          this.errorMessage = result.error || 'Erreur lors de l\'inscription avec Google';
-        }
-      } else {
-        throw new Error('Erreur lors de la récupération des informations utilisateur');
       }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des infos Google:', error);
-      this.isLoading = false;
-      this.errorMessage = 'Erreur lors de la connexion avec Google';
-    }
-  }
 
   private handleGoogleSignIn(response: any): void {
     try {
-      // Décoder le JWT token
-      const payload = JSON.parse(atob(response.credential.split('.')[1]));
-      
+      if (!response.credential) {
+        throw new Error('Réponse Google invalide: credential manquant');
+      }
+
+      const parts = response.credential.split('.');
+      if (parts.length !== 3) {
+        throw new Error('Format de credential Google invalide');
+      }
+
+      const payload = JSON.parse(atob(parts[1]));
+
+      if (!payload.email || !payload.sub) {
+        throw new Error('Informations utilisateur incomplètes dans le token Google');
+      }
+
       const googleUser = {
-        name: payload.name || payload.given_name + ' ' + payload.family_name,
+        name: payload.name || `${payload.given_name || ''} ${payload.family_name || ''}`.trim() || 'Utilisateur Google',
         email: payload.email,
         sub: payload.sub
       };
 
-      const result = this.authService.signupWithGoogle(googleUser);
-      this.isLoading = false;
-
-      if (result.success) {
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage = result.error || 'Erreur lors de l\'inscription avec Google';
-      }
-    } catch (error) {
+      this.authSubscription.add(this.authService.signupWithGoogle(googleUser).subscribe({
+        next: (result) => {
+          this.isLoading = false;
+          if (result.success) {
+            this.router.navigate(['/home']);
+          } else {
+            this.errorMessage = result.message || 'Erreur lors de l\'inscription avec Google';
+          }
+        },
+        error: (error) => {
+          console.error('Erreur lors de la connexion Google:', error);
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
+        }
+      }));
+    } catch (error: any) {
       console.error('Erreur lors de la connexion Google:', error);
       this.isLoading = false;
-      this.errorMessage = 'Erreur lors de la connexion avec Google';
+      this.errorMessage = error.message || 'Erreur lors de la connexion avec Google';
     }
   }
 
@@ -276,14 +321,20 @@ export class LoginComponent implements OnInit, OnDestroy {
         sub: `google_${Date.now()}`
       };
 
-      const result = this.authService.signupWithGoogle(mockGoogleUser);
-      this.isLoading = false;
-
-      if (result.success) {
-        this.router.navigate(['/home']);
-      } else {
-        this.errorMessage = result.error || 'Erreur lors de l\'inscription avec Google';
-      }
+      this.authService.signupWithGoogle(mockGoogleUser).subscribe({
+        next: (result) => {
+          this.isLoading = false;
+          if (result.success) {
+            this.router.navigate(['/home']);
+          } else {
+            this.errorMessage = result.error || result.message || 'Erreur lors de l\'inscription avec Google';
+          }
+        },
+        error: (error) => {
+          this.isLoading = false;
+          this.errorMessage = error.message || 'Erreur lors de l\'inscription avec Google';
+        }
+      });
     }, 1000);
   }
 

@@ -1,0 +1,155 @@
+.settings-page {
+  padding: var(--notion-spacing-lg);
+  max-width: 800px;
+  margin: 0 auto;
+  min-height: calc(100vh - 60px);
+}
+
+.settings-page h1 {
+  margin-bottom: var(--notion-spacing-xl);
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.settings-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-spacing-xl);
+}
+
+.settings-section {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius-md);
+  padding: var(--notion-spacing-lg);
+}
+
+.settings-section h2 {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: var(--notion-spacing-lg);
+  color: var(--notion-text-primary);
+}
+
+.setting-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: var(--notion-spacing-md) 0;
+  border-bottom: 1px solid var(--notion-border);
+}
+
+.setting-item:last-child {
+  border-bottom: none;
+}
+
+.setting-info {
+  flex: 1;
+  margin-right: var(--notion-spacing-lg);
+}
+
+.setting-info h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: var(--notion-spacing-xs);
+  color: var(--notion-text-primary);
+}
+
+.setting-info p {
+  font-size: 14px;
+  color: var(--notion-text-secondary);
+  margin: 0;
+}
+
+.setting-control {
+  display: flex;
+  align-items: center;
+  gap: var(--notion-spacing);
+}
+
+.theme-toggle {
+  display: flex;
+  gap: var(--notion-spacing-sm);
+  background: var(--notion-bg-secondary);
+  border-radius: var(--notion-radius);
+  padding: 4px;
+}
+
+.theme-option {
+  display: flex;
+  align-items: center;
+  gap: var(--notion-spacing-xs);
+  padding: var(--notion-spacing-sm) var(--notion-spacing-md);
+  border: none;
+  background: transparent;
+  border-radius: var(--notion-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--notion-text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.theme-option:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-text-primary);
+}
+
+.theme-option.active {
+  background: var(--notion-text-primary);
+  color: rgb(146, 146, 146) !important; 
+}
+
+/* Dark Mode */
+.dark-theme .theme-option {
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .theme-option:hover {
+  background: var(--notion-bg-hover) !important;
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .theme-option.active {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: white !important;
+}
+
+.theme-option svg {
+  width: 18px;
+  height: 18px;
+}
+
+@media (max-width: 768px) {
+  .settings-page {
+    padding: var(--notion-spacing);
+  }
+
+  .settings-page h1 {
+    font-size: 24px;
+  }
+
+  .setting-item {
+    flex-direction: column;
+    gap: var(--notion-spacing);
+  }
+
+  .setting-info {
+    margin-right: 0;
+  }
+
+  .setting-control {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .theme-toggle {
+    width: 100%;
+  }
+
+  .theme-option {
+    flex: 1;
+    justify-content: center;
+  }
+}
+

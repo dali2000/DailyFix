@@ -289,6 +289,12 @@
   font-size: 11px;
 }
 
+/* Dark Mode */
+.dark-theme .avatar {
+  background: rgba(255, 255, 255, 0.15) !important;
+  color: var(--notion-text-primary) !important;
+}
+
 .name {
   color: var(--notion-text-primary);
   font-weight: 400;

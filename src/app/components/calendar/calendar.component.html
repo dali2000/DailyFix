@@ -60,14 +60,14 @@
   </div>
 
   <div class="calendar-navigation">
-    <button (click)="previousPeriod()">← Précédent</button>
+    <button (click)="previousPeriod()" class="btn btn-primary">← Précédent</button>
     <h2 class="month-year-display">
       <span class="month-name">{{ getMonthNameOnly() }}</span>
       <span class="year-box">{{ getYear() }}</span>
     </h2>
     <div>
-      <button (click)="goToToday()">Aujourd'hui</button>
-      <button (click)="nextPeriod()">Suivant →</button>
+      <button (click)="goToToday()" class="btn btn-primary">Aujourd'hui</button>
+      <button (click)="nextPeriod()" class="btn btn-primary">Suivant →</button>
     </div>
   </div>
 

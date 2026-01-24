@@ -1,0 +1,87 @@
+<div class="settings-page">
+  <div class="settings-container">
+    <h1>Paramètres</h1>
+
+    <!-- Section Apparence -->
+    <section class="settings-section">
+      <h2>Apparence</h2>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <h3>Thème</h3>
+          <p>Choisissez entre le mode clair et le mode sombre</p>
+        </div>
+        <div class="setting-control">
+          <div class="theme-toggle">
+            <button 
+              class="theme-option" 
+              [class.active]="currentTheme === 'light'"
+              (click)="setTheme('light')"
+              aria-label="Mode clair">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="5"></circle>
+                <line x1="12" y1="1" x2="12" y2="3"></line>
+                <line x1="12" y1="21" x2="12" y2="23"></line>
+                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                <line x1="1" y1="12" x2="3" y2="12"></line>
+                <line x1="21" y1="12" x2="23" y2="12"></line>
+                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+              </svg>
+              <span>Clair</span>
+            </button>
+            <button 
+              class="theme-option" 
+              [class.active]="currentTheme === 'dark'"
+              (click)="setTheme('dark')"
+              aria-label="Mode sombre">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+              <span>Sombre</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section Compte -->
+    <section class="settings-section">
+      <h2>Compte</h2>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <h3>Informations utilisateur</h3>
+          <p *ngIf="currentUser">{{ currentUser.fullName }} - {{ currentUser.email }}</p>
+          <p *ngIf="!currentUser">Chargement...</p>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h3>Déconnexion</h3>
+          <p>Déconnectez-vous de votre compte</p>
+        </div>
+        <div class="setting-control">
+          <button class="btn btn-danger" (click)="logout()">
+            Se déconnecter
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section À propos -->
+    <section class="settings-section">
+      <h2>À propos</h2>
+      
+      <div class="setting-item">
+        <div class="setting-info">
+          <h3>Version</h3>
+          <p>DailyFix v1.0.0</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+

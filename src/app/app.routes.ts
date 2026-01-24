@@ -49,4 +49,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./components/wellness/wellness.component').then((m) => m.WellnessComponent),
   },
+  {
+    path: 'settings',
+    loadComponent: () =>
+      import('./components/settings/settings.component').then((m) => m.SettingsComponent),
+  },
 ];

@@ -668,6 +668,19 @@
   color: var(--notion-text-primary);
 }
 
+/* Dark Mode Buttons */
+.dark-theme .btn-primary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .btn-primary:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--notion-text-primary) !important;
+}
+
 .no-assignee {
   color: var(--notion-text-tertiary);
   font-style: italic;

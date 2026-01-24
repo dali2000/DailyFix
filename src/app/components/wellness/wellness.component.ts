@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WellnessService } from '../../services/wellness.service';
 import { JournalEntry, PersonalGoal, StressManagement } from '../../models/wellness.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-wellness',
@@ -40,12 +41,46 @@ export class WellnessComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    // Les subscriptions sont gérées dans les méthodes loadData
+  }
+
   loadData(): void {
-    this.journalEntries = this.wellnessService.getJournalEntries();
-    this.personalGoals = this.wellnessService.getPersonalGoals();
-    this.stressRecords = this.wellnessService.getStressRecords();
-    this.averageStressLevel = this.wellnessService.getAverageStressLevel(7);
-    this.stressTips = this.wellnessService.getStressManagementTips();
+    // Charger toutes les données depuis l'API
+    this.wellnessService.getJournalEntriesObservable().subscribe({
+      next: (entries) => {
+        this.journalEntries = entries.map((e: any) => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date)
+        }));
+      },
+      error: (error) => console.error('Error loading journal entries:', error)
+    });
+
+    this.wellnessService.getPersonalGoalsObservable().subscribe({
+      next: (goals) => {
+        this.personalGoals = goals.map((g: any) => ({
+          ...g,
+          id: g.id.toString(),
+          targetDate: g.targetDate ? new Date(g.targetDate) : undefined
+        }));
+      },
+      error: (error) => console.error('Error loading personal goals:', error)
+    });
+
+    this.wellnessService.getStressRecordsObservable().subscribe({
+      next: (records) => {
+        this.stressRecords = records.map((r: any) => ({
+          ...r,
+          id: r.id.toString(),
+          date: new Date(r.date)
+        }));
+        this.averageStressLevel = this.wellnessService.getAverageStressLevel(7);
+        this.stressTips = this.wellnessService.getStressManagementTips();
+      },
+      error: (error) => console.error('Error loading stress records:', error)
+    });
   }
 
   // Journal methods
@@ -56,10 +91,13 @@ export class WellnessComponent implements OnInit {
       content: this.newEntry.content!,
       mood: this.newEntry.mood,
       tags: this.newEntry.tags
+    }).subscribe({
+      next: () => {
+        this.showJournalForm = false;
+        this.newEntry = {};
+        this.loadData();
+      }
     });
-    this.showJournalForm = false;
-    this.newEntry = {};
-    this.loadData();
   }
 
   editJournalEntry(entry: JournalEntry): void {
@@ -75,17 +113,23 @@ export class WellnessComponent implements OnInit {
 
   updateJournalEntry(): void {
     if (!this.selectedEntry || !this.newEntry.content) return;
-    this.wellnessService.updateJournalEntry(this.selectedEntry.id, this.newEntry);
-    this.showJournalForm = false;
-    this.selectedEntry = null;
-    this.newEntry = {};
-    this.loadData();
+    this.wellnessService.updateJournalEntry(this.selectedEntry.id, this.newEntry).subscribe({
+      next: () => {
+        this.showJournalForm = false;
+        this.selectedEntry = null;
+        this.newEntry = {};
+        this.loadData();
+      }
+    });
   }
 
   deleteJournalEntry(id: string): void {
     if (confirm('Supprimer cette entrée ?')) {
-      this.wellnessService.deleteJournalEntry(id);
-      this.loadData();
+      this.wellnessService.deleteJournalEntry(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -97,21 +141,30 @@ export class WellnessComponent implements OnInit {
       description: this.newGoal.description,
       category: this.newGoal.category || 'personal',
       targetDate: this.newGoal.targetDate ? new Date(this.newGoal.targetDate) : undefined
+    }).subscribe({
+      next: () => {
+        this.showGoalForm = false;
+        this.newGoal = { category: 'personal' };
+        this.loadData();
+      }
     });
-    this.showGoalForm = false;
-    this.newGoal = { category: 'personal' };
-    this.loadData();
   }
 
   updateGoalProgress(goal: PersonalGoal, progress: number): void {
-    this.wellnessService.updatePersonalGoal(goal.id, { progress });
-    this.loadData();
+    this.wellnessService.updatePersonalGoal(goal.id, { progress }).subscribe({
+      next: () => {
+        this.loadData();
+      }
+    });
   }
 
   deletePersonalGoal(id: string): void {
     if (confirm('Supprimer cet objectif ?')) {
-      this.wellnessService.deletePersonalGoal(id);
-      this.loadData();
+      this.wellnessService.deletePersonalGoal(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -135,10 +188,13 @@ export class WellnessComponent implements OnInit {
       triggers: this.newStress.triggers,
       copingStrategies: this.newStress.copingStrategies,
       notes: this.newStress.notes
+    }).subscribe({
+      next: () => {
+        this.showStressForm = false;
+        this.newStress = { stressLevel: 5 };
+        this.loadData();
+      }
     });
-    this.showStressForm = false;
-    this.newStress = { stressLevel: 5 };
-    this.loadData();
   }
 
   getMoodEmoji(mood?: string): string {

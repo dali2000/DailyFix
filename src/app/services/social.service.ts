@@ -1,6 +1,15 @@
 import { Injectable } from '@angular/core';
+import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
 import { SocialEvent, ActivitySuggestion } from '../models/social.model';
 import { AuthService } from './auth.service';
+import { ApiService } from './api.service';
+
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  count?: number;
+  message?: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -50,12 +59,22 @@ export class SocialService {
     }
   ];
 
-  constructor(private authService: AuthService) {
-    // Écouter les changements d'utilisateur pour recharger les données
-    this.authService.currentUser$.subscribe(() => {
-      this.loadFromStorage();
+  constructor(
+    private authService: AuthService,
+    private apiService: ApiService
+  ) {
+    // Charger les données seulement quand l'utilisateur est authentifié
+    this.authService.currentUser$.pipe(
+      distinctUntilChanged()
+    ).subscribe((user) => {
+      if (user !== null) {
+        // Utilisateur connecté - charger les données
+        this.loadAll();
+      } else {
+        // Utilisateur déconnecté - vider les données (garder les suggestions par défaut)
+        this.events = [];
+      }
     });
-    this.loadFromStorage();
   }
 
   // Social Event methods
@@ -63,95 +82,165 @@ export class SocialService {
     return [...this.events];
   }
 
-  addEvent(event: Omit<SocialEvent, 'id'>): SocialEvent {
-    const newEvent: SocialEvent = {
-      ...event,
-      id: this.generateId()
-    };
-    this.events.push(newEvent);
-    this.saveToStorage();
-    return newEvent;
+  getEventsObservable(): Observable<SocialEvent[]> {
+    return this.apiService.get<ApiResponse<SocialEvent[]>>('/social/events').pipe(
+      map(response => response.data || []),
+      tap(events => this.events = events.map(e => ({
+        ...e,
+        id: e.id.toString(),
+        date: new Date(e.date),
+        reminder: e.reminder ? new Date(e.reminder) : undefined
+      })))
+    );
   }
 
-  updateEvent(id: string, updates: Partial<SocialEvent>): SocialEvent | null {
-    const index = this.events.findIndex(e => e.id === id);
-    if (index === -1) return null;
-    this.events[index] = { ...this.events[index], ...updates };
-    this.saveToStorage();
-    return this.events[index];
+  getEventById(id: string): SocialEvent | undefined {
+    return this.events.find(e => e.id === id);
   }
 
-  deleteEvent(id: string): boolean {
-    const index = this.events.findIndex(e => e.id === id);
-    if (index === -1) return false;
-    this.events.splice(index, 1);
-    this.saveToStorage();
-    return true;
+  getEventByIdObservable(id: string): Observable<SocialEvent> {
+    return this.apiService.get<ApiResponse<SocialEvent>>(`/social/events/${id}`).pipe(
+      map(response => response.data!)
+    );
+  }
+
+  addEvent(event: Omit<SocialEvent, 'id'>): Observable<SocialEvent> {
+    return this.apiService.post<ApiResponse<SocialEvent>>('/social/events', event).pipe(
+      map(response => response.data!),
+      tap(newEvent => {
+        this.events.push({
+          ...newEvent,
+          id: newEvent.id.toString(),
+          date: new Date(newEvent.date),
+          reminder: newEvent.reminder ? new Date(newEvent.reminder) : undefined
+        });
+      })
+    );
+  }
+
+  updateEvent(id: string, updates: Partial<SocialEvent>): Observable<SocialEvent> {
+    return this.apiService.put<ApiResponse<SocialEvent>>(`/social/events/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedEvent => {
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events[index] = {
+            ...updatedEvent,
+            id: updatedEvent.id.toString(),
+            date: new Date(updatedEvent.date),
+            reminder: updatedEvent.reminder ? new Date(updatedEvent.reminder) : undefined
+          };
+        }
+      })
+    );
+  }
+
+  deleteEvent(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/social/events/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.events.findIndex(e => e.id === id);
+        if (index !== -1) {
+          this.events.splice(index, 1);
+        }
+      })
+    );
+  }
+
+  // Activity Suggestion methods
+  getSuggestions(): ActivitySuggestion[] {
+    return [...this.suggestions];
+  }
+
+  getSuggestionsObservable(): Observable<ActivitySuggestion[]> {
+    return this.apiService.get<ApiResponse<ActivitySuggestion[]>>('/social/suggestions').pipe(
+      map(response => response.data || []),
+      tap(suggestions => {
+        if (suggestions.length > 0) {
+          this.suggestions = suggestions.map(s => ({ ...s, id: s.id.toString() }));
+        }
+      })
+    );
+  }
+
+  addSuggestion(suggestion: Omit<ActivitySuggestion, 'id'>): Observable<ActivitySuggestion> {
+    return this.apiService.post<ApiResponse<ActivitySuggestion>>('/social/suggestions', suggestion).pipe(
+      map(response => response.data!),
+      tap(newSuggestion => {
+        this.suggestions.push({ ...newSuggestion, id: newSuggestion.id.toString() });
+      })
+    );
+  }
+
+  updateSuggestion(id: string, updates: Partial<ActivitySuggestion>): Observable<ActivitySuggestion> {
+    return this.apiService.put<ApiResponse<ActivitySuggestion>>(`/social/suggestions/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updatedSuggestion => {
+        const index = this.suggestions.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.suggestions[index] = { ...updatedSuggestion, id: updatedSuggestion.id.toString() };
+        }
+      })
+    );
+  }
+
+  deleteSuggestion(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<any>>(`/social/suggestions/${id}`).pipe(
+      map(response => response.success),
+      tap(() => {
+        const index = this.suggestions.findIndex(s => s.id === id);
+        if (index !== -1) {
+          this.suggestions.splice(index, 1);
+        }
+      })
+    );
+  }
+
+  getEventsForDate(date: Date): SocialEvent[] {
+    const dateStr = date.toDateString();
+    return this.events.filter(e => {
+      const eventDate = e.date instanceof Date ? e.date : new Date(e.date);
+      return eventDate.toDateString() === dateStr;
+    });
   }
 
   getUpcomingEvents(): SocialEvent[] {
     const now = new Date();
     return this.events
-      .filter(e => new Date(e.date) >= now)
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
-  }
-
-  getEventsForDate(date: Date): SocialEvent[] {
-    const dateStr = date.toDateString();
-    return this.events.filter(e => new Date(e.date).toDateString() === dateStr);
+      .filter(e => {
+        const eventDate = e.date instanceof Date ? e.date : new Date(e.date);
+        return eventDate >= now;
+      })
+      .sort((a, b) => {
+        const dateA = a.date instanceof Date ? a.date : new Date(a.date);
+        const dateB = b.date instanceof Date ? b.date : new Date(b.date);
+        return dateA.getTime() - dateB.getTime();
+      });
   }
 
   getBirthdays(): SocialEvent[] {
     return this.events.filter(e => e.type === 'birthday');
   }
 
-  // Activity Suggestion methods
   getActivitySuggestions(): ActivitySuggestion[] {
-    return [...this.suggestions];
+    return this.getSuggestions();
   }
 
-  getSuggestionsByCategory(category: ActivitySuggestion['category']): ActivitySuggestion[] {
-    return this.suggestions.filter(s => s.category === category);
+  addCustomSuggestion(suggestion: Omit<ActivitySuggestion, 'id'>): Observable<ActivitySuggestion> {
+    return this.addSuggestion(suggestion);
   }
 
-  addCustomSuggestion(suggestion: Omit<ActivitySuggestion, 'id'>): ActivitySuggestion {
-    const newSuggestion: ActivitySuggestion = {
-      ...suggestion,
-      id: this.generateId()
-    };
-    this.suggestions.push(newSuggestion);
-    this.saveToStorage();
-    return newSuggestion;
-  }
-
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2);
-  }
-
-  private saveToStorage(): void {
-    const eventsKey = this.authService.getUserStorageKey('socialEvents');
-    const suggestionsKey = this.authService.getUserStorageKey('activitySuggestions');
-    localStorage.setItem(eventsKey, JSON.stringify(this.events));
-    localStorage.setItem(suggestionsKey, JSON.stringify(this.suggestions));
-  }
-
-  private loadFromStorage(): void {
-    const eventsKey = this.authService.getUserStorageKey('socialEvents');
-    const suggestionsKey = this.authService.getUserStorageKey('activitySuggestions');
-    const eventsStr = localStorage.getItem(eventsKey);
-    const suggestionsStr = localStorage.getItem(suggestionsKey);
-
-    if (eventsStr) {
-      this.events = JSON.parse(eventsStr).map((e: any) => ({
-        ...e,
-        date: new Date(e.date),
-        reminder: e.reminder ? new Date(e.reminder) : undefined
-      }));
-    }
-    if (suggestionsStr) {
-      this.suggestions = JSON.parse(suggestionsStr);
+  private loadAll(): void {
+    if (this.authService.isAuthenticated()) {
+      this.getEventsObservable().subscribe({
+        error: (error) => console.error('Error loading social events:', error)
+      });
+      this.getSuggestionsObservable().subscribe({
+        error: (error) => console.error('Error loading suggestions:', error)
+      });
+    } else {
+      this.events = [];
+      // Garder les suggestions par défaut même si non authentifié
     }
   }
 }
-
-

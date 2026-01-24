@@ -4,12 +4,14 @@ import { RouterModule, Router } from '@angular/router';
 import { WeatherService, WeatherData } from '../../../services/weather.service';
 import { SidebarService } from '../../../services/sidebar.service';
 import { AuthService, User } from '../../../services/auth.service';
+import { ThemeService, Theme } from '../../../services/theme.service';
+import { NotificationsComponent } from '../notifications/notifications.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, NotificationsComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })
@@ -20,13 +22,16 @@ export class NavbarComponent implements OnInit, OnDestroy {
   weatherLoading = false;
   isMobile = false;
   currentUser: User | null = null;
+  currentTheme: Theme = 'light';
   private userSubscription?: Subscription;
+  private themeSubscription?: Subscription;
 
   constructor(
     private weatherService: WeatherService,
     private sidebarService: SidebarService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private themeService: ThemeService
   ) {}
 
   @HostListener('window:resize', ['$event'])
@@ -53,11 +58,18 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+    this.currentTheme = this.themeService.getCurrentTheme();
+    this.themeSubscription = this.themeService.theme$.subscribe(theme => {
+      this.currentTheme = theme;
+    });
   }
 
   ngOnDestroy(): void {
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.themeSubscription) {
+      this.themeSubscription.unsubscribe();
     }
   }
 
@@ -100,6 +112,10 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.showProfileDropdown = false;
     // Déconnecter l'utilisateur via le service
     this.authService.logout();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   loadWeather(): void {

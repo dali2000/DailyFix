@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
+import { AuthService } from '../../services/auth.service';
 import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-finance',
@@ -11,13 +13,14 @@ import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
-export class FinanceComponent implements OnInit {
+export class FinanceComponent implements OnInit, OnDestroy {
   activeTab: 'overview' | 'salary' | 'expenses' | 'budget' | 'savings' = 'overview';
-  
+
   expenses: Expense[] = [];
   budgets: Budget[] = [];
   savingsGoals: SavingsGoal[] = [];
   salaries: Salary[] = [];
+  private dataSubscription?: Subscription;
   
   showExpenseForm = false;
   showBudgetForm = false;
@@ -41,24 +44,83 @@ export class FinanceComponent implements OnInit {
   expenseCategories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
   
   // User info for bank card
-  userName = 'Alex Martin';
+  userName = '';
   rib = 'FR76 1234 5678 9012 3456 7890 123';
   cardNumber = '4532 1234 5678 9010';
   expiryDate = '12/28';
   cvv = '123';
+  private userSubscription?: Subscription;
 
-  constructor(private financeService: FinanceService) {}
+  constructor(
+    private financeService: FinanceService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    // Charger le nom de l'utilisateur connecté
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userName = currentUser.fullName;
+    }
+    
+    // Écouter les changements d'utilisateur
+    this.userSubscription = this.authService.currentUser$.subscribe(user => {
+      if (user) {
+        this.userName = user.fullName;
+      } else {
+        this.userName = '';
+      }
+    });
+    
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
+    }
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+  }
+
   loadData(): void {
-    this.expenses = this.financeService.getExpenses();
-    this.budgets = this.financeService.getBudgets();
-    this.savingsGoals = this.financeService.getSavingsGoals();
-    this.salaries = this.financeService.getSalaries();
-    this.updateOverview();
+    // Charger toutes les données depuis l'API
+    this.financeService.getExpensesObservable().subscribe({
+      next: (expenses) => {
+        this.expenses = expenses.map((e: any) => ({ ...e, id: e.id.toString(), date: new Date(e.date) }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading expenses:', error)
+    });
+
+    this.financeService.getBudgetsObservable().subscribe({
+      next: (budgets) => {
+        this.budgets = budgets.map((b: any) => ({ ...b, id: b.id.toString() }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading budgets:', error)
+    });
+
+    this.financeService.getSavingsGoalsObservable().subscribe({
+      next: (goals) => {
+        this.savingsGoals = goals.map((g: any) => ({
+          ...g,
+          id: g.id.toString(),
+          deadline: g.deadline ? new Date(g.deadline) : undefined
+        }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading savings goals:', error)
+    });
+
+    this.financeService.getSalariesObservable().subscribe({
+      next: (salaries) => {
+        this.salaries = salaries.map((s: any) => ({ ...s, id: s.id.toString(), date: new Date(s.date) }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading salaries:', error)
+    });
   }
 
   updateOverview(): void {
@@ -78,16 +140,22 @@ export class FinanceComponent implements OnInit {
       description: this.newExpense.description!,
       date: new Date(),
       paymentMethod: this.newExpense.paymentMethod
+    }).subscribe({
+      next: () => {
+        this.showExpenseForm = false;
+        this.newExpense = { category: 'other' };
+        this.loadData();
+      }
     });
-    this.showExpenseForm = false;
-    this.newExpense = { category: 'other' };
-    this.loadData();
   }
 
   deleteExpense(id: string): void {
     if (confirm('Supprimer cette dépense ?')) {
-      this.financeService.deleteExpense(id);
-      this.loadData();
+      this.financeService.deleteExpense(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -97,16 +165,22 @@ export class FinanceComponent implements OnInit {
       category: this.newBudget.category!,
       limit: this.newBudget.limit!,
       period: this.newBudget.period || 'monthly'
+    }).subscribe({
+      next: () => {
+        this.showBudgetForm = false;
+        this.newBudget = { period: 'monthly' };
+        this.loadData();
+      }
     });
-    this.showBudgetForm = false;
-    this.newBudget = { period: 'monthly' };
-    this.loadData();
   }
 
   deleteBudget(id: string): void {
     if (confirm('Supprimer ce budget ?')) {
-      this.financeService.deleteBudget(id);
-      this.loadData();
+      this.financeService.deleteBudget(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -117,24 +191,33 @@ export class FinanceComponent implements OnInit {
       targetAmount: this.newSavingsGoal.targetAmount!,
       currentAmount: this.newSavingsGoal.currentAmount || 0,
       deadline: this.newSavingsGoal.deadline ? new Date(this.newSavingsGoal.deadline) : undefined
+    }).subscribe({
+      next: () => {
+        this.showSavingsForm = false;
+        this.newSavingsGoal = {};
+        this.loadData();
+      }
     });
-    this.showSavingsForm = false;
-    this.newSavingsGoal = {};
-    this.loadData();
   }
 
   updateSavingsGoal(id: string, amount: number): void {
     const goal = this.savingsGoals.find(g => g.id === id);
     if (goal) {
-      this.financeService.updateSavingsGoal(id, { currentAmount: amount });
-      this.loadData();
+      this.financeService.updateSavingsGoal(id, { currentAmount: amount }).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
   deleteSavingsGoal(id: string): void {
     if (confirm('Supprimer cet objectif d\'épargne ?')) {
-      this.financeService.deleteSavingsGoal(id);
-      this.loadData();
+      this.financeService.deleteSavingsGoal(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -185,16 +268,22 @@ export class FinanceComponent implements OnInit {
       period: this.newSalary.period || 'monthly',
       date: this.newSalary.date ? new Date(this.newSalary.date) : new Date(),
       description: this.newSalary.description
+    }).subscribe({
+      next: () => {
+        this.showSalaryForm = false;
+        this.newSalary = { period: 'monthly' };
+        this.loadData();
+      }
     });
-    this.showSalaryForm = false;
-    this.newSalary = { period: 'monthly' };
-    this.loadData();
   }
 
   deleteSalary(id: string): void {
     if (confirm('Supprimer ce salaire ?')) {
-      this.financeService.deleteSalary(id);
-      this.loadData();
+      this.financeService.deleteSalary(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 }

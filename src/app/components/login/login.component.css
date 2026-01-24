@@ -148,6 +148,18 @@ input:focus {
   transition: background 20ms ease-in 0s;
 }
 
+/* Dark Mode */
+.dark-theme .submit {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .submit:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+}
+
 .submit:hover {
   background: #2e2e2c;
 }

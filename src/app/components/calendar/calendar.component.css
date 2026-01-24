@@ -140,14 +140,15 @@
     flex-shrink: 0;
     background: var(--notion-text-primary);
     border: 1px solid var(--notion-text-primary);
-    color: white;
+    color: white !important;
     white-space: nowrap;
     border-radius: var(--notion-radius);
   }
 
   .calendar-navigation button:hover {
-    background: #2e2e2c;
-    border-color: #2e2e2c;
+    opacity: 0.9;
+    filter: brightness(0.9);
+    color: white !important;
   }
 
   .calendar-navigation > div {
@@ -175,7 +176,7 @@
     gap: 0;
     margin-bottom: 0;
     background: var(--notion-bg);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid var(--notion-border);
     padding: 12px 8px;
     width: 100%;
     box-sizing: border-box;
@@ -186,7 +187,7 @@
     padding: 0;
     text-align: center;
     font-weight: 500;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--notion-text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0;
   }
@@ -205,8 +206,8 @@
     min-height: 120px;
     padding: 12px 8px;
     border: none;
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid var(--notion-border);
+    border-bottom: 1px solid var(--notion-border);
     border-radius: 0;
     position: relative;
     display: flex;
@@ -221,7 +222,7 @@
   }
 
   .day-cell:nth-child(7n) {
-    border-right: 1px solid rgba(0, 0, 0, 0.1);
+    border-right: 1px solid var(--notion-border);
   }
 
   .day-cell.other-month {
@@ -234,7 +235,7 @@
   }
 
   .day-cell.today .day-number {
-    background: #ff3b30;
+    background: var(--notion-red);
     color: white;
     width: 32px;
     height: 32px;
@@ -257,13 +258,13 @@
     margin: 0;
     text-align: center;
     width: 100%;
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--notion-text-primary);
     line-height: 1;
     padding-bottom: 8px;
   }
 
   .day-cell.other-month .day-number {
-    color: rgba(0, 0, 0, 0.3);
+    color: var(--notion-text-tertiary);
   }
 
   .day-cell.today .day-number {
@@ -493,13 +494,14 @@
     font-size: 11px;
     background: var(--notion-text-primary);
     border: 1px solid var(--notion-text-primary);
-    color: white;
+    color: white !important;
     border-radius: var(--notion-radius);
   }
 
   .calendar-navigation > button:first-of-type:hover {
-    background: #2e2e2c;
-    border-color: #2e2e2c;
+    opacity: 0.9;
+    filter: brightness(0.9);
+    color: white !important;
   }
 
   .calendar-navigation > div {
@@ -558,13 +560,13 @@
   .day-number {
     font-size: 13px;
     padding-bottom: 6px;
-    color: rgba(0, 0, 0, 0.35);
+    color: var(--notion-text-primary);
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
 
   .day-cell.other-month .day-number {
-    color: rgba(0, 0, 0, 0.3);
+    color: var(--notion-text-tertiary);
   }
 
   .day-cell.today .day-number {
@@ -584,7 +586,7 @@
 
   .weekday {
     font-size: 10px;
-    color: rgba(0, 0, 0, 0.6);
+    color: var(--notion-text-tertiary);
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -739,7 +741,7 @@
 }
 
 .view-controls button:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--notion-bg-hover);
 }
 
 .view-controls button.active {
@@ -802,7 +804,7 @@
 .year-box {
   display: inline-block;
   padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.04);
+  background: var(--notion-bg-tertiary);
   border: 1px solid var(--notion-border);
   border-radius: var(--notion-radius);
   font-weight: 500;
@@ -828,8 +830,9 @@
 }
 
 .calendar-navigation button:hover {
-  background: #2e2e2c;
-  border-color: #2e2e2c;
+  opacity: 0.9;
+  filter: brightness(0.9);
+  color: white;
 }
 
 .calendar-navigation > div {
@@ -1250,7 +1253,8 @@
 }
 
 .event-form .btn-primary:hover {
-  background: #2e2e2c;
+  opacity: 0.9;
+  filter: brightness(0.9);
 }
 
 .event-form .btn-secondary {
@@ -1354,4 +1358,379 @@
 
 .day-details {
   grid-template-columns: 1fr;
+}
+
+/* Dark Mode Styles for Calendar */
+.dark-theme .calendar-page {
+  background: var(--notion-bg-secondary);
+}
+
+.dark-theme .calendar-header h1 {
+  color: var(--notion-text-primary);
+}
+
+/* View Controls (Mois, Semaine, Jour) - Dark Mode */
+.dark-theme .view-controls {
+  background: var(--notion-bg-tertiary);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .view-controls button {
+  color: var(--notion-text-secondary) !important;
+}
+
+.dark-theme .view-controls button:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .view-controls button.active {
+  background: var(--notion-bg) !important;
+  color: var(--notion-text-primary) !important;
+  box-shadow: var(--notion-shadow-sm);
+}
+
+/* Calendar Navigation Buttons (Précédent, Suivant, Aujourd'hui) - Dark Mode */
+.dark-theme .calendar-navigation {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .calendar-navigation h2 {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .calendar-navigation .month-name {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .calendar-navigation .year-box {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--notion-border);
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .calendar-navigation button {
+  background: #2e2e2e !important;
+  border-color: #3a3a3a !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.dark-theme .calendar-navigation button:hover {
+  background: #3a3a3a !important;
+  border-color: #454545 !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Surcharge pour tous les boutons de navigation dans dark mode */
+.dark-theme .calendar-navigation > button:first-of-type,
+.dark-theme .calendar-navigation > div button {
+  background: #2e2e2e !important;
+  border-color: #3a3a3a !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.dark-theme .calendar-navigation > button:first-of-type:hover,
+.dark-theme .calendar-navigation > div button:hover {
+  background: #3a3a3a !important;
+  border-color: #454545 !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+/* Bouton "Nouvel événement" - Dark Mode */
+.dark-theme .header-actions .btn-primary {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  color: var(--notion-text-primary) !important;
+}
+
+.dark-theme .header-actions .btn-primary:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  color: var(--notion-text-primary) !important;
+}
+
+/* Calendar Views - Dark Mode */
+.dark-theme .month-view,
+.dark-theme .week-view,
+.dark-theme .day-view {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .weekdays-header {
+  background: var(--notion-bg);
+  border-bottom-color: var(--notion-border);
+}
+
+.dark-theme .weekday {
+  color: var(--notion-text-tertiary);
+}
+
+.dark-theme .day-cell {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .day-cell:hover {
+  background: var(--notion-bg-hover);
+}
+
+.dark-theme .day-cell.other-month {
+  background: var(--notion-bg-tertiary);
+  opacity: 0.5;
+}
+
+.dark-theme .day-cell.today {
+  background: var(--notion-blue-bg);
+  border-color: var(--notion-blue);
+}
+
+.dark-theme .day-cell.today .day-number {
+  background: var(--notion-blue);
+  color: white;
+}
+
+.dark-theme .day-number {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .day-cell.other-month .day-number {
+  color: var(--notion-text-tertiary);
+}
+
+.dark-theme .more-events {
+  color: var(--notion-text-tertiary);
+}
+
+.dark-theme .week-day-column {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .week-day-column:hover {
+  background: var(--notion-bg-hover);
+}
+
+/* Event Items - Dark Mode */
+.dark-theme .event-item {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .event-item:hover {
+  background: var(--notion-bg-hover);
+}
+
+.dark-theme .event-title {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .event-description {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .event-type-badge {
+  background: var(--notion-bg-tertiary);
+  color: var(--notion-text-secondary);
+}
+
+/* Event Form - Dark Mode */
+.dark-theme .event-form {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .event-form h3 {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .event-form .form-group label {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .event-form .form-group input,
+.dark-theme .event-form .form-group textarea,
+.dark-theme .event-form .form-group select {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .event-form .form-group input:focus,
+.dark-theme .event-form .form-group textarea:focus,
+.dark-theme .event-form .form-group select:focus {
+  border-color: var(--notion-blue);
+  box-shadow: 0 0 0 1px var(--notion-blue);
+}
+
+.dark-theme .event-form .btn {
+  background: transparent;
+  border-color: var(--notion-border);
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .event-form .btn:hover {
+  background: var(--notion-bg-hover);
+}
+
+.dark-theme .event-form .btn-primary {
+  background: var(--notion-bg-tertiary) !important;
+  border: 1px solid var(--notion-border) !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+  text-shadow: none !important;
+  box-shadow: none !important;
+}
+
+.dark-theme .event-form .btn-primary:hover {
+  background: var(--notion-bg-hover) !important;
+  border-color: var(--notion-border) !important;
+  color: white !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.dark-theme .event-form .btn-secondary {
+  background: transparent;
+  color: var(--notion-text-primary);
+}
+
+/* Selected Date Panel - Dark Mode */
+.dark-theme .selected-date-panel {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .selected-date-panel h3 {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .selected-day-header {
+  border-bottom-color: var(--notion-border);
+}
+
+.dark-theme .selected-day-header h3 {
+  color: var(--notion-text-primary);
+}
+
+/* Event Cards - Dark Mode */
+.dark-theme .event-card,
+.dark-theme .task-card {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .event-card:hover,
+.dark-theme .task-card:hover {
+  border-color: var(--notion-border-hover);
+}
+
+.dark-theme .event-card h5,
+.dark-theme .task-card h5 {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .empty {
+  color: var(--notion-text-tertiary);
+}
+
+/* Icon Buttons - Dark Mode */
+.dark-theme .icon-btn {
+  background: transparent;
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .icon-btn:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-text-primary);
+}
+
+/* Sections - Dark Mode */
+.dark-theme .events-section,
+.dark-theme .tasks-section {
+  background: var(--notion-bg);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .events-section h4,
+.dark-theme .tasks-section h4 {
+  color: var(--notion-text-primary);
+}
+
+/* Mobile Dark Mode Adjustments */
+@media (max-width: 768px) {
+  .dark-theme .weekday {
+    color: var(--notion-text-tertiary);
+  }
+
+  .dark-theme .day-number {
+    color: var(--notion-text-primary);
+  }
+
+  .dark-theme .day-cell.other-month .day-number {
+    color: var(--notion-text-tertiary);
+  }
+
+  .dark-theme .weekdays-header {
+    background: var(--notion-bg);
+    border-bottom-color: var(--notion-border);
+  }
+
+  .dark-theme .calendar-navigation button {
+    background: #2e2e2e !important;
+    border-color: #3a3a3a !important;
+    color: white !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .dark-theme .calendar-navigation button:hover {
+    background: #3a3a3a !important;
+    border-color: #454545 !important;
+    color: white !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Surcharge pour tous les boutons de navigation dans dark mode mobile */
+  .dark-theme .calendar-navigation > button:first-of-type,
+  .dark-theme .calendar-navigation > div button {
+    background: #2e2e2e !important;
+    border-color: #3a3a3a !important;
+    color: white !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  .dark-theme .calendar-navigation > button:first-of-type:hover,
+  .dark-theme .calendar-navigation > div button:hover {
+    background: #3a3a3a !important;
+    border-color: #454545 !important;
+    color: white !important;
+    opacity: 1 !important;
+    filter: none !important;
+  }
+
+  /* Bouton "Nouvel événement" - Dark Mode Mobile */
+  .dark-theme .header-actions .btn-primary {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+    color: var(--notion-text-primary) !important;
+  }
+
+  .dark-theme .header-actions .btn-primary:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    color: var(--notion-text-primary) !important;
+  }
 }

@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthService } from '../../services/health.service';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../../models/health.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-health',
@@ -11,7 +12,7 @@ import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } f
   templateUrl: './health.component.html',
   styleUrl: './health.component.css'
 })
-export class HealthComponent implements OnInit {
+export class HealthComponent implements OnInit, OnDestroy {
   activeTab: 'overview' | 'meals' | 'activity' | 'sleep' | 'meditation' = 'overview';
   
   // Overview data
@@ -43,6 +44,7 @@ export class HealthComponent implements OnInit {
   meditationSessions: MeditationSession[] = [];
   showMeditationForm = false;
   newMeditation: Partial<MeditationSession> = { duration: 10, type: 'guided' };
+  private dataSubscription?: Subscription;
 
   constructor(private healthService: HealthService) {}
 
@@ -50,13 +52,51 @@ export class HealthComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    if (this.dataSubscription) {
+      this.dataSubscription.unsubscribe();
+    }
+  }
+
   loadData(): void {
-    this.meals = this.healthService.getMeals();
-    this.activities = this.healthService.getActivities();
-    this.sleepRecords = this.healthService.getSleepRecords();
-    this.meditationSessions = this.healthService.getMeditationSessions();
-    
-    this.updateOverview();
+    // Charger toutes les données depuis l'API
+    this.healthService.getMealsObservable().subscribe({
+      next: (meals) => {
+        this.meals = meals.map((m: any) => ({ ...m, id: m.id.toString(), date: new Date(m.date) }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading meals:', error)
+    });
+
+    this.healthService.getActivitiesObservable().subscribe({
+      next: (activities) => {
+        this.activities = activities.map((a: any) => ({ ...a, id: a.id.toString(), date: new Date(a.date) }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading activities:', error)
+    });
+
+    this.healthService.getSleepRecordsObservable().subscribe({
+      next: (records) => {
+        this.sleepRecords = records.map((s: any) => ({
+          ...s,
+          id: s.id.toString(),
+          date: new Date(s.date),
+          sleepTime: new Date(s.sleepTime),
+          wakeTime: new Date(s.wakeTime)
+        }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading sleep records:', error)
+    });
+
+    this.healthService.getMeditationSessionsObservable().subscribe({
+      next: (sessions) => {
+        this.meditationSessions = sessions.map((m: any) => ({ ...m, id: m.id.toString(), date: new Date(m.date) }));
+        this.updateOverview();
+      },
+      error: (error) => console.error('Error loading meditation sessions:', error)
+    });
   }
 
   updateOverview(): void {
@@ -76,15 +116,21 @@ export class HealthComponent implements OnInit {
       calories: this.newMeal.calories,
       date: new Date(),
       notes: this.newMeal.notes
+    }).subscribe({
+      next: () => {
+        this.showMealForm = false;
+        this.newMeal = { type: 'breakfast' };
+        this.loadData();
+      }
     });
-    this.showMealForm = false;
-    this.newMeal = { type: 'breakfast' };
-    this.loadData();
   }
 
   deleteMeal(id: string): void {
-    this.healthService.deleteMeal(id);
-    this.loadData();
+    this.healthService.deleteMeal(id).subscribe({
+      next: () => {
+        this.loadData();
+      }
+    });
   }
 
   // Activity methods
@@ -96,15 +142,21 @@ export class HealthComponent implements OnInit {
       calories: this.newActivity.calories,
       date: new Date(),
       notes: this.newActivity.notes
+    }).subscribe({
+      next: () => {
+        this.showActivityForm = false;
+        this.newActivity = {};
+        this.loadData();
+      }
     });
-    this.showActivityForm = false;
-    this.newActivity = {};
-    this.loadData();
   }
 
   deleteActivity(id: string): void {
-    this.healthService.deleteActivity(id);
-    this.loadData();
+    this.healthService.deleteActivity(id).subscribe({
+      next: () => {
+        this.loadData();
+      }
+    });
   }
 
   // Sleep methods
@@ -115,10 +167,13 @@ export class HealthComponent implements OnInit {
       sleepTime: new Date(this.newSleep.sleepTime!),
       wakeTime: new Date(this.newSleep.wakeTime!),
       quality: this.newSleep.quality || 'good'
+    }).subscribe({
+      next: () => {
+        this.showSleepForm = false;
+        this.newSleep = { quality: 'good' };
+        this.loadData();
+      }
     });
-    this.showSleepForm = false;
-    this.newSleep = { quality: 'good' };
-    this.loadData();
   }
 
   // Water methods
@@ -126,10 +181,13 @@ export class HealthComponent implements OnInit {
     this.healthService.addWaterIntake({
       date: new Date(),
       amount: this.waterAmount
+    }).subscribe({
+      next: () => {
+        this.showWaterForm = false;
+        this.waterAmount = 0.5;
+        this.loadData();
+      }
     });
-    this.showWaterForm = false;
-    this.waterAmount = 0.5;
-    this.loadData();
   }
 
   // Meditation methods
@@ -139,15 +197,21 @@ export class HealthComponent implements OnInit {
       duration: this.newMeditation.duration || 10,
       type: this.newMeditation.type || 'guided',
       notes: this.newMeditation.notes
+    }).subscribe({
+      next: () => {
+        this.showMeditationForm = false;
+        this.newMeditation = { duration: 10, type: 'guided' };
+        this.loadData();
+      }
     });
-    this.showMeditationForm = false;
-    this.newMeditation = { duration: 10, type: 'guided' };
-    this.loadData();
   }
 
   deleteMeditationSession(id: string): void {
-    // Note: HealthService doesn't have deleteMeditation, but we can add it if needed
-    this.loadData();
+    this.healthService.deleteMeditationSession(id).subscribe({
+      next: () => {
+        this.loadData();
+      }
+    });
   }
 
   getHealthScore(): number {

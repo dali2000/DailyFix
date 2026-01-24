@@ -39,7 +39,7 @@
       </div>
 
       <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
-      <button class="submit" type="submit" [disabled]="isLoading">
+      <button class="submit" type="submit" class="btn btn-primary" [disabled]="isLoading">
         {{ isLoading ? 'Chargement...' : (isSignup ? 'Créer un compte' : 'Se connecter') }}
       </button>
     </form>

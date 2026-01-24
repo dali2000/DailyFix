@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-tasks',
@@ -12,13 +13,14 @@ import { Task } from '../../models/task.model';
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css'
 })
-export class TasksComponent implements OnInit {
+export class TasksComponent implements OnInit, OnDestroy {
   viewMode: 'kanban' | 'list' = 'kanban';
   
   tasks: Task[] = [];
   filteredTasks: Task[] = [];
   showAddForm = false;
   editingTask: Task | null = null;
+  private tasksSubscription?: Subscription;
   
   newTask: {
     title?: string;
@@ -66,9 +68,33 @@ export class TasksComponent implements OnInit {
     this.loadTasks();
   }
 
+  ngOnDestroy(): void {
+    if (this.tasksSubscription) {
+      this.tasksSubscription.unsubscribe();
+    }
+  }
+
   loadTasks(): void {
-    this.tasks = this.taskService.getTasks();
-    this.applyFilters();
+    this.tasksSubscription = this.taskService.getTasksObservable().subscribe({
+      next: (tasks) => {
+        this.tasks = tasks.map((t: any) => ({
+          ...t,
+          id: t.id.toString(),
+          status: t.status || (t.completed ? 'done' : 'todo'),
+          priority: t.priority || 'medium',
+          dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+          reminder: t.reminder ? new Date(t.reminder) : undefined,
+          createdAt: new Date(t.createdAt),
+          updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(t.createdAt)
+        }));
+        this.applyFilters();
+      },
+      error: (error) => {
+        console.error('Error loading tasks:', error);
+        this.tasks = [];
+        this.applyFilters();
+      }
+    });
   }
 
   applyFilters(): void {
@@ -137,15 +163,23 @@ export class TasksComponent implements OnInit {
     };
 
     if (this.editingTask) {
-      this.taskService.updateTask(this.editingTask.id, taskData);
-      this.editingTask = null;
+      this.taskService.updateTask(this.editingTask.id, taskData).subscribe({
+        next: () => {
+          this.editingTask = null;
+          this.showAddForm = false;
+          this.resetForm();
+          this.loadTasks();
+        }
+      });
     } else {
-      this.taskService.addTask(taskData as Omit<Task, 'id' | 'createdAt' | 'updatedAt'>);
+      this.taskService.addTask(taskData as Omit<Task, 'id' | 'createdAt' | 'updatedAt'>).subscribe({
+        next: () => {
+          this.showAddForm = false;
+          this.resetForm();
+          this.loadTasks();
+        }
+      });
     }
-
-    this.showAddForm = false;
-    this.resetForm();
-    this.loadTasks();
   }
 
   editTask(task: Task): void {
@@ -165,8 +199,11 @@ export class TasksComponent implements OnInit {
 
   deleteTask(task: Task): void {
     if (confirm('Supprimer cette tâche ?')) {
-      this.taskService.deleteTask(task.id);
-      this.loadTasks();
+      this.taskService.deleteTask(task.id).subscribe({
+        next: () => {
+          this.loadTasks();
+        }
+      });
     }
   }
 
@@ -181,9 +218,12 @@ export class TasksComponent implements OnInit {
   onDrop(event: DragEvent, targetStatus: string): void {
     event.preventDefault();
     if (this.draggedTask && this.isValidStatus(targetStatus)) {
-      this.taskService.updateTaskStatus(this.draggedTask.id, targetStatus as Task['status']);
-      this.draggedTask = null;
-      this.loadTasks();
+      this.taskService.updateTaskStatus(this.draggedTask.id, targetStatus as Task['status']).subscribe({
+        next: () => {
+          this.draggedTask = null;
+          this.loadTasks();
+        }
+      });
     }
   }
 

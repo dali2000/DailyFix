@@ -1,10 +1,13 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from "./components/shared/navbar/navbar.component";
 import { SidebarComponent } from "./components/shared/sidebar/sidebar.component";
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
+import { NotificationService } from './services/notification.service';
+import { ThemeService } from './services/theme.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -13,16 +16,21 @@ import { AuthService } from './services/auth.service';
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'dailyFix';
-  showNavbar = true;
-  showSidebar = true;
+  showNavbar = false;
+  showSidebar = false;
+  private userSubscription?: Subscription;
+  private routerSubscription?: Subscription;
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private notificationService: NotificationService,
+    private themeService: ThemeService
   ) {
-    this.router.events
+    // Écouter les changements de route
+    this.routerSubscription = this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: any) => {
         const url = event.urlAfterRedirects || event.url;
@@ -31,21 +39,46 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Initialiser le service de thème (charge le thème sauvegardé)
+    this.themeService.watchSystemPreference();
+    
+    // Écouter les changements d'authentification
+    this.userSubscription = this.authService.currentUser$.subscribe(() => {
+      const currentUrl = this.router.url;
+      this.updateVisibility(currentUrl);
+    });
+
     // Vérifier la route initiale et l'authentification
     const currentUrl = this.router.url;
     this.updateVisibility(currentUrl);
     
     // Rediriger vers login si non authentifié et pas déjà sur login
-    if (!this.authService.isAuthenticated() && currentUrl !== '/login' && currentUrl !== '/') {
-      this.router.navigate(['/login']);
+    // Attendre un peu pour que validateToken() se termine
+    setTimeout(() => {
+      if (!this.authService.isAuthenticated() && currentUrl !== '/login' && currentUrl !== '/') {
+        this.router.navigate(['/login']);
+      }
+    }, 100);
+  }
+
+  ngOnDestroy(): void {
+    if (this.userSubscription) {
+      this.userSubscription.unsubscribe();
+    }
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
     }
   }
 
   private updateVisibility(url: string): void {
-    const isLoginPage = url === '/login' || url === '/login' || url === '/';
+    // Vérifier si c'est la page de login
+    const isLoginPage = url === '/login' || url === '/' || url.startsWith('/#/login');
+    
+    // Vérifier si l'utilisateur est authentifié (doit avoir un token ET un utilisateur)
     const isAuthenticated = this.authService.isAuthenticated();
     
-    this.showNavbar = !isLoginPage && isAuthenticated;
-    this.showSidebar = !isLoginPage && isAuthenticated;
+    // Afficher navbar et sidebar seulement si l'utilisateur est authentifié ET pas sur la page de login
+    this.showNavbar = isAuthenticated && !isLoginPage;
+    this.showSidebar = isAuthenticated && !isLoginPage;
   }
 }

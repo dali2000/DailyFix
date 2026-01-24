@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialService } from '../../services/social.service';
 import { SocialEvent, ActivitySuggestion } from '../../models/social.model';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-social',
@@ -33,9 +34,37 @@ export class SocialComponent implements OnInit {
     this.loadData();
   }
 
+  ngOnDestroy(): void {
+    // Les subscriptions sont gérées dans les méthodes loadData
+  }
+
   loadData(): void {
-    this.events = this.socialService.getEvents();
-    this.suggestions = this.socialService.getActivitySuggestions();
+    // Charger toutes les données depuis l'API
+    this.socialService.getEventsObservable().subscribe({
+      next: (events) => {
+        this.events = events.map((e: any) => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date),
+          reminder: e.reminder ? new Date(e.reminder) : undefined
+        }));
+      },
+      error: (error) => console.error('Error loading social events:', error)
+    });
+
+    // Les suggestions peuvent être chargées depuis l'API ou utiliser les valeurs par défaut
+    this.socialService.getSuggestionsObservable().subscribe({
+      next: (suggestions) => {
+        if (suggestions.length > 0) {
+          this.suggestions = suggestions.map((s: any) => ({ ...s, id: s.id.toString() }));
+        }
+      },
+      error: (error) => {
+        console.error('Error loading suggestions:', error);
+        // Utiliser les suggestions par défaut en cas d'erreur
+        this.suggestions = this.socialService.getActivitySuggestions();
+      }
+    });
   }
 
   addEvent(): void {
@@ -56,15 +85,23 @@ export class SocialComponent implements OnInit {
     };
 
     if (this.editingEvent) {
-      this.socialService.updateEvent(this.editingEvent.id, eventData);
-      this.editingEvent = null;
+      this.socialService.updateEvent(this.editingEvent.id, eventData).subscribe({
+        next: () => {
+          this.editingEvent = null;
+          this.showEventForm = false;
+          this.resetEventForm();
+          this.loadData();
+        }
+      });
     } else {
-      this.socialService.addEvent(eventData);
+      this.socialService.addEvent(eventData).subscribe({
+        next: () => {
+          this.showEventForm = false;
+          this.resetEventForm();
+          this.loadData();
+        }
+      });
     }
-
-    this.showEventForm = false;
-    this.resetEventForm();
-    this.loadData();
   }
 
   resetEventForm(): void {
@@ -103,8 +140,11 @@ export class SocialComponent implements OnInit {
 
   deleteEvent(id: string): void {
     if (confirm('Supprimer cet événement ?')) {
-      this.socialService.deleteEvent(id);
-      this.loadData();
+      this.socialService.deleteEvent(id).subscribe({
+        next: () => {
+          this.loadData();
+        }
+      });
     }
   }
 
@@ -146,10 +186,13 @@ export class SocialComponent implements OnInit {
       category: this.newSuggestion.category || 'outdoor',
       estimatedCost: this.newSuggestion.estimatedCost,
       estimatedDuration: this.newSuggestion.estimatedDuration
+    }).subscribe({
+      next: () => {
+        this.showSuggestionForm = false;
+        this.newSuggestion = { category: 'outdoor' };
+        this.loadData();
+      }
     });
-    this.showSuggestionForm = false;
-    this.newSuggestion = { category: 'outdoor' };
-    this.loadData();
   }
 
   getSuggestionsByCategory(category: string): ActivitySuggestion[] {
