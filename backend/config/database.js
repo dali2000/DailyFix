@@ -1,37 +1,43 @@
 const { Sequelize } = require('sequelize');
 
 // Détecter le type de base de données depuis les variables d'environnement
-// Priorité : DB_DIALECT > détection par port > détection par host > MySQL par défaut
+// Priorité : DB_DIALECT > détection par host > détection par port > MySQL par défaut
 let dbDialect = process.env.DB_DIALECT;
 
 if (!dbDialect) {
-  // Détection par port
-  const port = process.env.DB_PORT;
-  if (port === '5432' || port === 5432) {
-    dbDialect = 'postgres';
-  } 
-  // Détection par host (si contient postgres ou render.com)
-  else if (process.env.DB_HOST && (
+  // Détection par host (si contient postgres ou render.com) - PRIORITAIRE
+  if (process.env.DB_HOST && (
     process.env.DB_HOST.includes('postgres') || 
-    process.env.DB_HOST.includes('render.com')
+    process.env.DB_HOST.includes('render.com') ||
+    process.env.DB_HOST.includes('oregon-postgres')
   )) {
     dbDialect = 'postgres';
+    console.log('🔍 Auto-detected PostgreSQL from DB_HOST:', process.env.DB_HOST);
   } 
-  // Par défaut MySQL
+  // Détection par port
   else {
-    dbDialect = 'mysql';
+    const port = process.env.DB_PORT;
+    if (port === '5432' || port === 5432) {
+      dbDialect = 'postgres';
+      console.log('🔍 Auto-detected PostgreSQL from DB_PORT:', port);
+    } 
+    // Par défaut MySQL
+    else {
+      dbDialect = 'mysql';
+      console.log('⚠️ Using MySQL as default (no PostgreSQL indicators found)');
+    }
   }
+} else {
+  console.log('✅ Using DB_DIALECT:', dbDialect);
 }
 
-// Log pour déboguer (seulement en développement)
-if (process.env.NODE_ENV === 'development') {
-  console.log(`🔍 Database detection:`, {
-    DB_DIALECT: process.env.DB_DIALECT,
-    DB_PORT: process.env.DB_PORT,
-    DB_HOST: process.env.DB_HOST,
-    detected: dbDialect
-  });
-}
+// Log de débogage (toujours affiché pour aider au dépannage)
+console.log('🔍 Database configuration:', {
+  DB_DIALECT: process.env.DB_DIALECT || 'NOT SET',
+  DB_PORT: process.env.DB_PORT || 'NOT SET',
+  DB_HOST: process.env.DB_HOST || 'NOT SET',
+  detected_dialect: dbDialect
+});
 
 const defaultPort = dbDialect === 'postgres' ? 5432 : 3306;
 const defaultUser = dbDialect === 'postgres' ? 'dailyfix_user' : 'root';
