@@ -1,27 +1,82 @@
 # DailyFix
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.17.
+# DailyFix - Application de Gestion Personnelle
 
-## Development server
+Application web complète pour la gestion de votre vie quotidienne : tâches, calendrier, santé, finances, organisation de la maison, social et bien-être.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
+## 🌐 Déploiement
 
-## Code scaffolding
+L'application est déployée sur GitHub Pages : [https://dali2000.github.io/DailyFix/](https://dali2000.github.io/DailyFix/)
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## 🚀 Développement
 
-## Build
+### Prérequis
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+- Node.js (version 20 ou supérieure)
+- npm
 
-## Running unit tests
+### Installation
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+```bash
+npm install
+```
 
-## Running end-to-end tests
+### Serveur de développement
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+```bash
+npm start
+# ou
+ng serve
+```
 
-## Further help
+Naviguez vers `http://localhost:4200/`. L'application se rechargera automatiquement si vous modifiez les fichiers source.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+### Build pour production
+
+```bash
+npm run build
+```
+
+Les artefacts de build seront stockés dans le répertoire `dist/`.
+
+### Build pour GitHub Pages
+
+```bash
+npm run build:gh-pages
+```
+
+## 📦 Fonctionnalités
+
+- ✅ **Gestion des tâches** - Kanban et vue liste
+- 📅 **Calendrier** - Vue mensuelle, hebdomadaire et quotidienne
+- ❤️ **Santé** - Suivi de la santé et de l'hydratation
+- 💰 **Finances** - Gestion des dépenses et revenus
+- 🏡 **Organisation de la maison** - Listes de courses et tâches ménagères
+- 👥 **Social** - Gestion des événements et suggestions
+- 🧘 **Bien-être** - Journal et gestion du stress
+
+## 🛠️ Technologies
+
+- Angular 17
+- TypeScript
+- CSS3 (Design inspiré de Notion)
+
+## 📝 Structure du projet
+
+```
+src/
+├── app/
+│   ├── components/     # Composants de l'application
+│   ├── services/       # Services Angular
+│   └── models/         # Modèles de données
+├── assets/             # Ressources statiques
+└── styles.css          # Styles globaux
+```
+
+## 🔧 Configuration GitHub Pages
+
+Le déploiement est automatique via GitHub Actions. À chaque push sur la branche `main`, l'application est automatiquement déployée sur GitHub Pages.
+
+## 📄 License
+
+Ce projet est un projet personnel.
