@@ -1,12 +1,18 @@
 const { Sequelize } = require('sequelize');
 
-// Détecter le type de base de données depuis les variables d'environnement
-// Priorité : DB_DIALECT > détection par host > détection par port > MySQL par défaut
+// FORCER PostgreSQL si on est sur Render (production) ou si DB_DIALECT est défini
+// En production sur Render, on utilise TOUJOURS PostgreSQL
 let dbDialect = process.env.DB_DIALECT;
 
+// Si DB_DIALECT n'est pas défini, forcer PostgreSQL en production
 if (!dbDialect) {
-  // Détection par host (si contient postgres ou render.com) - PRIORITAIRE
-  if (process.env.DB_HOST && (
+  // Si on est en production, forcer PostgreSQL
+  if (process.env.NODE_ENV === 'production') {
+    dbDialect = 'postgres';
+    console.log('🔍 Production mode: Forcing PostgreSQL');
+  }
+  // Détection par host (si contient postgres ou render.com)
+  else if (process.env.DB_HOST && (
     process.env.DB_HOST.includes('postgres') || 
     process.env.DB_HOST.includes('render.com') ||
     process.env.DB_HOST.includes('oregon-postgres')
@@ -21,10 +27,10 @@ if (!dbDialect) {
       dbDialect = 'postgres';
       console.log('🔍 Auto-detected PostgreSQL from DB_PORT:', port);
     } 
-    // Par défaut MySQL
+    // Par défaut MySQL (seulement en développement)
     else {
       dbDialect = 'mysql';
-      console.log('⚠️ Using MySQL as default (no PostgreSQL indicators found)');
+      console.log('⚠️ Using MySQL as default (development mode)');
     }
   }
 } else {
@@ -33,6 +39,7 @@ if (!dbDialect) {
 
 // Log de débogage (toujours affiché pour aider au dépannage)
 console.log('🔍 Database configuration:', {
+  NODE_ENV: process.env.NODE_ENV || 'NOT SET',
   DB_DIALECT: process.env.DB_DIALECT || 'NOT SET',
   DB_PORT: process.env.DB_PORT || 'NOT SET',
   DB_HOST: process.env.DB_HOST || 'NOT SET',
