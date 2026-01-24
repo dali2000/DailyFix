@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import {
   FormBuilder,
   FormGroup,
@@ -49,6 +49,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private authService: AuthService
   ) {
     this.form = this.formBuilder.group({
@@ -60,6 +61,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialiser Google Identity Services quand le composant est chargé
     this.initializeGoogleSignIn();
+    
+    // Si l'utilisateur est déjà authentifié, rediriger vers la page demandée ou home
+    if (this.authService.isAuthenticated()) {
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/home';
+      this.router.navigate([returnUrl]);
+    }
   }
 
   ngOnDestroy(): void {
@@ -127,9 +134,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
-            // Rediriger vers admin si l'utilisateur est admin
-            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
-            if (response.user && response.user.role === 'admin') {
+            // Rediriger vers l'URL sauvegardée ou selon le rôle
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+              this.router.navigate([returnUrl]);
+            } else if (response.user && response.user.role === 'admin') {
               this.router.navigate(['/admin']);
             } else {
               this.router.navigate(['/home']);
@@ -152,9 +161,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (response) => {
           this.isLoading = false;
           if (response.success) {
-            // Rediriger vers admin si l'utilisateur est admin
-            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
-            if (response.user && response.user.role === 'admin') {
+            // Rediriger vers l'URL sauvegardée ou selon le rôle
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+              this.router.navigate([returnUrl]);
+            } else if (response.user && response.user.role === 'admin') {
               this.router.navigate(['/admin']);
             } else {
               this.router.navigate(['/home']);
@@ -260,9 +271,11 @@ export class LoginComponent implements OnInit, OnDestroy {
             next: (result) => {
               this.isLoading = false;
               if (result.success) {
-                // Rediriger vers admin si l'utilisateur est admin
-                // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
-                if (result.user && result.user.role === 'admin') {
+                // Rediriger vers l'URL sauvegardée ou selon le rôle
+                const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+                if (returnUrl) {
+                  this.router.navigate([returnUrl]);
+                } else if (result.user && result.user.role === 'admin') {
                   this.router.navigate(['/admin']);
                 } else {
                   this.router.navigate(['/home']);
@@ -311,9 +324,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            // Rediriger vers admin si l'utilisateur est admin
-            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
-            if (result.user && result.user.role === 'admin') {
+            // Rediriger vers l'URL sauvegardée ou selon le rôle
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+              this.router.navigate([returnUrl]);
+            } else if (result.user && result.user.role === 'admin') {
               this.router.navigate(['/admin']);
             } else {
               this.router.navigate(['/home']);
@@ -349,9 +364,11 @@ export class LoginComponent implements OnInit, OnDestroy {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            // Rediriger vers admin si l'utilisateur est admin
-            // Utiliser directement la réponse car getCurrentUser() peut ne pas être encore mis à jour
-            if (result.user && result.user.role === 'admin') {
+            // Rediriger vers l'URL sauvegardée ou selon le rôle
+            const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+            if (returnUrl) {
+              this.router.navigate([returnUrl]);
+            } else if (result.user && result.user.role === 'admin') {
               this.router.navigate(['/admin']);
             } else {
               this.router.navigate(['/home']);

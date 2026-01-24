@@ -54,13 +54,7 @@ export class AppComponent implements OnInit, OnDestroy {
     const currentUrl = this.router.url;
     this.updateVisibility(currentUrl);
     
-    // Rediriger vers login si non authentifié et pas déjà sur login
-    // Attendre un peu pour que validateToken() se termine
-    setTimeout(() => {
-      if (!this.authService.isAuthenticated() && currentUrl !== '/login' && currentUrl !== '/') {
-        this.router.navigate(['/login']);
-      }
-    }, 100);
+    // La redirection vers login est maintenant gérée par le authGuard
   }
 
   ngOnDestroy(): void {
