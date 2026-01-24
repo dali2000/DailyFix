@@ -1,5 +1,17 @@
 const { Sequelize } = require('sequelize');
 
+// Debug: Log all DB-related environment variables
+console.log('🔍 Environment variables check:', {
+  DATABASE_URL: process.env.DATABASE_URL ? 'SET' : 'NOT SET',
+  NODE_ENV: process.env.NODE_ENV || 'NOT SET',
+  DB_DIALECT: process.env.DB_DIALECT || 'NOT SET',
+  DB_HOST: process.env.DB_HOST || 'NOT SET',
+  DB_USER: process.env.DB_USER || 'NOT SET',
+  DB_PASSWORD: process.env.DB_PASSWORD ? 'SET' : 'NOT SET',
+  DB_NAME: process.env.DB_NAME || 'NOT SET',
+  DB_PORT: process.env.DB_PORT || 'NOT SET'
+});
+
 // Si DATABASE_URL est définie, l'utiliser directement (priorité)
 let sequelize;
 
