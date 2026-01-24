@@ -8,29 +8,57 @@ const { connectDB } = require('./config/database');
 
 const app = express();
 
-// Middleware
-app.use(cors({
+// Middleware CORS
+const corsOptions = {
   origin: function (origin, callback) {
-    // Autoriser toutes les origines en développement, ou seulement l'URL configurée en production
-    const allowedOrigins = [
-      process.env.FRONTEND_URL || 'http://localhost:4200',
-      'http://localhost:4200',
-      'http://127.0.0.1:4200'
-    ];
-    
     // En développement, autoriser toutes les origines
     if (process.env.NODE_ENV !== 'production') {
       callback(null, true);
-    } else if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      return;
+    }
+    
+    // En production, définir les origines autorisées
+    const allowedOrigins = [
+      process.env.FRONTEND_URL || 'http://localhost:4200',
+      'http://localhost:4200',
+      'http://127.0.0.1:4200',
+      'https://dali2000.github.io' // Frontend GitHub Pages
+    ];
+    
+    // Si pas d'origine (requêtes depuis le même serveur ou outils comme Postman), autoriser
+    if (!origin) {
+      callback(null, true);
+      return;
+    }
+    
+    // Vérifier si l'origine est autorisée (correspondance exacte ou commence par l'URL autorisée)
+    const isAllowed = allowedOrigins.some(allowed => {
+      // Nettoyer les URLs (enlever les trailing slashes)
+      const cleanOrigin = origin.replace(/\/$/, '');
+      const cleanAllowed = allowed.replace(/\/$/, '');
+      return cleanOrigin === cleanAllowed || cleanOrigin.startsWith(cleanAllowed);
+    });
+    
+    if (isAllowed) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.log('❌ CORS blocked origin:', origin);
+      console.log('✅ Allowed origins:', allowedOrigins);
+      callback(new Error(`Not allowed by CORS. Origin: ${origin}`));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  preflightContinue: false,
+  optionsSuccessStatus: 204
+};
+
+app.use(cors(corsOptions));
+
+// Gérer explicitement les requêtes OPTIONS (preflight)
+app.options('*', cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
