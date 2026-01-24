@@ -1,4 +1,4 @@
-import { ApplicationConfig, LOCATION_STRATEGY } from '@angular/core';
+import { ApplicationConfig } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HashLocationStrategy, LocationStrategy } from '@angular/common';
 
