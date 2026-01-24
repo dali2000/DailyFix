@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Task, CalendarEvent } from '../models/task.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,11 @@ export class TaskService {
   private tasks: Task[] = [];
   private events: CalendarEvent[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -121,13 +126,17 @@ export class TaskService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_tasks', JSON.stringify(this.tasks));
-    localStorage.setItem('dailyFix_events', JSON.stringify(this.events));
+    const tasksKey = this.authService.getUserStorageKey('tasks');
+    const eventsKey = this.authService.getUserStorageKey('events');
+    localStorage.setItem(tasksKey, JSON.stringify(this.tasks));
+    localStorage.setItem(eventsKey, JSON.stringify(this.events));
   }
 
   private loadFromStorage(): void {
-    const tasksStr = localStorage.getItem('dailyFix_tasks');
-    const eventsStr = localStorage.getItem('dailyFix_events');
+    const tasksKey = this.authService.getUserStorageKey('tasks');
+    const eventsKey = this.authService.getUserStorageKey('events');
+    const tasksStr = localStorage.getItem(tasksKey);
+    const eventsStr = localStorage.getItem(eventsKey);
     if (tasksStr) {
       this.tasks = JSON.parse(tasksStr).map((t: any) => ({
         ...t,

@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SocialEvent, ActivitySuggestion } from '../models/social.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -49,7 +50,11 @@ export class SocialService {
     }
   ];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -124,13 +129,17 @@ export class SocialService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_socialEvents', JSON.stringify(this.events));
-    localStorage.setItem('dailyFix_activitySuggestions', JSON.stringify(this.suggestions));
+    const eventsKey = this.authService.getUserStorageKey('socialEvents');
+    const suggestionsKey = this.authService.getUserStorageKey('activitySuggestions');
+    localStorage.setItem(eventsKey, JSON.stringify(this.events));
+    localStorage.setItem(suggestionsKey, JSON.stringify(this.suggestions));
   }
 
   private loadFromStorage(): void {
-    const eventsStr = localStorage.getItem('dailyFix_socialEvents');
-    const suggestionsStr = localStorage.getItem('dailyFix_activitySuggestions');
+    const eventsKey = this.authService.getUserStorageKey('socialEvents');
+    const suggestionsKey = this.authService.getUserStorageKey('activitySuggestions');
+    const eventsStr = localStorage.getItem(eventsKey);
+    const suggestionsStr = localStorage.getItem(suggestionsKey);
 
     if (eventsStr) {
       this.events = JSON.parse(eventsStr).map((e: any) => ({

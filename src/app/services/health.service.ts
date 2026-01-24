@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../models/health.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,11 @@ export class HealthService {
   private waterIntakes: WaterIntake[] = [];
   private meditationSessions: MeditationSession[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -147,19 +152,29 @@ export class HealthService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_meals', JSON.stringify(this.meals));
-    localStorage.setItem('dailyFix_activities', JSON.stringify(this.activities));
-    localStorage.setItem('dailyFix_sleep', JSON.stringify(this.sleepRecords));
-    localStorage.setItem('dailyFix_water', JSON.stringify(this.waterIntakes));
-    localStorage.setItem('dailyFix_meditation', JSON.stringify(this.meditationSessions));
+    const mealsKey = this.authService.getUserStorageKey('meals');
+    const activitiesKey = this.authService.getUserStorageKey('activities');
+    const sleepKey = this.authService.getUserStorageKey('sleep');
+    const waterKey = this.authService.getUserStorageKey('water');
+    const meditationKey = this.authService.getUserStorageKey('meditation');
+    localStorage.setItem(mealsKey, JSON.stringify(this.meals));
+    localStorage.setItem(activitiesKey, JSON.stringify(this.activities));
+    localStorage.setItem(sleepKey, JSON.stringify(this.sleepRecords));
+    localStorage.setItem(waterKey, JSON.stringify(this.waterIntakes));
+    localStorage.setItem(meditationKey, JSON.stringify(this.meditationSessions));
   }
 
   private loadFromStorage(): void {
-    const mealsStr = localStorage.getItem('dailyFix_meals');
-    const activitiesStr = localStorage.getItem('dailyFix_activities');
-    const sleepStr = localStorage.getItem('dailyFix_sleep');
-    const waterStr = localStorage.getItem('dailyFix_water');
-    const meditationStr = localStorage.getItem('dailyFix_meditation');
+    const mealsKey = this.authService.getUserStorageKey('meals');
+    const activitiesKey = this.authService.getUserStorageKey('activities');
+    const sleepKey = this.authService.getUserStorageKey('sleep');
+    const waterKey = this.authService.getUserStorageKey('water');
+    const meditationKey = this.authService.getUserStorageKey('meditation');
+    const mealsStr = localStorage.getItem(mealsKey);
+    const activitiesStr = localStorage.getItem(activitiesKey);
+    const sleepStr = localStorage.getItem(sleepKey);
+    const waterStr = localStorage.getItem(waterKey);
+    const meditationStr = localStorage.getItem(meditationKey);
 
     if (mealsStr) {
       this.meals = JSON.parse(mealsStr).map((m: any) => ({ ...m, date: new Date(m.date) }));

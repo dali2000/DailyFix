@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { JournalEntry, PersonalGoal, StressManagement } from '../models/wellness.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +10,11 @@ export class WellnessService {
   private personalGoals: PersonalGoal[] = [];
   private stressRecords: StressManagement[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -144,15 +149,21 @@ export class WellnessService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_journal', JSON.stringify(this.journalEntries));
-    localStorage.setItem('dailyFix_goals', JSON.stringify(this.personalGoals));
-    localStorage.setItem('dailyFix_stress', JSON.stringify(this.stressRecords));
+    const journalKey = this.authService.getUserStorageKey('journal');
+    const goalsKey = this.authService.getUserStorageKey('goals');
+    const stressKey = this.authService.getUserStorageKey('stress');
+    localStorage.setItem(journalKey, JSON.stringify(this.journalEntries));
+    localStorage.setItem(goalsKey, JSON.stringify(this.personalGoals));
+    localStorage.setItem(stressKey, JSON.stringify(this.stressRecords));
   }
 
   private loadFromStorage(): void {
-    const journalStr = localStorage.getItem('dailyFix_journal');
-    const goalsStr = localStorage.getItem('dailyFix_goals');
-    const stressStr = localStorage.getItem('dailyFix_stress');
+    const journalKey = this.authService.getUserStorageKey('journal');
+    const goalsKey = this.authService.getUserStorageKey('goals');
+    const stressKey = this.authService.getUserStorageKey('stress');
+    const journalStr = localStorage.getItem(journalKey);
+    const goalsStr = localStorage.getItem(goalsKey);
+    const stressStr = localStorage.getItem(stressKey);
 
     if (journalStr) {
       this.journalEntries = JSON.parse(journalStr).map((e: any) => ({ ...e, date: new Date(e.date) }));

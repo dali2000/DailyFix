@@ -6,7 +6,8 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  password: string; // En production, ne jamais stocker le mot de passe en clair
+  password?: string; // Optionnel pour les utilisateurs Google
+  provider?: 'local' | 'google'; // Source d'authentification
   createdAt: string;
 }
 
@@ -44,6 +45,7 @@ export class AuthService {
         fullName: 'Alex Martin',
         email: 'alex@example.com',
         password: 'password123',
+        provider: 'local',
         createdAt: new Date().toISOString()
       };
       this.saveUser(defaultUser);
@@ -105,6 +107,7 @@ export class AuthService {
       fullName: signupData.fullName,
       email: signupData.email,
       password: signupData.password, // En production, hasher le mot de passe
+      provider: 'local',
       createdAt: new Date().toISOString()
     };
 
@@ -125,7 +128,40 @@ export class AuthService {
       return { success: false, error: 'Email ou mot de passe incorrect' };
     }
 
+    // Vérifier que l'utilisateur n'est pas un utilisateur Google (qui n'a pas de mot de passe)
+    if (user.provider === 'google') {
+      return { success: false, error: 'Veuillez vous connecter avec Google' };
+    }
+
     this.setCurrentUser(user);
+    return { success: true };
+  }
+
+  // Inscription avec Google
+  signupWithGoogle(googleUser: { name: string; email: string; sub: string }): { success: boolean; error?: string } {
+    const users = this.getUsers();
+    
+    // Vérifier si l'utilisateur existe déjà
+    let existingUser = users.find(u => u.email.toLowerCase() === googleUser.email.toLowerCase());
+    
+    if (existingUser) {
+      // Si l'utilisateur existe, se connecter directement
+      this.setCurrentUser(existingUser);
+      return { success: true };
+    }
+
+    // Créer un nouvel utilisateur Google
+    const newUser: User = {
+      id: googleUser.sub || this.generateId(),
+      fullName: googleUser.name,
+      email: googleUser.email,
+      provider: 'google',
+      createdAt: new Date().toISOString()
+    };
+
+    this.saveUser(newUser);
+    this.setCurrentUser(newUser);
+    
     return { success: true };
   }
 
@@ -156,6 +192,22 @@ export class AuthService {
 
     this.saveUser(updatedUser);
     this.setCurrentUser(updatedUser);
+  }
+
+  // Méthode pour obtenir la clé de stockage basée sur l'ID utilisateur
+  getUserStorageKey(key: string): string {
+    const currentUser = this.getCurrentUser();
+    if (!currentUser) {
+      // Si aucun utilisateur n'est connecté, utiliser une clé par défaut (ne devrait pas arriver)
+      return `dailyFix_${key}`;
+    }
+    return `dailyFix_${currentUser.id}_${key}`;
+  }
+
+  // Méthode pour obtenir l'ID de l'utilisateur actuel
+  getCurrentUserId(): string | null {
+    const currentUser = this.getCurrentUser();
+    return currentUser ? currentUser.id : null;
   }
 }
 

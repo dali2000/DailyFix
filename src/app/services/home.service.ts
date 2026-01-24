@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../models/home.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -8,7 +9,11 @@ export class HomeService {
   private shoppingLists: ShoppingList[] = [];
   private householdTasks: HouseholdTask[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -146,13 +151,17 @@ export class HomeService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_shoppingLists', JSON.stringify(this.shoppingLists));
-    localStorage.setItem('dailyFix_householdTasks', JSON.stringify(this.householdTasks));
+    const listsKey = this.authService.getUserStorageKey('shoppingLists');
+    const tasksKey = this.authService.getUserStorageKey('householdTasks');
+    localStorage.setItem(listsKey, JSON.stringify(this.shoppingLists));
+    localStorage.setItem(tasksKey, JSON.stringify(this.householdTasks));
   }
 
   private loadFromStorage(): void {
-    const listsStr = localStorage.getItem('dailyFix_shoppingLists');
-    const tasksStr = localStorage.getItem('dailyFix_householdTasks');
+    const listsKey = this.authService.getUserStorageKey('shoppingLists');
+    const tasksKey = this.authService.getUserStorageKey('householdTasks');
+    const listsStr = localStorage.getItem(listsKey);
+    const tasksStr = localStorage.getItem(tasksKey);
 
     if (listsStr) {
       this.shoppingLists = JSON.parse(listsStr).map((list: any) => ({

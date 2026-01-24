@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Expense, Budget, SavingsGoal, Salary } from '../models/finance.model';
+import { AuthService } from './auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +11,11 @@ export class FinanceService {
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
 
-  constructor() {
+  constructor(private authService: AuthService) {
+    // Écouter les changements d'utilisateur pour recharger les données
+    this.authService.currentUser$.subscribe(() => {
+      this.loadFromStorage();
+    });
     this.loadFromStorage();
   }
 
@@ -218,17 +223,25 @@ export class FinanceService {
   }
 
   private saveToStorage(): void {
-    localStorage.setItem('dailyFix_expenses', JSON.stringify(this.expenses));
-    localStorage.setItem('dailyFix_budgets', JSON.stringify(this.budgets));
-    localStorage.setItem('dailyFix_savingsGoals', JSON.stringify(this.savingsGoals));
-    localStorage.setItem('dailyFix_salaries', JSON.stringify(this.salaries));
+    const expensesKey = this.authService.getUserStorageKey('expenses');
+    const budgetsKey = this.authService.getUserStorageKey('budgets');
+    const savingsKey = this.authService.getUserStorageKey('savingsGoals');
+    const salariesKey = this.authService.getUserStorageKey('salaries');
+    localStorage.setItem(expensesKey, JSON.stringify(this.expenses));
+    localStorage.setItem(budgetsKey, JSON.stringify(this.budgets));
+    localStorage.setItem(savingsKey, JSON.stringify(this.savingsGoals));
+    localStorage.setItem(salariesKey, JSON.stringify(this.salaries));
   }
 
   private loadFromStorage(): void {
-    const expensesStr = localStorage.getItem('dailyFix_expenses');
-    const budgetsStr = localStorage.getItem('dailyFix_budgets');
-    const savingsStr = localStorage.getItem('dailyFix_savingsGoals');
-    const salariesStr = localStorage.getItem('dailyFix_salaries');
+    const expensesKey = this.authService.getUserStorageKey('expenses');
+    const budgetsKey = this.authService.getUserStorageKey('budgets');
+    const savingsKey = this.authService.getUserStorageKey('savingsGoals');
+    const salariesKey = this.authService.getUserStorageKey('salaries');
+    const expensesStr = localStorage.getItem(expensesKey);
+    const budgetsStr = localStorage.getItem(budgetsKey);
+    const savingsStr = localStorage.getItem(savingsKey);
+    const salariesStr = localStorage.getItem(salariesKey);
 
     if (expensesStr) {
       this.expenses = JSON.parse(expensesStr).map((e: any) => ({ ...e, date: new Date(e.date) }));

@@ -44,7 +44,7 @@
       </button>
     </form>
 
-    <div *ngIf="isSignup" class="social-auth">
+    <div class="social-auth">
       <div class="divider"><span>ou</span></div>
       <button type="button" class="social google" (click)="signupWithGoogle()">
         <svg viewBox="0 0 48 48" aria-hidden="true">
@@ -57,9 +57,9 @@
           <path fill="#1976D2"
             d="M43.611 20.083H42V20H24v8h11.303c-1.361 3.324-5.78 7-11.303 7-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z" />
         </svg>
-        Continuer avec Google
+        {{ isSignup ? 'Continuer avec Google' : 'Se connecter avec Google' }}
       </button>
-      <button type="button" class="social facebook" (click)="signupWithFacebook()">
+      <button *ngIf="isSignup" type="button" class="social facebook" (click)="signupWithFacebook()">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#1877F2"
             d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.095 4.388 23.093 10.125 24v-8.437H7.078V12.07h3.047V9.412c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.491 0-1.953.926-1.953 1.874v2.264h3.328l-.532 3.492h-2.796V24C19.612 23.093 24 18.095 24 12.073z" />
