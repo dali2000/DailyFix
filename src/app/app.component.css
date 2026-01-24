@@ -26,7 +26,7 @@
 .main-content:has(+ app-admin-sidebar),
 .main-content:not(.no-sidebar) {
   margin-left: 240px;
-  width: calc(100% - 240px);
+  width: 100%;
 }
 
 /* Tablet */
