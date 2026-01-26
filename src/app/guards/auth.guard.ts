@@ -1,6 +1,8 @@
 import { inject } from '@angular/core';
 import { Router, CanActivateFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { of } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
 
 export const authGuard: CanActivateFn = (route, state) => {
   const authService = inject(AuthService);
@@ -11,12 +13,24 @@ export const authGuard: CanActivateFn = (route, state) => {
     return true;
   }
 
-  // Si non authentifié, rediriger vers la page de login
-  // Sauvegarder l'URL demandée pour rediriger après connexion
-  router.navigate(['/login'], { 
-    queryParams: { returnUrl: state.url } 
-  });
-  
-  return false;
-};
+  // Si un token existe (refresh), essayer de restaurer l'utilisateur avant de décider
+  if (authService.hasToken()) {
+    return authService.ensureAuthenticated$().pipe(
+      tap((ok) => {
+        if (!ok) {
+          router.navigate(['/login'], {
+            queryParams: { returnUrl: state.url },
+          });
+        }
+      }),
+      map((ok) => ok)
+    );
+  }
 
+  // Aucun token: redirection immédiate vers login
+  router.navigate(['/login'], {
+    queryParams: { returnUrl: state.url },
+  });
+
+  return of(false);
+};
