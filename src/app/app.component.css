@@ -10,7 +10,6 @@
   min-height: calc(100vh - 45px);
   background: var(--notion-bg-secondary);
   transition: margin-left 100ms ease-in 0s;
-  width: calc(100% - 240px);
   overflow-x: hidden;
   box-sizing: border-box;
 }
@@ -19,21 +18,15 @@
   margin-left: 0;
   margin-top: 0;
   min-height: 100vh;
-  width: 100%;
 }
 
-/* Quand la sidebar admin est affichée, appliquer la même marge */
-.main-content:has(+ app-admin-sidebar),
-.main-content:not(.no-sidebar) {
-  margin-left: 240px;
-  width: 100%;
-}
+/* NOTE: on laisse la largeur en "auto" pour éviter les décalages/coupures
+   quand `margin-left` change (sidebar ouverte/fermée). */
 
 /* Tablet */
 @media (max-width: 1024px) {
   .main-content {
     margin-left: 48px;
-    width: calc(100% - 48px);
   }
 }
 
@@ -42,7 +35,6 @@
   .main-content {
     margin-left: 0;
     margin-top: 45px;
-    width: 100%;
   }
 }
 
