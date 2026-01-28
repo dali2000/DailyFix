@@ -41,7 +41,10 @@ export class WeatherService {
           });
         },
         (error) => {
-          console.error('Erreur de géolocalisation:', error);
+          // Ne pas logger si l'utilisateur a refusé la géolocalisation (code 1)
+          if (error.code !== 1) {
+            console.warn('Géolocalisation:', error.message);
+          }
           reject(error);
         },
         {
@@ -135,8 +138,10 @@ export class WeatherService {
             });
         })
         .catch(error => {
-          console.error('Erreur de géolocalisation:', error);
-          // En cas d'erreur de géolocalisation, utiliser Paris par défaut
+          // Permission refusée (code 1) : pas de log, on utilise Paris par défaut
+          if (error?.code !== 1) {
+            console.warn('Géolocalisation:', error?.message || error);
+          }
           this.getWeather('Paris').subscribe({
             next: (data) => observer.next(data),
             error: (err) => observer.error(err),

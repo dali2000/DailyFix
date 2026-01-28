@@ -3,14 +3,14 @@ const router = express.Router();
 const { Expense, Budget, SavingsGoal, Salary } = require('../models/Finance.model');
 const { protect } = require('../middleware/auth.middleware');
 
-// Helper function for CRUD operations
-const createCRUDRoutes = (Model, resourceName) => {
+// Helper function for CRUD operations (order: e.g. [['date', 'DESC']] or [['createdAt', 'DESC']])
+const createCRUDRoutes = (Model, resourceName, order = [['createdAt', 'DESC']]) => {
   // GET all
   router.get(`/${resourceName}`, protect, async (req, res) => {
     try {
       const items = await Model.findAll({
         where: { userId: req.user.id },
-        order: [['date', 'DESC']]
+        order
       });
       res.json({ success: true, count: items.length, data: items });
     } catch (error) {
@@ -66,10 +66,10 @@ const createCRUDRoutes = (Model, resourceName) => {
   });
 };
 
-// Create routes for each model
-createCRUDRoutes(Expense, 'expenses');
-createCRUDRoutes(Budget, 'budgets');
-createCRUDRoutes(SavingsGoal, 'savings-goals');
-createCRUDRoutes(Salary, 'salaries');
+// Create routes for each model (Budget et SavingsGoal n'ont pas de colonne "date", utiliser createdAt)
+createCRUDRoutes(Expense, 'expenses', [['date', 'DESC']]);
+createCRUDRoutes(Budget, 'budgets', [['createdAt', 'DESC']]);
+createCRUDRoutes(SavingsGoal, 'savings-goals', [['createdAt', 'DESC']]);
+createCRUDRoutes(Salary, 'salaries', [['date', 'DESC']]);
 
 module.exports = router;
