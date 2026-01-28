@@ -5,13 +5,15 @@ import { FinanceService } from '../../services/finance.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model';
+import { I18nService } from '../../services/i18n.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-finance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
@@ -56,7 +58,8 @@ export class FinanceComponent implements OnInit, OnDestroy {
   constructor(
     private financeService: FinanceService,
     private authService: AuthService,
-    public currencyService: CurrencyService
+    public currencyService: CurrencyService,
+    private i18n: I18nService
   ) {}
 
   ngOnInit(): void {
@@ -259,16 +262,17 @@ export class FinanceComponent implements OnInit, OnDestroy {
   }
 
   getCategoryName(category: string): string {
-    const names: { [key: string]: string } = {
-      food: 'Alimentation',
-      shopping: 'Shopping',
-      health: 'Santé',
-      leisure: 'Loisirs',
-      transport: 'Transport',
-      bills: 'Factures',
-      other: 'Autre'
+    const keys: { [key: string]: string } = {
+      food: 'finance.food',
+      shopping: 'finance.shopping',
+      health: 'finance.health',
+      leisure: 'finance.leisure',
+      transport: 'finance.transport',
+      bills: 'finance.bills',
+      other: 'finance.other'
     };
-    return names[category] || category;
+    const key = keys[category];
+    return key ? this.i18n.instant(key) : category;
   }
 
   getCategoryIcon(category: string): string {

@@ -5,11 +5,12 @@ import { HomeService } from '../../services/home.service';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../../models/home.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-home-org',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './home-org.component.html',
   styleUrl: './home-org.component.css'
 })

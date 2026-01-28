@@ -4,13 +4,15 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
+import { I18nService } from '../../services/i18n.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css'
 })
@@ -44,25 +46,26 @@ export class TasksComponent implements OnInit, OnDestroy {
   searchQuery = '';
 
   statusColumns = [
-    { id: 'todo', label: 'À faire', color: '#6b7280' },
-    { id: 'in-progress', label: 'En cours', color: '#3b82f6' },
-    { id: 'in-review', label: 'En révision', color: '#f59e0b' },
-    { id: 'done', label: 'Terminé', color: '#10b981' }
+    { id: 'todo', labelKey: 'tasks.todo', color: '#6b7280' },
+    { id: 'in-progress', labelKey: 'tasks.inProgress', color: '#3b82f6' },
+    { id: 'in-review', labelKey: 'tasks.inReview', color: '#f59e0b' },
+    { id: 'done', labelKey: 'tasks.done', color: '#10b981' }
   ];
 
   priorityOptions = [
-    { value: 'lowest', label: 'Très basse', icon: '⬇️' },
-    { value: 'low', label: 'Basse', icon: '🔽' },
-    { value: 'medium', label: 'Moyenne', icon: '➡️' },
-    { value: 'high', label: 'Haute', icon: '🔼' },
-    { value: 'highest', label: 'Très haute', icon: '⬆️' }
+    { value: 'lowest', labelKey: 'tasks.lowest', icon: '⬇️' },
+    { value: 'low', labelKey: 'tasks.low', icon: '🔽' },
+    { value: 'medium', labelKey: 'tasks.medium', icon: '➡️' },
+    { value: 'high', labelKey: 'tasks.high', icon: '🔼' },
+    { value: 'highest', labelKey: 'tasks.highest', icon: '⬆️' }
   ];
 
   draggedTask: Task | null = null;
 
   constructor(
     private taskService: TaskService,
-    private router: Router
+    private router: Router,
+    private i18n: I18nService
   ) {}
 
   ngOnInit(): void {
@@ -268,7 +271,7 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   getPriorityLabel(priority: string): string {
     const option = this.priorityOptions.find(p => p.value === priority);
-    return option ? `${option.icon} ${option.label}` : priority;
+    return option ? `${option.icon} ${this.i18n.instant(option.labelKey)}` : priority;
   }
 
   navigateToCalendar(): void {
@@ -282,6 +285,10 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   getStatusLabel(status: Task['status']): string {
     const column = this.statusColumns.find(c => c.id === status);
-    return column?.label || status;
+    return column ? this.i18n.instant(column.labelKey) : status;
+  }
+
+  get modalTitleKey(): string {
+    return this.editingTask ? 'tasks.editTask' : 'tasks.createNewTask';
   }
 }

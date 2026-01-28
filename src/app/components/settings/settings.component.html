@@ -1,15 +1,15 @@
 <div class="settings-page">
   <div class="settings-container">
-    <h1>Paramètres</h1>
+    <h1>{{ 'settings.title' | translate }}</h1>
 
     <!-- Section Apparence -->
     <section class="settings-section">
-      <h2>Apparence</h2>
+      <h2>{{ 'settings.appearance' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Thème</h3>
-          <p>Choisissez le style visuel de l'interface</p>
+          <h3>{{ 'settings.theme' | translate }}</h3>
+          <p>{{ 'settings.themeDesc' | translate }}</p>
         </div>
         <div class="setting-control">
           <div class="theme-toggle">
@@ -17,7 +17,7 @@
               class="theme-option" 
               [class.active]="currentTheme === 'light'"
               (click)="setTheme('light')"
-              aria-label="Mode clair">
+              [attr.aria-label]="'settings.themeLight' | translate">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="5"></circle>
                 <line x1="12" y1="1" x2="12" y2="3"></line>
@@ -29,55 +29,74 @@
                 <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
                 <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
               </svg>
-              <span>Clair</span>
+              <span>{{ 'settings.themeLight' | translate }}</span>
             </button>
             <button 
               class="theme-option" 
               [class.active]="currentTheme === 'dark'"
               (click)="setTheme('dark')"
-              aria-label="Mode sombre">
+              [attr.aria-label]="'settings.themeDark' | translate">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
               </svg>
-              <span>Sombre</span>
+              <span>{{ 'settings.themeDark' | translate }}</span>
             </button>
             <button 
               class="theme-option" 
               [class.active]="currentTheme === 'blue'"
               (click)="setTheme('blue')"
-              aria-label="Thème bleu">
+              aria-label="Bleu">
               <span style="width: 12px; height: 12px; border-radius: 999px; background:#2563eb;"></span>
-              <span>Bleu</span>
+              <span>{{ 'settings.themeBlue' | translate }}</span>
             </button>
             <button 
               class="theme-option" 
               [class.active]="currentTheme === 'forest'"
               (click)="setTheme('forest')"
-              aria-label="Thème forêt">
+              aria-label="Forêt">
               <span style="width: 12px; height: 12px; border-radius: 999px; background:#15803d;"></span>
-              <span>Forêt</span>
+              <span>{{ 'settings.themeForest' | translate }}</span>
             </button>
             <button 
               class="theme-option" 
               [class.active]="currentTheme === 'purple'"
               (click)="setTheme('purple')"
-              aria-label="Thème violet">
+              aria-label="Violet">
               <span style="width: 12px; height: 12px; border-radius: 999px; background:#7c3aed;"></span>
-              <span>Violet</span>
+              <span>{{ 'settings.themePurple' | translate }}</span>
             </button>
           </div>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <div class="setting-info">
+          <h3>{{ 'settings.language' | translate }}</h3>
+          <p>{{ 'settings.languageDesc' | translate }}</p>
+        </div>
+        <div class="setting-control">
+          <select
+            id="locale-select"
+            class="currency-select"
+            [(ngModel)]="selectedLocale"
+            (ngModelChange)="onLocaleChange($event)"
+          >
+            <option *ngFor="let lang of languages" [value]="lang.code">
+              {{ lang.label }}
+            </option>
+          </select>
         </div>
       </div>
     </section>
 
     <!-- Section Portefeuille -->
     <section class="settings-section">
-      <h2>Portefeuille</h2>
+      <h2>{{ 'settings.wallet' | translate }}</h2>
 
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Devise du portefeuille</h3>
-          <p>Devise d'affichage pour les montants (Finance)</p>
+          <h3>{{ 'settings.currency' | translate }}</h3>
+          <p>{{ 'settings.currencyDesc' | translate }}</p>
         </div>
         <div class="setting-control">
           <select
@@ -96,24 +115,24 @@
 
     <!-- Section Compte -->
     <section class="settings-section">
-      <h2>Compte</h2>
+      <h2>{{ 'settings.account' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Informations utilisateur</h3>
+          <h3>{{ 'settings.userInfo' | translate }}</h3>
           <p *ngIf="currentUser">{{ currentUser.fullName }} - {{ currentUser.email }}</p>
-          <p *ngIf="!currentUser">Chargement...</p>
+          <p *ngIf="!currentUser">{{ 'common.loading' | translate }}</p>
         </div>
       </div>
 
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Déconnexion</h3>
-          <p>Déconnectez-vous de votre compte</p>
+          <h3>{{ 'nav.logout' | translate }}</h3>
+          <p>{{ 'settings.logoutDesc' | translate }}</p>
         </div>
         <div class="setting-control">
           <button class="btn btn-danger" (click)="logout()">
-            Se déconnecter
+            {{ 'settings.logoutBtn' | translate }}
           </button>
         </div>
       </div>
@@ -121,11 +140,11 @@
 
     <!-- Section À propos -->
     <section class="settings-section">
-      <h2>À propos</h2>
+      <h2>{{ 'settings.about' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">
-          <h3>Version</h3>
+          <h3>{{ 'settings.version' | translate }}</h3>
           <p>DailyFix v1.0.0</p>
         </div>
       </div>

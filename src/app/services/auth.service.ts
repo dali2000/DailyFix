@@ -6,6 +6,7 @@ import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CurrencyService } from './currency.service';
 import { ThemeService, Theme } from './theme.service';
+import { I18nService } from './i18n.service';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -16,6 +17,7 @@ export interface User {
   role?: 'user' | 'admin';
   currency?: string;
   theme?: string;
+  locale?: string;
 }
 
 export interface LoginCredentials {
@@ -56,7 +58,8 @@ export class AuthService {
     private apiService: ApiService,
     private http: HttpClient,
     private currencyService: CurrencyService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private i18n: I18nService
   ) {
     // Vérifier si le token est valide au démarrage
     this.ensureAuthenticated$().subscribe();
@@ -68,6 +71,7 @@ export class AuthService {
     } else {
       if (user.currency) this.currencyService.setSelectedCurrency(user.currency);
       if (user.theme) this.themeService.setTheme(user.theme as Theme);
+      if (user.locale) this.i18n.use(user.locale).subscribe();
     }
     this.currentUserSubject.next(user);
   }
@@ -199,7 +203,7 @@ export class AuthService {
   /**
    * Met à jour le profil sur le serveur (devise, thème) et synchronise l'état local.
    */
-  updateProfile(patch: { currency?: string; theme?: string }): Observable<UpdateProfileResponse> {
+  updateProfile(patch: { currency?: string; theme?: string; locale?: string }): Observable<UpdateProfileResponse> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
       'Content-Type': 'application/json'

@@ -6,11 +6,12 @@ import { SocialService } from '../../services/social.service';
 import { Task, CalendarEvent } from '../../models/task.model';
 import { SocialEvent } from '../../models/social.model';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
@@ -39,13 +40,14 @@ export class CalendarComponent implements OnInit {
   weekDays: Date[] = [];
   currentDay: Date = new Date();
 
+  weekdayKeys = ['calendar.sun', 'calendar.mon', 'calendar.tue', 'calendar.wed', 'calendar.thu', 'calendar.fri', 'calendar.sat'];
   eventColors = [
-    { value: '#3b82f6', label: 'Bleu' },
-    { value: '#10b981', label: 'Vert' },
-    { value: '#f59e0b', label: 'Orange' },
-    { value: '#ef4444', label: 'Rouge' },
-    { value: '#8b5cf6', label: 'Violet' },
-    { value: '#ec4899', label: 'Rose' }
+    { value: '#3b82f6', labelKey: 'calendar.blue' },
+    { value: '#10b981', labelKey: 'calendar.green' },
+    { value: '#f59e0b', labelKey: 'calendar.orange' },
+    { value: '#ef4444', labelKey: 'calendar.red' },
+    { value: '#8b5cf6', labelKey: 'calendar.purple' },
+    { value: '#ec4899', labelKey: 'calendar.pink' }
   ];
 
   constructor(

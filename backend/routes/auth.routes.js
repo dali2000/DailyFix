@@ -65,7 +65,8 @@ router.post('/register', [
         provider: user.provider,
         role: user.role || 'user',
         currency: user.currency || 'EUR',
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        locale: user.locale || 'fr'
       }
     });
   } catch (error) {
@@ -151,7 +152,8 @@ router.post('/login', [
         provider: user.provider,
         role: user.role || 'user',
         currency: user.currency || 'EUR',
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        locale: user.locale || 'fr'
       }
     });
   } catch (error) {
@@ -266,7 +268,8 @@ router.post('/google', [
         provider: user.provider,
         role: user.role || 'user',
         currency: user.currency || 'EUR',
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        locale: user.locale || 'fr'
       }
     });
   } catch (error) {
@@ -324,7 +327,8 @@ router.get('/me', protect, async (req, res) => {
         provider: user.provider,
         role: user.role || 'user',
         currency: user.currency || 'EUR',
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        locale: user.locale || 'fr'
       }
     });
   } catch (error) {
@@ -338,13 +342,15 @@ router.get('/me', protect, async (req, res) => {
 
 const ALLOWED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
 const ALLOWED_THEMES = ['light', 'dark', 'blue', 'forest', 'purple'];
+const ALLOWED_LOCALES = ['fr', 'en', 'ar'];
 
 // @route   PATCH /api/auth/me
-// @desc    Update current user profile (e.g. currency, theme)
+// @desc    Update current user profile (e.g. currency, theme, locale)
 // @access  Private
 router.patch('/me', protect, [
   body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée'),
-  body('theme').optional().isIn(ALLOWED_THEMES).withMessage('Thème non supporté')
+  body('theme').optional().isIn(ALLOWED_THEMES).withMessage('Thème non supporté'),
+  body('locale').optional().isIn(ALLOWED_LOCALES).withMessage('Langue non supportée')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -367,6 +373,9 @@ router.patch('/me', protect, [
     if (req.body.theme !== undefined) {
       updates.theme = req.body.theme;
     }
+    if (req.body.locale !== undefined) {
+      updates.locale = req.body.locale;
+    }
 
     if (Object.keys(updates).length > 0) {
       await user.update(updates);
@@ -382,7 +391,8 @@ router.patch('/me', protect, [
         provider: user.provider,
         role: user.role || 'user',
         currency: user.currency || 'EUR',
-        theme: user.theme || 'light'
+        theme: user.theme || 'light',
+        locale: user.locale || 'fr'
       }
     });
   } catch (error) {

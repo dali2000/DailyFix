@@ -1,6 +1,7 @@
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { SidebarService } from '../../../services/sidebar.service';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -8,7 +9,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, TranslatePipe],
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.css'
 })
@@ -18,14 +19,14 @@ export class SidebarComponent implements OnInit, OnDestroy {
   private sidebarSubscription?: Subscription;
   
   navigationItems = [
-    { icon: '🏠', label: 'Accueil', route: '/home' },
-    { icon: '✓', label: 'Tâches', route: '/tasks' },
-    { icon: '📅', label: 'Calendrier', route: '/calendar' },
-    { icon: '❤️', label: 'Santé', route: '/health' },
-    { icon: '💰', label: 'Finances', route: '/finance' },
-    { icon: '🏡', label: 'Maison', route: '/home-org' },
-    { icon: '👥', label: 'Social', route: '/social' },
-    { icon: '🧘', label: 'Bien-être', route: '/wellness' }
+    { icon: '🏠', labelKey: 'nav.home', route: '/home' },
+    { icon: '✓', labelKey: 'nav.tasks', route: '/tasks' },
+    { icon: '📅', labelKey: 'nav.calendar', route: '/calendar' },
+    { icon: '❤️', labelKey: 'nav.health', route: '/health' },
+    { icon: '💰', labelKey: 'nav.finance', route: '/finance' },
+    { icon: '🏡', labelKey: 'nav.homeOrg', route: '/home-org' },
+    { icon: '👥', labelKey: 'nav.social', route: '/social' },
+    { icon: '🧘', labelKey: 'nav.wellness', route: '/wellness' }
   ];
 
   constructor(

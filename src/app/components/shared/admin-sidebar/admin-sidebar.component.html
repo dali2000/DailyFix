@@ -4,7 +4,7 @@
   <div class="sidebar-header">
     <div class="sidebar-brand">
       <span class="brand-icon">🛡️</span>
-      <span class="brand-text" *ngIf="!isCollapsed">Admin Panel</span>
+      <span class="brand-text" *ngIf="!isCollapsed">{{ 'adminSidebar.panel' | translate }}</span>
     </div>
     <button class="collapse-btn" (click)="toggleSidebar()" *ngIf="!isCollapsed">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -33,10 +33,10 @@
     </div>
     
     <div class="nav-section" *ngIf="!isCollapsed">
-      <div class="nav-section-title">Retour</div>
+      <div class="nav-section-title">{{ 'adminSidebar.back' | translate }}</div>
       <a routerLink="/home" class="nav-item" (click)="navigateToApp()">
         <span class="nav-icon">🏠</span>
-        <span class="nav-label">Application</span>
+        <span class="nav-label">{{ 'adminSidebar.app' | translate }}</span>
       </a>
     </div>
   </nav>
@@ -50,7 +50,7 @@
         <polyline points="16 17 21 12 16 7"></polyline>
         <line x1="21" y1="12" x2="9" y2="12"></line>
       </svg>
-      <span class="nav-label" *ngIf="!isCollapsed">Déconnexion</span>
+      <span class="nav-label" *ngIf="!isCollapsed">{{ 'nav.logout' | translate }}</span>
     </button>
   </div>
 </aside>

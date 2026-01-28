@@ -5,11 +5,12 @@ import { SocialService } from '../../services/social.service';
 import { SocialEvent, ActivitySuggestion } from '../../models/social.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-social',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './social.component.html',
   styleUrl: './social.component.css'
 })

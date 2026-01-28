@@ -1,30 +1,30 @@
 <div class="home-page">
-  <h1>Bonjour {{ userName || 'Utilisateur' }} ! 👋</h1>
-  <p>Prêt à organiser votre journée ? Voici vos outils DailyFix.</p>
+  <h1>{{ 'home.greeting' | translate }} {{ userName || ('common.user' | translate) }} ! 👋</h1>
+  <p>{{ 'home.ready' | translate }}</p>
 
 
   <div class="cards-container">
     <!-- Task Card -->
     <div class="stats-card blue">
       <div class="card-header">
-        <span>Tâches du jour</span>
+        <span>{{ 'home.todayTasks' | translate }}</span>
         <i class="bi bi-check2-circle"></i>
       </div>
       <div class="card-value">{{ todayHouseholdTasksCount + shoppingListsCount }}</div>
       <div class="card-subtitle" *ngIf="todayHouseholdTasksCount > 0 || shoppingListsCount > 0">
-        <span *ngIf="todayHouseholdTasksCount > 0">{{ todayHouseholdTasksCount }} tâche(s) ménagère(s)</span>
+        <span *ngIf="todayHouseholdTasksCount > 0">{{ todayHouseholdTasksCount }} {{ 'home.householdTasks' | translate }}</span>
         <span *ngIf="todayHouseholdTasksCount > 0 && shoppingListsCount > 0"> • </span>
-        <span *ngIf="shoppingListsCount > 0">{{ shoppingListsCount }} liste(s) de courses</span>
+        <span *ngIf="shoppingListsCount > 0">{{ shoppingListsCount }} {{ 'home.shoppingLists' | translate }}</span>
       </div>
       <div class="card-subtitle" *ngIf="todayHouseholdTasksCount === 0 && shoppingListsCount === 0">
-        Aucune tâche ou liste
+        {{ 'home.noTasksOrLists' | translate }}
       </div>
     </div>
 
     <!-- Health Score Card -->
     <div class="stats-card green">
       <div class="card-header">
-        <span>Santé Score</span>
+        <span>{{ 'home.healthScore' | translate }}</span>
         <i class="bi bi-heart"></i>
       </div>
       <div class="card-value">{{ healthScore }}%</div>
@@ -33,7 +33,7 @@
     <!-- Budget Card -->
     <div class="stats-card purple">
       <div class="card-header">
-        <span>Reste disponible</span>
+        <span>{{ 'home.remainingBalance' | translate }}</span>
         <i class="bi bi-currency-dollar"></i>
       </div>
       <div class="card-value" [class.negative]="remainingBalance < 0">€{{ remainingBalance | number:'1.0-0' }}</div>
@@ -42,7 +42,7 @@
     <!-- Events Card -->
     <div class="stats-card orange">
       <div class="card-header">
-        <span>Événements</span>
+        <span>{{ 'home.events' | translate }}</span>
         <i class="bi bi-calendar-event"></i>
       </div>
       <div class="card-value">{{ upcomingEventsCount }}</div>
@@ -56,16 +56,16 @@
       <div class="card-header">
         <div class="icon blue1">✔</div>
         <div>
-          <h3>Gestion des Tâches</h3>
-          <small>Organisez vos tâches quotidiennes</small>
+          <h3>{{ 'home.taskManagement' | translate }}</h3>
+          <small>{{ 'home.taskManagementDesc' | translate }}</small>
         </div>
       </div>
       <div>
-        <span>Tâches complétées aujourd'hui {{ tasksCompletedToday }}/{{ totalTasks }} (total: {{ tasksCompleted }})</span>
+        <span>{{ 'home.completedToday' | translate }} {{ tasksCompletedToday }}/{{ totalTasks }} ({{ 'home.total' | translate }}: {{ tasksCompleted }})</span>
         <div class="progress">
           <div class="progress-bar" [style.width.%]="totalTasks ? (tasksCompleted / totalTasks) * 100 : 0"></div>
         </div>
-        <button (click)="navigateTo('/tasks')">Gérer les tâches</button>
+        <button (click)="navigateTo('/tasks')">{{ 'home.manageTasks' | translate }}</button>
       </div>
     </div>
 
@@ -74,15 +74,15 @@
       <div class="card-header">
         <div class="icon green1">❤</div>
         <div>
-          <h3>Suivi Santé</h3>
-          <small>Surveillez votre bien-être</small>
+          <h3>{{ 'home.healthTracking' | translate }}</h3>
+          <small>{{ 'home.healthTrackingDesc' | translate }}</small>
         </div>
       </div>
-      <p>Repas aujourd'hui: {{ todayMealsCount }} ({{ todayCalories }} kcal)</p>
-      <p>Eau consommée: {{ todayWaterLiters | number:'1.1-1' }} L</p>
-      <p>Activité: {{ todayActivityMinutes }} min</p>
-      <p>Dernier sommeil: {{ lastSleepHours != null ? (lastSleepHours + 'h') : '—' }}</p>
-      <button (click)="navigateTo('/health')">Mettre à jour</button>
+      <p>{{ 'home.mealsToday' | translate }}: {{ todayMealsCount }} ({{ todayCalories }} kcal)</p>
+      <p>{{ 'home.waterConsumed' | translate }}: {{ todayWaterLiters | number:'1.1-1' }} L</p>
+      <p>{{ 'home.activity' | translate }}: {{ todayActivityMinutes }} min</p>
+      <p>{{ 'home.lastSleep' | translate }}: {{ lastSleepHours != null ? (lastSleepHours + 'h') : '—' }}</p>
+      <button (click)="navigateTo('/health')">{{ 'home.updateHealth' | translate }}</button>
     </div>
 
     <!-- Finances -->
@@ -90,18 +90,18 @@
       <div class="card-header">
         <div class="icon purple1">💲</div>
         <div>
-          <h3>Finances</h3>
-          <small>Gérez votre budget</small>
+          <h3>{{ 'home.finances' | translate }}</h3>
+          <small>{{ 'home.financesDesc' | translate }}</small>
         </div>
       </div>
-      <p>Dépenses ce mois: €{{ monthlyExpenses | number:'1.0-0' }}</p>
+      <p>{{ 'home.expensesThisMonth' | translate }}: €{{ monthlyExpenses | number:'1.0-0' }}</p>
       <p [class.green-text]="remainingBalance >= 0" [class.red-text]="remainingBalance < 0">
-        Reste disponible: €{{ remainingBalance | number:'1.0-0' }}
+        {{ 'home.remainingBalance' | translate }}: €{{ remainingBalance | number:'1.0-0' }}
       </p>
       <div class="progress">
         <div class="progress-bar grey1"></div>
       </div>
-      <button (click)="navigateTo('/finance')">Ajouter une dépense</button>
+      <button (click)="navigateTo('/finance')">{{ 'home.addExpense' | translate }}</button>
     </div>
 
     <!-- Organisation Domestique -->
@@ -109,8 +109,8 @@
       <div class="card-header">
         <div class="icon yellow1">🏠</div>
         <div>
-          <h3>Organisation Domestique</h3>
-          <small>Gérez votre foyer</small>
+          <h3>{{ 'home.domesticOrg' | translate }}</h3>
+          <small>{{ 'home.domesticOrgDesc' | translate }}</small>
         </div>
       </div>
       <ul>
@@ -118,7 +118,7 @@
           {{task.name}} {{task.date}}
         </li>
       </ul>
-      <button (click)="navigateTo('/home-org')">Planifier tâche</button>
+      <button (click)="navigateTo('/home-org')">{{ 'home.planTask' | translate }}</button>
     </div>
 
     <!-- Événements Sociaux -->
@@ -126,8 +126,8 @@
       <div class="card-header">
         <div class="icon orange1">📅</div>
         <div>
-          <h3>Événements Sociaux</h3>
-          <small>Planifiez vos sorties</small>
+          <h3>{{ 'home.socialEvents' | translate }}</h3>
+          <small>{{ 'home.socialEventsDesc' | translate }}</small>
         </div>
       </div>
       <ul>
@@ -135,7 +135,7 @@
           {{event.name}} {{event.date}}
         </li>
       </ul>
-      <button (click)="navigateTo('/social')">Nouvel événement</button>
+      <button (click)="navigateTo('/social')">{{ 'home.newEvent' | translate }}</button>
     </div>
 
     <!-- Développement Personnel -->
@@ -143,8 +143,8 @@
       <div class="card-header">
         <div class="icon violet1">🎯</div>
         <div>
-          <h3>Développement Personnel</h3>
-          <small>Atteignez vos objectifs</small>
+          <h3>{{ 'home.personalDev' | translate }}</h3>
+          <small>{{ 'home.personalDevDesc' | translate }}</small>
         </div>
       </div>
       <ul>
@@ -152,7 +152,7 @@
           {{goal.name}} <span [class.done]="goal.done">✔</span>
         </li>
       </ul>
-      <button (click)="navigateTo('/wellness')">Nouvel objectif</button>
+      <button (click)="navigateTo('/wellness')">{{ 'home.newGoal' | translate }}</button>
     </div>
   </div>
 
@@ -161,7 +161,7 @@
     <!-- Tasks Chart -->
     <div class="chart-card">
       <div class="chart-header">
-        <h3>📊 Avancement des Tâches</h3>
+        <h3>📊 {{ 'home.taskProgress' | translate }}</h3>
       </div>
       <div class="chart-content">
         <div class="task-status-chart">
@@ -184,7 +184,7 @@
             </svg>
             <div class="progress-text">
               <span class="progress-value">{{ taskProgressPercentage | number:'1.0-0' }}%</span>
-              <span class="progress-label">Complété</span>
+              <span class="progress-label">{{ 'home.completed' | translate }}</span>
             </div>
           </div>
         </div>
@@ -215,7 +215,7 @@
     <!-- Monthly Expense History -->
     <div class="chart-card">
       <div class="chart-header">
-        <h3>📈 Évolution des Dépenses (6 mois)</h3>
+        <h3>📈 {{ 'home.expenseEvolution' | translate }}</h3>
       </div>
       <div class="chart-content">
         <div class="expense-history-chart">
@@ -228,7 +228,7 @@
             </div>
           </div>
           <div *ngIf="monthlyExpenseHistory.length === 0" class="no-data">
-            <p>Aucune donnée disponible</p>
+            <p>{{ 'common.noData' | translate }}</p>
           </div>
         </div>
       </div>
@@ -237,47 +237,47 @@
 
   <!-- App Statistics -->
   <div class="stats-section">
-    <h2>📈 Statistiques de l'Application</h2>
+    <h2>📈 {{ 'home.appStats' | translate }}</h2>
     <div class="stats-grid">
       <div class="stat-item">
         <div class="stat-icon">💸</div>
         <div class="stat-info">
-          <div class="stat-label">Total Dépenses</div>
+          <div class="stat-label">{{ 'home.totalExpenses' | translate }}</div>
           <div class="stat-value">€{{ totalExpenses | number:'1.0-0' }}</div>
         </div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">🎯</div>
         <div class="stat-info">
-          <div class="stat-label">Objectifs d'Épargne</div>
+          <div class="stat-label">{{ 'home.savingsGoals' | translate }}</div>
           <div class="stat-value">{{ totalSavingsGoals }}</div>
         </div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">✅</div>
         <div class="stat-info">
-          <div class="stat-label">Objectifs Actifs</div>
+          <div class="stat-label">{{ 'home.activeGoals' | translate }}</div>
           <div class="stat-value">{{ activeSavingsGoals }}</div>
         </div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">❤️</div>
         <div class="stat-info">
-          <div class="stat-label">Enregistrements Santé</div>
+          <div class="stat-label">{{ 'home.healthRecords' | translate }}</div>
           <div class="stat-value">{{ totalHealthRecords }}</div>
         </div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">📅</div>
         <div class="stat-info">
-          <div class="stat-label">Événements Sociaux</div>
+          <div class="stat-label">{{ 'home.socialEventsCount' | translate }}</div>
           <div class="stat-value">{{ totalSocialEvents }}</div>
         </div>
       </div>
       <div class="stat-item">
         <div class="stat-icon">✓</div>
         <div class="stat-info">
-          <div class="stat-label">Total Tâches</div>
+          <div class="stat-label">{{ 'home.totalTasks' | translate }}</div>
           <div class="stat-value">{{ totalTasks }}</div>
         </div>
       </div>

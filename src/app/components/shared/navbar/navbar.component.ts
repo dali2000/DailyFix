@@ -6,12 +6,13 @@ import { SidebarService } from '../../../services/sidebar.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ThemeService, Theme } from '../../../services/theme.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
+import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule, RouterModule, NotificationsComponent],
+  imports: [CommonModule, RouterModule, NotificationsComponent, TranslatePipe],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.css'
 })

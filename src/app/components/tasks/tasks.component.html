@@ -1,14 +1,14 @@
 <div class="tasks-page">
   <div class="header">
-    <h1>Gestion des Tâches</h1>
+    <h1>{{ 'tasks.title' | translate }}</h1>
     <div class="actions">
       <button class="btn btn-secondary" (click)="viewMode = viewMode === 'kanban' ? 'list' : 'kanban'">
-        {{ viewMode === 'kanban' ? '📋 Liste' : '📊 Kanban' }}
+        {{ viewMode === 'kanban' ? ('📋 ' + ('tasks.listView' | translate)) : ('📊 ' + ('tasks.kanbanView' | translate)) }}
       </button>
       <button type="button" class="btn btn-primary" (click)="toggleAddForm()">
-        + Créer une tâche
+        + {{ 'tasks.createTask' | translate }}
       </button>
-      <button class="btn btn-secondary" (click)="navigateToCalendar()">📅 Calendrier</button>
+      <button class="btn btn-secondary" (click)="navigateToCalendar()">📅 {{ 'nav.calendar' | translate }}</button>
     </div>
   </div>
 
@@ -19,23 +19,23 @@
         type="text" 
         [(ngModel)]="searchQuery" 
         (input)="applyFilters()"
-        placeholder="Rechercher des tâches...">
+        [placeholder]="'tasks.searchPlaceholder' | translate">
     </div>
     <div class="filter-controls">
       <select [(ngModel)]="filter" (change)="applyFilters()">
-        <option value="all">Tous les statuts</option>
-        <option value="todo">À faire</option>
-        <option value="in-progress">En cours</option>
-        <option value="in-review">En révision</option>
-        <option value="done">Terminé</option>
+        <option value="all">{{ 'tasks.allStatuses' | translate }}</option>
+        <option value="todo">{{ 'tasks.todo' | translate }}</option>
+        <option value="in-progress">{{ 'tasks.inProgress' | translate }}</option>
+        <option value="in-review">{{ 'tasks.inReview' | translate }}</option>
+        <option value="done">{{ 'tasks.done' | translate }}</option>
       </select>
       <select [(ngModel)]="priorityFilter" (change)="applyFilters()">
-        <option value="all">Toutes les priorités</option>
-        <option value="highest">Très haute</option>
-        <option value="high">Haute</option>
-        <option value="medium">Moyenne</option>
-        <option value="low">Basse</option>
-        <option value="lowest">Très basse</option>
+        <option value="all">{{ 'tasks.allPriorities' | translate }}</option>
+        <option value="highest">{{ 'tasks.highest' | translate }}</option>
+        <option value="high">{{ 'tasks.high' | translate }}</option>
+        <option value="medium">{{ 'tasks.medium' | translate }}</option>
+        <option value="low">{{ 'tasks.low' | translate }}</option>
+        <option value="lowest">{{ 'tasks.lowest' | translate }}</option>
       </select>
     </div>
   </div>
@@ -43,59 +43,59 @@
   <!-- Add/Edit Task Modal -->
   <app-modal
     *ngIf="showAddForm"
-    [title]="editingTask ? 'Modifier la tâche' : 'Créer une nouvelle tâche'"
+    [title]="modalTitleKey | translate"
     size="lg"
     (closeModal)="closeTaskModal()"
   >
     <form (ngSubmit)="saveTask()">
       <div class="form-group">
-        <label for="task-title">Titre *</label>
-        <input id="task-title" type="text" [(ngModel)]="newTask.title" name="title" required placeholder="Résumé de la tâche">
+        <label for="task-title">{{ 'tasks.taskTitle' | translate }} *</label>
+        <input id="task-title" type="text" [(ngModel)]="newTask.title" name="title" required [placeholder]="'tasks.taskTitlePlaceholder' | translate">
       </div>
       <div class="form-group">
-        <label for="task-desc">Description</label>
-        <textarea id="task-desc" [(ngModel)]="newTask.description" name="description" rows="4" placeholder="Décrivez la tâche..."></textarea>
+        <label for="task-desc">{{ 'common.description' | translate }}</label>
+        <textarea id="task-desc" [(ngModel)]="newTask.description" name="description" rows="4" [placeholder]="'tasks.taskDescPlaceholder' | translate"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Statut</label>
+          <label>{{ 'tasks.status' | translate }}</label>
           <select [(ngModel)]="newTask.status" name="status">
-            <option value="todo">À faire</option>
-            <option value="in-progress">En cours</option>
-            <option value="in-review">En révision</option>
-            <option value="done">Terminé</option>
+            <option value="todo">{{ 'tasks.todo' | translate }}</option>
+            <option value="in-progress">{{ 'tasks.inProgress' | translate }}</option>
+            <option value="in-review">{{ 'tasks.inReview' | translate }}</option>
+            <option value="done">{{ 'tasks.done' | translate }}</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Priorité</label>
+          <label>{{ 'tasks.priority' | translate }}</label>
           <select [(ngModel)]="newTask.priority" name="priority">
             <option *ngFor="let p of priorityOptions" [value]="p.value">
-              {{ p.icon }} {{ p.label }}
+              {{ p.icon }} {{ p.labelKey | translate }}
             </option>
           </select>
         </div>
         <div class="form-group">
-          <label>Assigné à</label>
-          <input type="text" [(ngModel)]="newTask.assignee" name="assignee" placeholder="Nom">
+          <label>{{ 'tasks.assignee' | translate }}</label>
+          <input type="text" [(ngModel)]="newTask.assignee" name="assignee" [placeholder]="'tasks.assigneePlaceholder' | translate">
         </div>
         <div class="form-group">
-          <label>Story Points</label>
+          <label>{{ 'tasks.storyPoints' | translate }}</label>
           <input type="number" [(ngModel)]="newTask.storyPoints" name="storyPoints" min="0" max="100">
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Labels (séparés par des virgules)</label>
-          <input type="text" [(ngModel)]="newTask.labels" name="labels" placeholder="bug, feature, urgent">
+          <label>{{ 'tasks.labels' | translate }}</label>
+          <input type="text" [(ngModel)]="newTask.labels" name="labels" [placeholder]="'tasks.labelsPlaceholder' | translate">
         </div>
         <div class="form-group">
-          <label>Date d'échéance</label>
+          <label>{{ 'tasks.dueDate' | translate }}</label>
           <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
         </div>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeTaskModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeTaskModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>
@@ -108,7 +108,7 @@
       (dragover)="onDragOver($event)"
       (drop)="onDrop($event, column.id)">
       <div class="column-header" [style.border-left-color]="column.color">
-        <h3>{{ column.label }}</h3>
+        <h3>{{ column.labelKey | translate }}</h3>
         <span class="task-count">{{ getTasksForStatus(column.id).length }}</span>
       </div>
       <div class="column-content">
@@ -122,8 +122,8 @@
           <div class="task-card-header">
             <div class="task-id">{{ task.id.substring(0, 8) }}</div>
             <div class="task-actions">
-              <button class="icon-btn" (click)="editTask(task)" title="Modifier">✏️</button>
-              <button class="icon-btn" (click)="deleteTask(task)" title="Supprimer">🗑️</button>
+              <button class="icon-btn" (click)="editTask(task)" [title]="'common.edit' | translate">✏️</button>
+              <button class="icon-btn" (click)="deleteTask(task)" [title]="'common.delete' | translate">🗑️</button>
             </div>
           </div>
           <h4 class="task-title">{{ task.title }}</h4>
@@ -148,7 +148,7 @@
           </div>
         </div>
         <div *ngIf="getTasksForStatus(column.id).length === 0" class="empty-column">
-          Aucune tâche
+          {{ 'tasks.noTask' | translate }}
         </div>
       </div>
     </div>
@@ -159,14 +159,14 @@
     <table class="tasks-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Titre</th>
-          <th>Statut</th>
-          <th>Priorité</th>
-          <th>Assigné</th>
-          <th>Labels</th>
-          <th>Date d'échéance</th>
-          <th>Actions</th>
+          <th>{{ 'tasks.id' | translate }}</th>
+          <th>{{ 'common.title' | translate }}</th>
+          <th>{{ 'tasks.status' | translate }}</th>
+          <th>{{ 'tasks.priority' | translate }}</th>
+          <th>{{ 'tasks.assignee' | translate }}</th>
+          <th>{{ 'tasks.labels' | translate }}</th>
+          <th>{{ 'tasks.dueDate' | translate }}</th>
+          <th>{{ 'tasks.actions' | translate }}</th>
         </tr>
       </thead>
       <tbody>
@@ -191,7 +191,7 @@
               <span class="assignee-avatar">{{ task.assignee.charAt(0).toUpperCase() }}</span>
               {{ task.assignee }}
             </span>
-            <span *ngIf="!task.assignee" class="no-assignee">—</span>
+            <span *ngIf="!task.assignee" class="no-assignee">{{ 'tasks.noAssignee' | translate }}</span>
           </td>
           <td>
             <span *ngFor="let label of task.labels" class="label">{{ label }}</span>
@@ -202,12 +202,12 @@
             <span *ngIf="!task.dueDate">—</span>
           </td>
           <td class="actions-cell">
-            <button class="icon-btn" (click)="editTask(task)" title="Modifier">✏️</button>
-            <button class="icon-btn" (click)="deleteTask(task)" title="Supprimer">🗑️</button>
+            <button class="icon-btn" (click)="editTask(task)" [title]="'common.edit' | translate">✏️</button>
+            <button class="icon-btn" (click)="deleteTask(task)" [title]="'common.delete' | translate">🗑️</button>
           </td>
         </tr>
         <tr *ngIf="filteredTasks.length === 0">
-          <td colspan="8" class="empty-state">Aucune tâche trouvée</td>
+          <td colspan="8" class="empty-state">{{ 'tasks.noTaskFound' | translate }}</td>
         </tr>
       </tbody>
     </table>

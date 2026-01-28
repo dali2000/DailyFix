@@ -1,23 +1,23 @@
 <div class="admin-dashboard">
   <div class="admin-header">
-    <h1>Dashboard Administrateur</h1>
+    <h1>{{ 'admin.title' | translate }}</h1>
     <button class="btn-back" (click)="router.navigate(['/home'])">
-      ← Retour à l'accueil
+      ← {{ 'admin.backHome' | translate }}
     </button>
   </div>
 
   <div *ngIf="error" class="alert alert-error">
     <span>{{ error }}</span>
-    <button type="button" class="alert-close" (click)="dismissMessages()" aria-label="Fermer">×</button>
+    <button type="button" class="alert-close" (click)="dismissMessages()" [attr.aria-label]="'common.close' | translate">×</button>
   </div>
   <div *ngIf="successMessage" class="alert alert-success">
     <span>{{ successMessage }}</span>
-    <button type="button" class="alert-close" (click)="successMessage = null" aria-label="Fermer">×</button>
+    <button type="button" class="alert-close" (click)="successMessage = null" [attr.aria-label]="'common.close' | translate">×</button>
   </div>
 
   <!-- Statistics Section -->
   <section class="stats-section" aria-label="Statistiques">
-    <h2>Statistiques Générales</h2>
+    <h2>{{ 'admin.generalStats' | translate }}</h2>
     <div *ngIf="loadingStats" class="stats-grid stats-skeleton">
       <div class="stat-card skeleton" *ngFor="let i of skeletonCount">
         <div class="stat-icon skeleton-icon"></div>
@@ -31,75 +31,75 @@
       <div class="stat-card stat-users">
         <div class="stat-icon">👥</div>
         <div class="stat-content">
-          <h3>Utilisateurs</h3>
+          <h3>{{ 'admin.users' | translate }}</h3>
           <div class="stat-value">{{ stats.users.total }}</div>
           <div class="stat-details">
-            <span>+{{ stats.users.newThisMonth }} ce mois</span>
-            <span>+{{ stats.users.newThisWeek }} cette semaine</span>
+            <span>+{{ stats.users.newThisMonth }} {{ 'admin.thisMonth' | translate }}</span>
+            <span>+{{ stats.users.newThisWeek }} {{ 'admin.thisWeek' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-tasks">
         <div class="stat-icon">✅</div>
         <div class="stat-content">
-          <h3>Tâches</h3>
+          <h3>{{ 'admin.tasks' | translate }}</h3>
           <div class="stat-value">{{ stats.tasks.total }}</div>
           <div class="stat-details">
-            <span>{{ stats.tasks.completed }} complétées</span>
-            <span>{{ stats.tasks.completionRate }}% complétion</span>
+            <span>{{ stats.tasks.completed }} {{ 'admin.completedCount' | translate }}</span>
+            <span>{{ stats.tasks.completionRate }}% {{ 'admin.completionRate' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-events">
         <div class="stat-icon">📅</div>
         <div class="stat-content">
-          <h3>Événements</h3>
+          <h3>{{ 'admin.events' | translate }}</h3>
           <div class="stat-value">{{ stats.events.total }}</div>
           <div class="stat-details">
-            <span>{{ stats.events.upcoming }} à venir</span>
+            <span>{{ stats.events.upcoming }} {{ 'admin.upcoming' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-health">
         <div class="stat-icon">❤️</div>
         <div class="stat-content">
-          <h3>Santé</h3>
+          <h3>{{ 'admin.health' | translate }}</h3>
           <div class="stat-value">{{ stats.health.meals + stats.health.activities + stats.health.sleepRecords }}</div>
           <div class="stat-details">
-            <span>{{ stats.health.meals }} repas</span>
-            <span>{{ stats.health.activities }} activités</span>
+            <span>{{ stats.health.meals }} {{ 'admin.meals' | translate }}</span>
+            <span>{{ stats.health.activities }} {{ 'admin.activities' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-finance">
         <div class="stat-icon">💰</div>
         <div class="stat-content">
-          <h3>Finance</h3>
+          <h3>{{ 'admin.finance' | translate }}</h3>
           <div class="stat-value">{{ stats.finance.expenses }}</div>
           <div class="stat-details">
-            <span>{{ stats.finance.budgets }} budgets</span>
-            <span>{{ stats.finance.savingsGoals }} objectifs</span>
+            <span>{{ stats.finance.budgets }} {{ 'admin.budgets' | translate }}</span>
+            <span>{{ stats.finance.savingsGoals }} {{ 'admin.savingsGoals' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-wellness">
         <div class="stat-icon">🧘</div>
         <div class="stat-content">
-          <h3>Bien-être</h3>
+          <h3>{{ 'admin.wellness' | translate }}</h3>
           <div class="stat-value">{{ stats.wellness.journalEntries + stats.wellness.personalGoals }}</div>
           <div class="stat-details">
-            <span>{{ stats.wellness.journalEntries }} journaux</span>
-            <span>{{ stats.wellness.personalGoals }} objectifs</span>
+            <span>{{ stats.wellness.journalEntries }} {{ 'admin.journals' | translate }}</span>
+            <span>{{ stats.wellness.personalGoals }} {{ 'admin.savingsGoals' | translate }}</span>
           </div>
         </div>
       </div>
       <div class="stat-card stat-social">
         <div class="stat-icon">👥</div>
         <div class="stat-content">
-          <h3>Social</h3>
+          <h3>{{ 'admin.socialEvents' | translate }}</h3>
           <div class="stat-value">{{ stats.social.events }}</div>
           <div class="stat-details">
-            <span>Événements sociaux</span>
+            <span>{{ 'admin.socialEvents' | translate }}</span>
           </div>
         </div>
       </div>
@@ -108,7 +108,7 @@
 
   <!-- Recent users (from stats) -->
   <section class="recent-section" *ngIf="recentUsers.length" aria-label="Inscriptions récentes">
-    <h2>Inscriptions récentes (7 derniers jours)</h2>
+    <h2>{{ 'admin.recentSignups' | translate }}</h2>
     <div class="recent-list">
       <div class="recent-item" *ngFor="let u of recentUsers">
         <span class="recent-name">{{ u.fullName }}</span>
@@ -147,13 +147,13 @@
         <table class="users-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Email</th>
-              <th>Rôle</th>
-              <th>Provider</th>
-              <th>Inscription</th>
-              <th>Actions</th>
+              <th>{{ 'admin.id' | translate }}</th>
+              <th>{{ 'admin.nom' | translate }}</th>
+              <th>{{ 'admin.email' | translate }}</th>
+              <th>{{ 'admin.role' | translate }}</th>
+              <th>{{ 'admin.provider' | translate }}</th>
+              <th>{{ 'admin.signupDate' | translate }}</th>
+              <th>{{ 'tasks.actions' | translate }}</th>
             </tr>
           </thead>
           <tbody>
@@ -182,16 +182,16 @@
           (click)="changePage(currentPage - 1)"
           aria-label="Page précédente"
         >
-          ← Précédent
+          ← {{ 'common.previous' | translate }}
         </button>
-        <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }} ({{ totalUsers }} utilisateur{{ totalUsers > 1 ? 's' : '' }})</span>
+        <span class="pagination-info">{{ 'admin.page' | translate }} {{ currentPage }} / {{ totalPages }} ({{ totalUsers }} {{ 'admin.usersCount' | translate }})</span>
         <button 
           type="button"
           [disabled]="currentPage === totalPages" 
           (click)="changePage(currentPage + 1)"
           aria-label="Page suivante"
         >
-          Suivant →
+          {{ 'common.next' | translate }} →
         </button>
       </div>
     </div>
@@ -207,33 +207,33 @@
   <div class="modal" *ngIf="showCreateModal" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 id="create-modal-title">Créer un nouvel utilisateur</h3>
-        <button type="button" class="close-btn" (click)="closeModal()" aria-label="Fermer">×</button>
+        <h3 id="create-modal-title">{{ 'admin.createUser' | translate }}</h3>
+        <button type="button" class="close-btn" (click)="closeModal()" [attr.aria-label]="'common.close' | translate">×</button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="createUser()">
           <div class="form-group">
-            <label for="create-fullName">Nom complet *</label>
+            <label for="create-fullName">{{ 'admin.fullName' | translate }} *</label>
             <input id="create-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
           </div>
           <div class="form-group">
-            <label for="create-email">Email *</label>
+            <label for="create-email">{{ 'admin.email' | translate }} *</label>
             <input id="create-email" type="email" [(ngModel)]="userForm.email" name="email" required />
           </div>
           <div class="form-group">
-            <label for="create-password">Mot de passe</label>
+            <label for="create-password">{{ 'admin.password' | translate }}</label>
             <input id="create-password" type="password" [(ngModel)]="userForm.password" name="password" />
           </div>
           <div class="form-group">
-            <label for="create-role">Rôle</label>
+            <label for="create-role">{{ 'admin.role' | translate }}</label>
             <select id="create-role" [(ngModel)]="userForm.role" name="role">
-              <option value="user">Utilisateur</option>
-              <option value="admin">Administrateur</option>
+              <option value="user">{{ 'admin.userOption' | translate }}</option>
+              <option value="admin">{{ 'admin.adminOption' | translate }}</option>
             </select>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
-            <button type="submit" class="btn-primary">Créer</button>
+            <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
+            <button type="submit" class="btn-primary">{{ 'common.create' | translate }}</button>
           </div>
         </form>
       </div>
@@ -244,33 +244,33 @@
   <div class="modal" *ngIf="showUserModal" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3 id="edit-modal-title">Modifier l'utilisateur</h3>
-        <button type="button" class="close-btn" (click)="closeModal()" aria-label="Fermer">×</button>
+        <h3 id="edit-modal-title">{{ 'admin.editUser' | translate }}</h3>
+        <button type="button" class="close-btn" (click)="closeModal()" [attr.aria-label]="'common.close' | translate">×</button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="updateUser()">
           <div class="form-group">
-            <label for="edit-fullName">Nom complet *</label>
+            <label for="edit-fullName">{{ 'admin.fullName' | translate }} *</label>
             <input id="edit-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
           </div>
           <div class="form-group">
-            <label for="edit-email">Email *</label>
+            <label for="edit-email">{{ 'admin.email' | translate }} *</label>
             <input id="edit-email" type="email" [(ngModel)]="userForm.email" name="email" required />
           </div>
           <div class="form-group">
-            <label for="edit-password">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+            <label for="edit-password">{{ 'admin.newPasswordHint' | translate }}</label>
             <input id="edit-password" type="password" [(ngModel)]="userForm.password" name="password" />
           </div>
           <div class="form-group">
-            <label for="edit-role">Rôle</label>
+            <label for="edit-role">{{ 'admin.role' | translate }}</label>
             <select id="edit-role" [(ngModel)]="userForm.role" name="role">
-              <option value="user">Utilisateur</option>
-              <option value="admin">Administrateur</option>
+              <option value="user">{{ 'admin.userOption' | translate }}</option>
+              <option value="admin">{{ 'admin.adminOption' | translate }}</option>
             </select>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn-secondary" (click)="closeModal()">Annuler</button>
-            <button type="submit" class="btn-primary">Enregistrer</button>
+            <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
+            <button type="submit" class="btn-primary">{{ 'common.save' | translate }}</button>
           </div>
         </form>
       </div>

@@ -1,23 +1,23 @@
 <div class="wellness-page">
-  <h1>Bien-être Mental et Développement Personnel</h1>
+  <h1>{{ 'wellness.title' | translate }}</h1>
 
   <div class="tabs">
-    <button [class.active]="activeTab === 'journal'" (click)="activeTab = 'journal'">Journal</button>
-    <button [class.active]="activeTab === 'goals'" (click)="activeTab = 'goals'">Objectifs</button>
-    <button [class.active]="activeTab === 'stress'" (click)="activeTab = 'stress'">Gestion du stress</button>
+    <button [class.active]="activeTab === 'journal'" (click)="activeTab = 'journal'">{{ 'wellness.journal' | translate }}</button>
+    <button [class.active]="activeTab === 'goals'" (click)="activeTab = 'goals'">{{ 'wellness.goals' | translate }}</button>
+    <button [class.active]="activeTab === 'stress'" (click)="activeTab = 'stress'">{{ 'wellness.stress' | translate }}</button>
   </div>
 
   <!-- Journal Tab -->
   <div *ngIf="activeTab === 'journal'" class="tab-content">
     <div class="section-header">
-      <h2>Journal intime</h2>
-      <button type="button" class="btn btn-primary" (click)="showJournalForm = true">+ Nouvelle entrée</button>
+      <h2>{{ 'wellness.journalTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showJournalForm = true">+ {{ 'wellness.newEntry' | translate }}</button>
     </div>
 
     <div class="journal-entries">
       <div *ngFor="let entry of journalEntries" class="entry-card">
         <div class="entry-header">
-          <h4>{{ entry.title || 'Sans titre' }}</h4>
+          <h4>{{ entry.title || ('wellness.untitled' | translate) }}</h4>
           <span class="mood">{{ getMoodEmoji(entry.mood) }}</span>
         </div>
         <p class="entry-content">{{ entry.content }}</p>
@@ -28,8 +28,8 @@
           </span>
         </div>
         <div class="entry-actions">
-          <button class="btn btn-small" (click)="editJournalEntry(entry)">Modifier</button>
-          <button class="btn btn-small btn-danger" (click)="deleteJournalEntry(entry.id)">Supprimer</button>
+          <button class="btn btn-small" (click)="editJournalEntry(entry)">{{ 'common.edit' | translate }}</button>
+          <button class="btn btn-small btn-danger" (click)="deleteJournalEntry(entry.id)">{{ 'common.delete' | translate }}</button>
         </div>
       </div>
     </div>
@@ -38,12 +38,12 @@
   <!-- Goals Tab -->
   <div *ngIf="activeTab === 'goals'" class="tab-content">
     <div class="section-header">
-      <h2>Objectifs personnels</h2>
-      <button type="button" class="btn btn-primary" (click)="showGoalForm = true">+ Nouvel objectif</button>
+      <h2>{{ 'wellness.personalGoals' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showGoalForm = true">+ {{ 'wellness.newGoal' | translate }}</button>
     </div>
 
     <div class="active-goals-section">
-      <h3>Objectifs actifs</h3>
+      <h3>{{ 'wellness.activeGoals' | translate }}</h3>
       <div class="goals-list">
         <div *ngFor="let goal of getActiveGoals()" class="goal-card">
           <div class="goal-header">
@@ -65,18 +65,18 @@
           <div class="goal-meta">
             <span *ngIf="goal.targetDate">Date cible: {{ goal.targetDate | date:'shortDate' }}</span>
           </div>
-          <button class="btn btn-small btn-danger" (click)="deletePersonalGoal(goal.id)">Supprimer</button>
+          <button class="btn btn-small btn-danger" (click)="deletePersonalGoal(goal.id)">{{ 'common.delete' | translate }}</button>
         </div>
       </div>
     </div>
 
     <div class="completed-goals-section">
-      <h3>Objectifs complétés</h3>
+      <h3>{{ 'wellness.completedGoals' | translate }}</h3>
       <div class="goals-list">
         <div *ngFor="let goal of getCompletedGoals()" class="goal-card completed">
           <h4>{{ goal.title }}</h4>
           <p>{{ goal.description }}</p>
-          <span class="completed-badge">✓ Complété</span>
+          <span class="completed-badge">✓ {{ 'wellness.completedBadge' | translate }}</span>
         </div>
       </div>
     </div>
@@ -103,8 +103,8 @@
     </div>
 
     <div class="section-header">
-      <h2>Enregistrer le stress</h2>
-      <button type="button" class="btn btn-primary" (click)="showStressForm = true">+ Nouvel enregistrement</button>
+      <h2>{{ 'wellness.stressTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showStressForm = true">+ {{ 'wellness.newStressEntry' | translate }}</button>
     </div>
 
     <div class="stress-records-section">
@@ -129,14 +129,14 @@
     </div>
   </div>
 
-  <app-modal *ngIf="showJournalForm" [title]="selectedEntry ? 'Modifier l\'entrée' : 'Nouvelle entrée'" size="lg" (closeModal)="closeJournalModal()">
+  <app-modal *ngIf="showJournalForm" [title]="(selectedEntry ? 'common.edit' : 'wellness.newEntry') | translate" size="lg" (closeModal)="closeJournalModal()">
     <form (ngSubmit)="selectedEntry ? updateJournalEntry() : addJournalEntry()">
       <div class="form-group">
-        <label>Titre (optionnel)</label>
+        <label>{{ 'common.title' | translate }} (optionnel)</label>
         <input type="text" [(ngModel)]="newEntry.title" name="title">
       </div>
       <div class="form-group">
-        <label>Contenu *</label>
+        <label>{{ 'common.description' | translate }} *</label>
         <textarea [(ngModel)]="newEntry.content" name="content" rows="8" required></textarea>
       </div>
       <div class="form-row">
@@ -155,42 +155,42 @@
         <input type="text" [(ngModel)]="newEntry.tags" name="tags" placeholder="gratitude, objectifs, réflexion">
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeJournalModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeJournalModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showGoalForm" title="Nouvel objectif" size="md" (closeModal)="closeGoalModal()">
+  <app-modal *ngIf="showGoalForm" [title]="'wellness.newGoal' | translate" size="md" (closeModal)="closeGoalModal()">
     <form (ngSubmit)="addPersonalGoal()">
       <div class="form-group">
-        <label>Titre *</label>
+        <label>{{ 'common.title' | translate }} *</label>
         <input type="text" [(ngModel)]="newGoal.title" name="title" required>
       </div>
       <div class="form-group">
-        <label>Description</label>
+        <label>{{ 'common.description' | translate }}</label>
         <textarea [(ngModel)]="newGoal.description" name="description" rows="3"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Catégorie</label>
+          <label>{{ 'common.category' | translate }}</label>
           <select [(ngModel)]="newGoal.category" name="category">
             <option *ngFor="let cat of goalCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Date cible</label>
+          <label>{{ 'common.targetDate' | translate }}</label>
           <input type="date" [(ngModel)]="newGoal.targetDate" name="targetDate">
         </div>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeGoalModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Créer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeGoalModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.create' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showStressForm" title="Nouvel enregistrement de stress" size="md" (closeModal)="closeStressModal()">
+  <app-modal *ngIf="showStressForm" [title]="'wellness.newStressEntry' | translate" size="md" (closeModal)="closeStressModal()">
     <form (ngSubmit)="addStressRecord()">
       <div class="form-group">
         <label>Niveau de stress (1-10) *</label>
@@ -210,8 +210,8 @@
         <textarea [(ngModel)]="newStress.notes" name="notes" rows="3"></textarea>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeStressModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeStressModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>

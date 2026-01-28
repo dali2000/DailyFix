@@ -275,7 +275,7 @@ export class HealthService {
     const dateStr = today.toDateString();
     return this.waterIntakes
       .filter(w => new Date(w.date).toDateString() === dateStr)
-      .reduce((sum, w) => sum + w.amount, 0);
+      .reduce((sum, w) => sum + Number(w.amount), 0);
   }
 
   // Meditation methods

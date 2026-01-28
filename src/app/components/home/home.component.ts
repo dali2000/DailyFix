@@ -8,12 +8,14 @@ import { HomeService } from '../../services/home.service';
 import { SocialService } from '../../services/social.service';
 import { WellnessService } from '../../services/wellness.service';
 import { AuthService } from '../../services/auth.service';
+import { I18nService } from '../../services/i18n.service';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslatePipe],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css',
 })
@@ -67,7 +69,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private socialService: SocialService,
     private wellnessService: WellnessService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private i18n: I18nService
   ) {}
 
   ngOnInit(): void {
@@ -246,10 +249,10 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     const total = allTasks.length;
     this.taskStatusData = [
-      { status: 'À faire', count: statusCounts['todo'], percentage: total > 0 ? (statusCounts['todo'] / total) * 100 : 0 },
-      { status: 'En cours', count: statusCounts['in-progress'], percentage: total > 0 ? (statusCounts['in-progress'] / total) * 100 : 0 },
-      { status: 'En révision', count: statusCounts['in-review'], percentage: total > 0 ? (statusCounts['in-review'] / total) * 100 : 0 },
-      { status: 'Terminé', count: statusCounts['done'], percentage: total > 0 ? (statusCounts['done'] / total) * 100 : 0 }
+      { status: this.i18n.instant('tasks.todo'), count: statusCounts['todo'], percentage: total > 0 ? (statusCounts['todo'] / total) * 100 : 0 },
+      { status: this.i18n.instant('tasks.inProgress'), count: statusCounts['in-progress'], percentage: total > 0 ? (statusCounts['in-progress'] / total) * 100 : 0 },
+      { status: this.i18n.instant('tasks.inReview'), count: statusCounts['in-review'], percentage: total > 0 ? (statusCounts['in-review'] / total) * 100 : 0 },
+      { status: this.i18n.instant('tasks.done'), count: statusCounts['done'], percentage: total > 0 ? (statusCounts['done'] / total) * 100 : 0 }
     ];
 
     this.taskProgressPercentage = total > 0 ? (statusCounts['done'] / total) * 100 : 0;
@@ -263,13 +266,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     const categoryCounts: { [key: string]: number } = {};
     const categories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
     const categoryNames: { [key: string]: string } = {
-      'food': 'Alimentation',
-      'shopping': 'Shopping',
-      'health': 'Santé',
-      'leisure': 'Loisirs',
-      'transport': 'Transport',
-      'bills': 'Factures',
-      'other': 'Autre'
+      'food': this.i18n.instant('finance.food'),
+      'shopping': this.i18n.instant('finance.shopping'),
+      'health': this.i18n.instant('finance.health'),
+      'leisure': this.i18n.instant('finance.leisure'),
+      'transport': this.i18n.instant('finance.transport'),
+      'bills': this.i18n.instant('finance.bills'),
+      'other': this.i18n.instant('finance.other')
     };
 
     expenses.forEach(expense => {
@@ -321,9 +324,9 @@ export class HomeComponent implements OnInit, OnDestroy {
     const todayStr = today.toDateString();
     const tomorrowStr = tomorrow.toDateString();
 
-    if (dateStr === todayStr) return '(aujourd\'hui)';
-    if (dateStr === tomorrowStr) return '(demain)';
-    return new Date(date).toLocaleDateString('fr-FR', { weekday: 'short' });
+    if (dateStr === todayStr) return '(' + this.i18n.instant('common.today') + ')';
+    if (dateStr === tomorrowStr) return '(' + this.i18n.instant('common.tomorrow') + ')';
+    return new Date(date).toLocaleDateString(undefined, { weekday: 'short' });
   }
 
   navigateTo(path: string): void {

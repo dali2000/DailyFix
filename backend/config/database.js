@@ -117,6 +117,7 @@ const connectDB = async () => {
     await addRoleColumnIfNeeded();
     await addCurrencyColumnIfNeeded();
     await addThemeColumnIfNeeded();
+    await addLocaleColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -311,6 +312,62 @@ const addThemeColumnIfNeeded = async () => {
       console.log('✅ Column "theme" already exists (or similar column)');
     } else {
       console.warn('⚠️ Warning: Could not add theme column:', error.message);
+    }
+  }
+};
+
+// Fonction pour ajouter la colonne locale si elle n'existe pas
+const addLocaleColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+
+    if (dialect === 'postgres') {
+      const [results] = await sequelize.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'locale'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "locale" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN locale VARCHAR(10) DEFAULT 'fr' NOT NULL
+      `);
+      console.log('✅ Column "locale" added successfully to users table');
+    } else if (dialect === 'mysql') {
+      const [results] = await sequelize.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'users' 
+        AND COLUMN_NAME = 'locale'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "locale" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN locale VARCHAR(10) DEFAULT 'fr' NOT NULL
+      `);
+      console.log('✅ Column "locale" added successfully to users table');
+    }
+  } catch (error) {
+    if (error.message && (
+      error.message.includes('already exists') ||
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Column "locale" already exists (or similar column)');
+    } else {
+      console.warn('⚠️ Warning: Could not add locale column:', error.message);
     }
   }
 };

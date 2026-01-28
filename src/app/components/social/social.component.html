@@ -1,37 +1,37 @@
 <div class="social-page">
-  <h1>Événements Sociaux et Activités</h1>
+  <h1>{{ 'social.title' | translate }}</h1>
 
   <div class="tabs">
-    <button [class.active]="activeTab === 'events'" (click)="activeTab = 'events'">Événements</button>
-    <button [class.active]="activeTab === 'suggestions'" (click)="activeTab = 'suggestions'">Suggestions d'activités</button>
+    <button [class.active]="activeTab === 'events'" (click)="activeTab = 'events'">{{ 'social.events' | translate }}</button>
+    <button [class.active]="activeTab === 'suggestions'" (click)="activeTab = 'suggestions'">{{ 'social.suggestions' | translate }}</button>
   </div>
 
   <!-- Events Tab -->
   <div *ngIf="activeTab === 'events'" class="tab-content">
     <div class="section-header">
-      <h2>Événements sociaux</h2>
-      <button type="button" class="btn btn-primary" (click)="showEventForm = true">+ Nouvel événement</button>
+      <h2>{{ 'social.socialEvents' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showEventForm = true">+ {{ 'social.newEvent' | translate }}</button>
     </div>
 
     <div class="birthdays-section">
-      <h3>🎂 Anniversaires</h3>
+      <h3>🎂 {{ 'social.birthdays' | translate }}</h3>
       <div class="events-list">
         <div *ngFor="let birthday of getBirthdays()" class="event-card birthday">
           <h4>{{ birthday.title }}</h4>
           <p>{{ birthday.date | date:'fullDate' }}</p>
           <div class="event-actions">
-            <button class="btn btn-small" (click)="editEvent(birthday)">✏️ Modifier</button>
-            <button class="btn btn-small btn-danger" (click)="deleteEvent(birthday.id)">🗑️ Supprimer</button>
+            <button class="btn btn-small" (click)="editEvent(birthday)">✏️ {{ 'social.modify' | translate }}</button>
+            <button class="btn btn-small btn-danger" (click)="deleteEvent(birthday.id)">🗑️ {{ 'common.delete' | translate }}</button>
           </div>
         </div>
         <div *ngIf="getBirthdays().length === 0" class="empty-state">
-          Aucun anniversaire enregistré
+          {{ 'social.noBirthdays' | translate }}
         </div>
       </div>
     </div>
 
     <div class="upcoming-events-section">
-      <h3>Prochains événements</h3>
+      <h3>{{ 'social.upcomingEvents' | translate }}</h3>
       <div class="events-list">
         <div *ngFor="let event of getUpcomingEvents()" class="event-card">
           <div class="event-header">
@@ -47,12 +47,12 @@
             </span>
           </div>
           <div class="event-actions">
-            <button class="btn btn-small" (click)="editEvent(event)">✏️ Modifier</button>
-            <button class="btn btn-small btn-danger" (click)="deleteEvent(event.id)">🗑️ Supprimer</button>
+            <button class="btn btn-small" (click)="editEvent(event)">✏️ {{ 'social.modify' | translate }}</button>
+            <button class="btn btn-small btn-danger" (click)="deleteEvent(event.id)">🗑️ {{ 'common.delete' | translate }}</button>
           </div>
         </div>
         <div *ngIf="getUpcomingEvents().length === 0" class="empty-state">
-          Aucun événement à venir
+          {{ 'social.noUpcoming' | translate }}
         </div>
       </div>
     </div>
@@ -61,8 +61,8 @@
   <!-- Suggestions Tab -->
   <div *ngIf="activeTab === 'suggestions'" class="tab-content">
     <div class="section-header">
-      <h2>Suggestions d'activités</h2>
-      <button type="button" class="btn btn-primary" (click)="showSuggestionForm = true">+ Ajouter une suggestion</button>
+      <h2>{{ 'social.activitySuggestions' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showSuggestionForm = true">+ {{ 'social.addSuggestion' | translate }}</button>
     </div>
 
     <div *ngFor="let category of suggestionCategories" class="category-section">
@@ -84,23 +84,23 @@
     </div>
   </div>
 
-  <app-modal *ngIf="showEventForm" [title]="editingEvent ? 'Modifier l\'événement' : 'Nouvel événement'" size="lg" (closeModal)="cancelEventForm()">
+  <app-modal *ngIf="showEventForm" [title]="(editingEvent ? 'calendar.editEvent' : 'social.newEvent') | translate" size="lg" (closeModal)="cancelEventForm()">
     <form (ngSubmit)="addEvent()">
       <div class="form-group">
-        <label>Titre *</label>
+        <label>{{ 'common.title' | translate }} *</label>
         <input type="text" [(ngModel)]="newEvent.title" name="title" required>
       </div>
       <div class="form-group">
-        <label>Description</label>
+        <label>{{ 'common.description' | translate }}</label>
         <textarea [(ngModel)]="newEvent.description" name="description" rows="2"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Date *</label>
+          <label>{{ 'common.date' | translate }} *</label>
           <input type="datetime-local" [(ngModel)]="newEvent.dateString" name="date" required>
         </div>
         <div class="form-group">
-          <label>Type</label>
+          <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newEvent.type" name="type">
             <option *ngFor="let type of eventTypes" [value]="type">{{ getEventTypeName(type) }}</option>
           </select>
@@ -127,35 +127,35 @@
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showSuggestionForm" title="Nouvelle suggestion" size="md" (closeModal)="closeSuggestionModal()">
+  <app-modal *ngIf="showSuggestionForm" [title]="'social.addSuggestion' | translate" size="md" (closeModal)="closeSuggestionModal()">
     <form (ngSubmit)="addCustomSuggestion()">
       <div class="form-group">
-        <label>Titre *</label>
+        <label>{{ 'common.title' | translate }} *</label>
         <input type="text" [(ngModel)]="newSuggestion.title" name="title" required>
       </div>
       <div class="form-group">
-        <label>Description *</label>
+        <label>{{ 'common.description' | translate }} *</label>
         <textarea [(ngModel)]="newSuggestion.description" name="description" rows="3" required></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Catégorie</label>
+          <label>{{ 'common.category' | translate }}</label>
           <select [(ngModel)]="newSuggestion.category" name="category">
             <option *ngFor="let cat of suggestionCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Coût estimé (€)</label>
+          <label>{{ 'common.amount' | translate }} (€)</label>
           <input type="number" [(ngModel)]="newSuggestion.estimatedCost" name="cost">
         </div>
         <div class="form-group">
-          <label>Durée (minutes)</label>
+          <label>{{ 'common.minutes' | translate }}</label>
           <input type="number" [(ngModel)]="newSuggestion.estimatedDuration" name="duration">
         </div>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeSuggestionModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="button" class="btn btn-secondary" (click)="closeSuggestionModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
       </div>
     </form>
   </app-modal>

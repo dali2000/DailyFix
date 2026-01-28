@@ -8,6 +8,7 @@ import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { ThemeService } from './services/theme.service';
+import { I18nService } from './services/i18n.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -30,6 +31,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private notificationService: NotificationService,
     private themeService: ThemeService,
+    private i18n: I18nService,
     private cdr: ChangeDetectorRef
   ) {
     // Écouter les changements de route
@@ -42,6 +44,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Langue : appliquer la préférence sauvegardée (avant /me)
+    const savedLocale = localStorage.getItem('dailyfix_locale');
+    if (savedLocale === 'en' || savedLocale === 'ar') {
+      this.i18n.use(savedLocale).subscribe();
+    }
     // Initialiser le service de thème (charge le thème sauvegardé)
     this.themeService.watchSystemPreference();
     

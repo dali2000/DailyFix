@@ -1,18 +1,18 @@
 <div class="health-page">
-  <h1>Suivi de la Santé et du Bien-être</h1>
+  <h1>{{ 'health.title' | translate }}</h1>
 
   <div class="tabs">
-    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Vue d'ensemble</button>
-    <button [class.active]="activeTab === 'meals'" (click)="activeTab = 'meals'">Alimentation</button>
-    <button [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">Activité physique</button>
-    <button [class.active]="activeTab === 'sleep'" (click)="activeTab = 'sleep'">Sommeil</button>
-    <button [class.active]="activeTab === 'meditation'" (click)="activeTab = 'meditation'">Méditation</button>
+    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">{{ 'health.overview' | translate }}</button>
+    <button [class.active]="activeTab === 'meals'" (click)="activeTab = 'meals'">{{ 'health.meals' | translate }}</button>
+    <button [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">{{ 'health.activity' | translate }}</button>
+    <button [class.active]="activeTab === 'sleep'" (click)="activeTab = 'sleep'">{{ 'health.sleep' | translate }}</button>
+    <button [class.active]="activeTab === 'meditation'" (click)="activeTab = 'meditation'">{{ 'health.meditation' | translate }}</button>
   </div>
 
   <!-- Overview Tab -->
   <div *ngIf="activeTab === 'overview'" class="tab-content">
     <div class="health-score-card">
-      <h2>Score de Santé</h2>
+      <h2>{{ 'health.healthScore' | translate }}</h2>
       <div class="score-circle">
         <span class="score-value">{{ getHealthScore() }}%</span>
       </div>
@@ -20,24 +20,24 @@
 
     <div class="stats-grid">
       <div class="stat-card">
-        <h3>Calories aujourd'hui</h3>
+        <h3>{{ 'health.caloriesToday' | translate }}</h3>
         <p class="stat-value">{{ todayCalories }} kcal</p>
-        <small>Objectif: 2000 kcal</small>
+        <small>{{ 'health.goal' | translate }}: 2000 kcal</small>
       </div>
       <div class="stat-card">
-        <h3>Activité physique</h3>
+        <h3>{{ 'health.physicalActivity' | translate }}</h3>
         <p class="stat-value">{{ todayActivityMinutes }} min</p>
-        <small>Objectif: 30 min/jour</small>
+        <small>{{ 'health.goal' | translate }}: 30 min/jour</small>
       </div>
       <div class="stat-card">
-        <h3>Eau consommée</h3>
-        <p class="stat-value">{{ todayWaterIntake }}L</p>
-        <small>Objectif: 2L/jour</small>
+        <h3>{{ 'health.waterConsumed' | translate }}</h3>
+        <p class="stat-value">{{ todayWaterIntake | number:'1.1-2' }} L</p>
+        <small>{{ 'health.goal' | translate }}: 2 L/jour</small>
       </div>
       <div class="stat-card">
-        <h3>Sommeil (dernière nuit)</h3>
+        <h3>{{ 'health.sleepLastNight' | translate }}</h3>
         <p class="stat-value">{{ lastSleepHours }}h</p>
-        <small>Recommandé: 7-9h</small>
+        <small>{{ 'health.recommended' | translate }}: 7-9h</small>
       </div>
     </div>
   </div>
@@ -45,8 +45,8 @@
   <!-- Meals Tab -->
   <div *ngIf="activeTab === 'meals'" class="tab-content">
     <div class="section-header">
-      <h2>Suivi Alimentaire</h2>
-      <button type="button" class="btn btn-primary" (click)="showMealForm = true">+ Ajouter un repas</button>
+      <h2>{{ 'health.mealTracking' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showMealForm = true">+ {{ 'health.addMeal' | translate }}</button>
     </div>
 
     <div class="meals-list">
@@ -58,7 +58,7 @@
         <p *ngIf="meal.calories" class="calories">{{ meal.calories }} kcal</p>
         <p *ngIf="meal.notes" class="notes">{{ meal.notes }}</p>
         <small>{{ meal.date | date:'short' }}</small>
-        <button class="btn btn-small btn-danger" (click)="deleteMeal(meal.id)">Supprimer</button>
+        <button class="btn btn-small btn-danger" (click)="deleteMeal(meal.id)">{{ 'common.delete' | translate }}</button>
       </div>
     </div>
   </div>
@@ -73,8 +73,8 @@
     <div class="activities-list">
       <div *ngFor="let activity of activities.slice().reverse()" class="activity-card">
         <h4>{{ activity.type }}</h4>
-        <p class="duration">{{ activity.duration }} minutes</p>
-        <p *ngIf="activity.calories" class="calories">{{ activity.calories }} kcal brûlées</p>
+        <p class="duration">{{ activity.duration }} {{ 'common.minutes' | translate }}</p>
+        <p *ngIf="activity.calories" class="calories">{{ activity.calories }} {{ 'health.caloriesBurned' | translate }}</p>
         <p *ngIf="activity.notes" class="notes">{{ activity.notes }}</p>
         <small>{{ activity.date | date:'short' }}</small>
         <button class="btn btn-small btn-danger" (click)="deleteActivity(activity.id)">Supprimer</button>
@@ -85,8 +85,8 @@
   <!-- Sleep Tab -->
   <div *ngIf="activeTab === 'sleep'" class="tab-content">
     <div class="section-header">
-      <h2>Suivi du Sommeil</h2>
-      <button type="button" class="btn btn-primary" (click)="showSleepForm = true">+ Enregistrer le sommeil</button>
+      <h2>{{ 'health.sleepTracking' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showSleepForm = true">+ {{ 'health.recordSleep' | translate }}</button>
     </div>
 
     <div class="sleep-records">
@@ -103,8 +103,8 @@
   <!-- Meditation Tab -->
   <div *ngIf="activeTab === 'meditation'" class="tab-content">
     <div class="section-header">
-      <h2>Méditation et Relaxation</h2>
-      <button type="button" class="btn btn-primary" (click)="showMeditationForm = true">+ Nouvelle session</button>
+      <h2>{{ 'health.meditationTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary" (click)="showMeditationForm = true">+ {{ 'health.newSession' | translate }}</button>
     </div>
 
     <div class="meditation-sessions">
@@ -120,20 +120,20 @@
   <!-- Water Intake -->
   <div class="water-quick-add">
     <button type="button" class="btn btn-secondary" (click)="showWaterForm = true">
-      💧 Ajouter de l'eau
+      💧 {{ 'health.waterConsumed' | translate }}
     </button>
   </div>
 
   <!-- Health Modals -->
-  <app-modal *ngIf="showMealForm" title="Nouveau repas" size="md" (closeModal)="closeMealModal()">
+  <app-modal *ngIf="showMealForm" [title]="'health.addMeal' | translate" size="md" (closeModal)="closeMealModal()">
     <form (ngSubmit)="addMeal()">
       <div class="form-group">
-        <label>Nom du repas *</label>
+        <label>{{ 'common.name' | translate }} *</label>
         <input type="text" [(ngModel)]="newMeal.name" name="name" required>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Type</label>
+          <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newMeal.type" name="type">
             <option value="breakfast">Petit-déjeuner</option>
             <option value="lunch">Déjeuner</option>
@@ -142,7 +142,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Calories</label>
+          <label>{{ 'health.caloriesToday' | translate }}</label>
           <input type="number" [(ngModel)]="newMeal.calories" name="calories">
         </div>
       </div>
@@ -151,25 +151,25 @@
         <textarea [(ngModel)]="newMeal.notes" name="notes" rows="2"></textarea>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeMealModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="button" class="btn btn-secondary" (click)="closeMealModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showActivityForm" title="Nouvelle activité" size="md" (closeModal)="closeActivityModal()">
+  <app-modal *ngIf="showActivityForm" [title]="'health.addActivity' | translate" size="md" (closeModal)="closeActivityModal()">
     <form (ngSubmit)="addActivity()">
       <div class="form-group">
-        <label>Type d'activité *</label>
+        <label>{{ 'health.activityTitle' | translate }} *</label>
         <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" required>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Durée (minutes) *</label>
+          <label>{{ 'common.minutes' | translate }} *</label>
           <input type="number" [(ngModel)]="newActivity.duration" name="duration" required>
         </div>
         <div class="form-group">
-          <label>Calories brûlées</label>
+          <label>{{ 'health.caloriesBurned' | translate }}</label>
           <input type="number" [(ngModel)]="newActivity.calories" name="calories">
         </div>
       </div>
@@ -178,26 +178,26 @@
         <textarea [(ngModel)]="newActivity.notes" name="notes" rows="2"></textarea>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeActivityModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="button" class="btn btn-secondary" (click)="closeActivityModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showSleepForm" title="Enregistrer le sommeil" size="md" (closeModal)="closeSleepModal()">
+  <app-modal *ngIf="showSleepForm" [title]="'health.recordSleep' | translate" size="md" (closeModal)="closeSleepModal()">
     <form (ngSubmit)="addSleepRecord()">
       <div class="form-row">
         <div class="form-group">
-          <label>Heure de coucher *</label>
+          <label>{{ 'common.bedtime' | translate }} *</label>
           <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" required>
         </div>
         <div class="form-group">
-          <label>Heure de réveil *</label>
+          <label>{{ 'common.wakeup' | translate }} *</label>
           <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" required>
         </div>
       </div>
       <div class="form-group">
-        <label>Qualité du sommeil</label>
+        <label>{{ 'common.quality' | translate }}</label>
         <select [(ngModel)]="newSleep.quality" name="quality">
           <option value="poor">Mauvaise</option>
           <option value="fair">Moyenne</option>
@@ -206,21 +206,21 @@
         </select>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeSleepModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeSleepModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showMeditationForm" title="Nouvelle session de méditation" size="sm" (closeModal)="closeMeditationModal()">
+  <app-modal *ngIf="showMeditationForm" [title]="'health.newSession' | translate" size="sm" (closeModal)="closeMeditationModal()">
     <form (ngSubmit)="addMeditationSession()">
       <div class="form-row">
         <div class="form-group">
-          <label>Durée (minutes)</label>
+          <label>{{ 'health.minutesLabel' | translate }}</label>
           <input type="number" [(ngModel)]="newMeditation.duration" name="duration">
         </div>
         <div class="form-group">
-          <label>Type</label>
+          <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newMeditation.type" name="type">
             <option value="guided">Guidée</option>
             <option value="breathing">Respiration</option>
@@ -234,21 +234,21 @@
         <textarea [(ngModel)]="newMeditation.notes" name="notes" rows="2"></textarea>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeMeditationModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeMeditationModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
-  <app-modal *ngIf="showWaterForm" title="Ajouter de l'eau" size="sm" (closeModal)="closeWaterModal()">
+  <app-modal *ngIf="showWaterForm" [title]="'health.waterConsumed' | translate" size="sm" (closeModal)="closeWaterModal()">
     <form (ngSubmit)="addWaterIntake()">
       <div class="form-group">
-        <label>Quantité (litres)</label>
+        <label>Quantité (L)</label>
         <input type="number" [(ngModel)]="waterAmount" name="waterAmount" step="0.25" min="0.25" max="2">
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeWaterModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="button" class="btn btn-secondary" (click)="closeWaterModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
       </div>
     </form>
   </app-modal>

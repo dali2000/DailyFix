@@ -5,11 +5,12 @@ import { WellnessService } from '../../services/wellness.service';
 import { JournalEntry, PersonalGoal, StressManagement } from '../../models/wellness.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { TranslatePipe } from '../../pipes/translate.pipe';
 
 @Component({
   selector: 'app-wellness',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
   templateUrl: './wellness.component.html',
   styleUrl: './wellness.component.css'
 })

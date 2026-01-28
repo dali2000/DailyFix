@@ -2,8 +2,8 @@
   <button 
     class="notification-btn" 
     (click)="toggleDropdown()"
-    [attr.aria-label]="'Notifications' + (unreadCount > 0 ? ' (' + unreadCount + ' non lues)' : '')"
-    [title]="unreadCount > 0 ? unreadCount + ' notification(s) non lue(s)' : 'Notifications'">
+    [attr.aria-label]="('notifications.title' | translate) + (unreadCount > 0 ? ' (' + unreadCount + ' ' + ('notifications.unread' | translate) + ')' : '')"
+    [title]="unreadCount > 0 ? unreadCount + ' ' + ('notifications.unread' | translate) : ('notifications.title' | translate)">
     <svg viewBox="0 0 24 24" aria-hidden="true">
       <path d="M12 22a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 22Zm6-6V11a6 6 0 1 0-12 0v5l-2 2v1h16v-1l-2-2Z" fill="currentColor"/>
     </svg>
@@ -12,8 +12,8 @@
 
   <div class="notifications-dropdown" *ngIf="showDropdown">
     <div class="dropdown-header">
-      <h3>Notifications</h3>
-      <button class="clear-btn" *ngIf="notifications.length > 0" (click)="clearAll()" title="Effacer toutes">
+      <h3>{{ 'notifications.title' | translate }}</h3>
+      <button class="clear-btn" *ngIf="notifications.length > 0" (click)="clearAll()" [title]="'notifications.clearAll' | translate">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="18" y1="6" x2="6" y2="18"></line>
           <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -45,7 +45,7 @@
       </div>
       
       <div class="empty-state" *ngIf="notifications.length === 0">
-        <p>Aucune notification</p>
+        <p>{{ 'notifications.noNotifications' | translate }}</p>
       </div>
     </div>
   </div>

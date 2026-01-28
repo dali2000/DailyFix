@@ -1,14 +1,14 @@
 <div class="calendar-page">
   <div class="calendar-header">
-    <h1>Calendrier</h1>
+    <h1>{{ 'calendar.title' | translate }}</h1>
     <div class="header-actions">
       <button type="button" class="btn btn-primary" (click)="toggleEventForm()">
-        + Nouvel événement
+        + {{ 'calendar.newEvent' | translate }}
       </button>
       <div class="view-controls">
-        <button [class.active]="viewMode === 'month'" (click)="setViewMode('month')">Mois</button>
-        <button [class.active]="viewMode === 'week'" (click)="setViewMode('week')">Semaine</button>
-        <button [class.active]="viewMode === 'day'" (click)="setViewMode('day')">Jour</button>
+        <button [class.active]="viewMode === 'month'" (click)="setViewMode('month')">{{ 'calendar.month' | translate }}</button>
+        <button [class.active]="viewMode === 'week'" (click)="setViewMode('week')">{{ 'calendar.week' | translate }}</button>
+        <button [class.active]="viewMode === 'day'" (click)="setViewMode('day')">{{ 'calendar.day' | translate }}</button>
       </div>
     </div>
   </div>
@@ -16,62 +16,62 @@
   <!-- Event Form Modal -->
   <app-modal
     *ngIf="showEventForm"
-    [title]="editingEvent ? 'Modifier l\'événement' : 'Créer un événement'"
+    [title]="(editingEvent ? 'calendar.editEvent' : 'calendar.createEvent') | translate"
     size="md"
     (closeModal)="closeEventModal()"
   >
     <form (ngSubmit)="saveEvent()">
       <div class="form-group">
-        <label for="event-title">Titre *</label>
-        <input id="event-title" type="text" [(ngModel)]="newEvent.title" name="title" required placeholder="Titre de l'événement">
+        <label for="event-title">{{ 'calendar.eventTitle' | translate }} *</label>
+        <input id="event-title" type="text" [(ngModel)]="newEvent.title" name="title" required [placeholder]="'calendar.eventTitlePlaceholder' | translate">
       </div>
       <div class="form-group">
-        <label for="event-desc">Description</label>
-        <textarea id="event-desc" [(ngModel)]="newEvent.description" name="description" rows="3" placeholder="Description..."></textarea>
+        <label for="event-desc">{{ 'common.description' | translate }}</label>
+        <textarea id="event-desc" [(ngModel)]="newEvent.description" name="description" rows="3" [placeholder]="'calendar.eventDescPlaceholder' | translate"></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Type</label>
+          <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newEvent.type" name="type">
-            <option value="event">Événement</option>
-            <option value="reminder">Rappel</option>
+            <option value="event">{{ 'calendar.eventType' | translate }}</option>
+            <option value="reminder">{{ 'calendar.reminder' | translate }}</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Couleur</label>
+          <label>{{ 'calendar.color' | translate }}</label>
           <select [(ngModel)]="newEvent.color" name="color">
             <option *ngFor="let color of eventColors" [value]="color.value">
-              {{ color.label }}
+              {{ color.labelKey | translate }}
             </option>
           </select>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Date de début *</label>
+          <label>{{ 'calendar.startDate' | translate }} *</label>
           <input type="date" [(ngModel)]="newEvent.startDate" name="startDate" required>
         </div>
         <div class="form-group">
-          <label>Date de fin</label>
+          <label>{{ 'calendar.endDate' | translate }}</label>
           <input type="date" [(ngModel)]="newEvent.endDate" name="endDate">
         </div>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeEventModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
+        <button type="button" class="btn btn-secondary" (click)="closeEventModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
   <div class="calendar-navigation">
-    <button (click)="previousPeriod()" class="btn btn-primary">← Précédent</button>
+    <button (click)="previousPeriod()" class="btn btn-primary">← {{ 'common.previous' | translate }}</button>
     <h2 class="month-year-display">
       <span class="month-name">{{ getMonthNameOnly() }}</span>
       <span class="year-box">{{ getYear() }}</span>
     </h2>
     <div>
-      <button (click)="goToToday()" class="btn btn-primary">Aujourd'hui</button>
-      <button (click)="nextPeriod()" class="btn btn-primary">Suivant →</button>
+      <button (click)="goToToday()" class="btn btn-primary">{{ 'calendar.today' | translate }}</button>
+      <button (click)="nextPeriod()" class="btn btn-primary">{{ 'common.next' | translate }} →</button>
     </div>
   </div>
 
@@ -135,15 +135,15 @@
       </div>
       <div class="day-details">
         <div class="events-section">
-          <h4>Événements et Rappels</h4>
+          <h4>{{ 'calendar.eventType' | translate }} & {{ 'calendar.reminder' | translate }}</h4>
           <div *ngIf="getEventsForDate(selectedDate || currentDate).length === 0" class="empty">
-            Aucun événement ou rappel
+            {{ 'common.noData' | translate }}
           </div>
           <div *ngFor="let event of getEventsForDate(selectedDate || currentDate)" class="event-card" [style.border-left-color]="getEventColor(event)">
             <div class="event-header">
               <h5>{{ event.title }}</h5>
               <div class="event-actions" *ngIf="isCalendarEvent(event)">
-                <button class="icon-btn" (click)="editEvent(event)" title="Modifier">✏️</button>
+                <button class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate">✏️</button>
                 <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
               </div>
             </div>
@@ -151,7 +151,7 @@
             <div class="event-meta">
               <small>{{ getEventDate(event) | date:'short' }}</small>
               <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
-                {{ event.type === 'reminder' ? '🔔 Rappel' : '📅 Événement' }}
+                {{ event.type === 'reminder' ? ('🔔 ' + ('calendar.reminder' | translate)) : ('📅 ' + ('calendar.eventType' | translate)) }}
               </span>
             </div>
           </div>
@@ -163,9 +163,9 @@
   <div *ngIf="selectedDate" class="selected-date-panel">
     <h3>{{ selectedDate | date:'fullDate' }}</h3>
     <div class="selected-events">
-      <h4>Événements et Rappels ({{ eventsForSelectedDate.length }})</h4>
+      <h4>{{ 'calendar.eventType' | translate }} & {{ 'calendar.reminder' | translate }} ({{ eventsForSelectedDate.length }})</h4>
       <div *ngIf="eventsForSelectedDate.length === 0" class="empty">
-        Aucun événement ou rappel pour cette date
+        {{ 'common.noData' | translate }}
       </div>
       <div *ngFor="let event of eventsForSelectedDate" class="event-item" [style.border-left-color]="getEventColor(event)">
         <div class="event-title">{{ event.title }}</div>
@@ -173,11 +173,11 @@
         <div class="event-meta">
           <small>{{ getEventDate(event) | date:'short' }}</small>
           <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
-            {{ event.type === 'reminder' ? '🔔 Rappel' : '📅 Événement' }}
+            {{ event.type === 'reminder' ? ('🔔 ' + ('calendar.reminder' | translate)) : ('📅 ' + ('calendar.eventType' | translate)) }}
           </span>
         </div>
         <div class="event-actions" *ngIf="isCalendarEvent(event)">
-          <button class="icon-btn" (click)="editEvent(event)" title="Modifier">✏️</button>
+          <button class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate">✏️</button>
           <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
         </div>
       </div>

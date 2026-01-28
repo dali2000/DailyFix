@@ -1,51 +1,51 @@
 <div class="auth-page">
-  <h1 class="brand">DailyFix</h1>
-  <p class="subtitle">Votre assistant personnel pour une vie organisée</p>
+  <h1 class="brand">{{ 'login.brand' | translate }}</h1>
+  <p class="subtitle">{{ 'login.subtitle' | translate }}</p>
 
-  <section class="card" aria-label="Connexion">
-    <h2 class="title">Bienvenue</h2>
-    <p class="subtext">Connectez-vous pour accéder à votre tableau de bord</p>
+  <section class="card" [attr.aria-label]="'login.login' | translate">
+    <h2 class="title">{{ 'login.welcome' | translate }}</h2>
+    <p class="subtext">{{ 'login.welcomeDesc' | translate }}</p>
 
     <div class="tabs" role="tablist" aria-label="Mode d'authentification">
       <button type="button" class="tab" [class.active]="!isSignup" [attr.aria-selected]="!isSignup"
-        (click)="switchMode('login')">Connexion</button>
+        (click)="switchMode('login')">{{ 'login.login' | translate }}</button>
       <button type="button" class="tab" [class.active]="isSignup" [attr.aria-selected]="isSignup"
-        (click)="switchMode('signup')">Inscription</button>
+        (click)="switchMode('signup')">{{ 'login.signup' | translate }}</button>
     </div>
 
     <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
       <ng-container *ngIf="isSignup">
-        <label for="fullName">Nom complet</label>
-        <input id="fullName" type="text" formControlName="fullName" placeholder="Votre nom" autocomplete="name" required
+        <label for="fullName">{{ 'login.fullName' | translate }}</label>
+        <input id="fullName" type="text" formControlName="fullName" [placeholder]="'login.fullNamePlaceholder' | translate" autocomplete="name" required
           aria-describedby="fullNameHelp" />
         <div id="fullNameHelp" class="error"
           *ngIf="form.controls['fullName'].touched && form.controls['fullName'].invalid">
-          Nom requis (2+ caractères)
+          {{ 'login.fullNameError' | translate }}
         </div>
       </ng-container>
-      <label for="email">Email</label>
-      <input id="email" type="email" formControlName="email" placeholder="votre@email.com" autocomplete="email" required
+      <label for="email">{{ 'login.email' | translate }}</label>
+      <input id="email" type="email" formControlName="email" [placeholder]="'login.emailPlaceholder' | translate" autocomplete="email" required
         aria-describedby="emailHelp" />
       <div id="emailHelp" class="error" *ngIf="form.controls['email'].touched && form.controls['email'].invalid">
-        Entrez un email valide
+        {{ 'login.emailError' | translate }}
       </div>
 
-      <label for="password">Mot de passe</label>
+      <label for="password">{{ 'login.password' | translate }}</label>
       <input id="password" type="password" formControlName="password" placeholder="••••••••"
         autocomplete="current-password" required minlength="6" aria-describedby="passwordHelp" />
       <div id="passwordHelp" class="error"
         *ngIf="form.controls['password'].touched && form.controls['password'].invalid">
-        Mot de passe requis (6+ caractères)
+        {{ 'login.passwordError' | translate }}
       </div>
 
       <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
       <button class="submit" type="submit" class="btn btn-primary" [disabled]="isLoading">
-        {{ isLoading ? 'Chargement...' : (isSignup ? 'Créer un compte' : 'Se connecter') }}
+        {{ isLoading ? ('common.loading' | translate) : (isSignup ? ('login.submitSignup' | translate) : ('login.submitLogin' | translate)) }}
       </button>
     </form>
 
     <div class="social-auth">
-      <div class="divider"><span>ou</span></div>
+      <div class="divider"><span>{{ 'common.or' | translate }}</span></div>
       <button type="button" class="social google" (click)="signupWithGoogle()">
         <svg viewBox="0 0 48 48" aria-hidden="true">
           <path fill="#FFC107"
@@ -57,14 +57,14 @@
           <path fill="#1976D2"
             d="M43.611 20.083H42V20H24v8h11.303c-1.361 3.324-5.78 7-11.303 7-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.869 6.053 29.706 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.651-.389-3.917z" />
         </svg>
-        {{ isSignup ? 'Continuer avec Google' : 'Se connecter avec Google' }}
+        {{ isSignup ? ('login.googleSignup' | translate) : ('login.googleLogin' | translate) }}
       </button>
       <button *ngIf="isSignup" type="button" class="social facebook" (click)="signupWithFacebook()">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path fill="#1877F2"
             d="M24 12.073C24 5.405 18.627 0 12 0S0 5.405 0 12.073C0 18.095 4.388 23.093 10.125 24v-8.437H7.078V12.07h3.047V9.412c0-3.007 1.792-4.668 4.533-4.668 1.312 0 2.686.235 2.686.235v2.953h-1.514c-1.491 0-1.953.926-1.953 1.874v2.264h3.328l-.532 3.492h-2.796V24C19.612 23.093 24 18.095 24 12.073z" />
         </svg>
-        Continuer avec Facebook
+        {{ 'login.facebookSignup' | translate }}
       </button>
     </div>
   </section>
