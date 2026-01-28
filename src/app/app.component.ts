@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { NavbarComponent } from "./components/shared/navbar/navbar.component";
 import { SidebarComponent } from "./components/shared/sidebar/sidebar.component";
@@ -29,7 +29,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private notificationService: NotificationService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private cdr: ChangeDetectorRef
   ) {
     // Écouter les changements de route
     this.routerSubscription = this.router.events
@@ -44,10 +45,13 @@ export class AppComponent implements OnInit, OnDestroy {
     // Initialiser le service de thème (charge le thème sauvegardé)
     this.themeService.watchSystemPreference();
     
-    // Écouter les changements d'authentification
+    // Écouter les changements d'authentification (login/logout)
+    // Utiliser setTimeout(0) pour que la mise à jour ait lieu après la navigation
+    // déclenchée par le login (sinon router.url est encore /login et la navbar reste cachée)
     this.userSubscription = this.authService.currentUser$.subscribe(() => {
-      const currentUrl = this.router.url;
-      this.updateVisibility(currentUrl);
+      setTimeout(() => {
+        this.updateVisibility(this.router.url);
+      }, 0);
     });
 
     // Vérifier la route initiale et l'authentification
@@ -96,5 +100,9 @@ export class AppComponent implements OnInit, OnDestroy {
     // 2. Ce n'est pas la page de login
     // 3. Ce n'est PAS la page admin (ou l'utilisateur n'est pas admin)
     this.showSidebar = !!(isAuthenticated && !isLoginPage && !isAdminPage);
+
+    // Forcer la détection des changements pour que navbar/sidebar s'affichent immédiatement
+    // (évite d'avoir à rafraîchir après le login)
+    this.cdr.detectChanges();
   }
 }
