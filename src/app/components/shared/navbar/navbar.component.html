@@ -25,6 +25,31 @@
   </div>
   <div class="navbar-right">
     <app-notifications></app-notifications>
+    <button class="icon-btn" [attr.aria-label]="isFullscreen ? ('navbar.exitFullscreen' | translate) : ('navbar.fullscreen' | translate)" [title]="isFullscreen ? ('navbar.exitFullscreen' | translate) : ('navbar.fullscreen' | translate)" (click)="toggleFullscreen()">
+      <!-- Plein écran -->
+      <svg *ngIf="!isFullscreen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/>
+      </svg>
+      <!-- Quitter plein écran -->
+      <svg *ngIf="isFullscreen" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+      </svg>
+    </button>
+    <div class="lang-container">
+      <button class="icon-btn" type="button" [attr.aria-label]="'navbar.changeLanguage' | translate" [title]="'navbar.changeLanguage' | translate" (click)="toggleLangDropdown()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      </button>
+      <div class="lang-dropdown" *ngIf="showLangDropdown">
+        <button type="button" class="dropdown-item lang-item" *ngFor="let opt of langOptions" (click)="setLanguage(opt.code)" [class.active]="currentLang === opt.code">
+          <span class="lang-label">{{ opt.label }}</span>
+          <span class="lang-code">{{ opt.code | uppercase }}</span>
+        </button>
+      </div>
+    </div>
     <button class="icon-btn theme-toggle-btn" aria-label="Toggle theme" [title]="(currentTheme === 'dark' ? 'navbar.themeLight' : 'navbar.themeDark') | translate" (click)="toggleTheme()">
       <!-- Soleil en mode sombre (cliquer → passer en clair) -->
       <svg *ngIf="currentTheme === 'dark'" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

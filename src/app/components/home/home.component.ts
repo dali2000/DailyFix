@@ -8,6 +8,7 @@ import { HomeService } from '../../services/home.service';
 import { SocialService } from '../../services/social.service';
 import { WellnessService } from '../../services/wellness.service';
 import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
 import { I18nService } from '../../services/i18n.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -70,8 +71,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private wellnessService: WellnessService,
     private authService: AuthService,
     private router: Router,
-    private i18n: I18nService
+    private i18n: I18nService,
+    public currencyService: CurrencyService
   ) {}
+
+  get currencySymbol(): string {
+    return this.currencyService.getSymbol();
+  }
 
   ngOnInit(): void {
     // Les admins peuvent accéder à /home s'ils le souhaitent (via le lien "Application" dans la sidebar admin)

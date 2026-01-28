@@ -55,6 +55,9 @@
     "themeLight": "وضع فاتح",
     "themeDark": "وضع داكن",
     "settings": "الإعدادات",
+    "fullscreen": "ملء الشاشة",
+    "exitFullscreen": "الخروج من ملء الشاشة",
+    "changeLanguage": "تغيير اللغة",
     "userAccount": "حساب المستخدم",
     "adminDashboard": "لوحة الإدارة"
   },
@@ -351,6 +354,22 @@
     "unread": "غير مقروءة",
     "clearAll": "مسح الكل",
     "noNotifications": "لا إشعارات",
-    "removeLabel": "حذف الإشعار"
+    "removeLabel": "حذف الإشعار",
+    "justNow": "الآن",
+    "minutesAgo": "منذ {{count}} د",
+    "hoursAgo": "منذ {{count}} س",
+    "daysAgo": "منذ {{count}} ي",
+    "taskReminderTitle": "مهام للإنجاز",
+    "taskReminderMessage": "لديك {{count}} مهمة غير منجزة: {{titles}}{{more}}",
+    "taskReminderMore": " و{{count}} أخرى",
+    "expenseReminderTitle": "تذكير بالمصروفات",
+    "expenseReminderMessage": "لا تنسَ إضافة مصروفات اليوم!",
+    "waterReminderTitle": "تذكير: اشرب الماء",
+    "waterReminderMessage": "شربت {{amount}} مل اليوم. تذكر الشرب بانتظام!",
+    "householdReminderTitle": "مهام منزلية",
+    "householdReminderMessage": "لديك {{count}} مهمة منزلية: {{names}}{{more}}",
+    "householdReminderMore": " و{{count}} أخرى",
+    "testTitle": "اختبار الإشعار",
+    "testMessage": "الإشعارات تعمل بشكل صحيح!"
   }
 }

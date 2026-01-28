@@ -55,6 +55,9 @@
     "themeLight": "Mode clair",
     "themeDark": "Mode sombre",
     "settings": "Paramètres",
+    "fullscreen": "Plein écran",
+    "exitFullscreen": "Quitter le plein écran",
+    "changeLanguage": "Changer la langue",
     "userAccount": "Compte utilisateur",
     "adminDashboard": "Dashboard Admin"
   },
@@ -351,6 +354,22 @@
     "unread": "non lues",
     "clearAll": "Effacer toutes",
     "noNotifications": "Aucune notification",
-    "removeLabel": "Supprimer la notification"
+    "removeLabel": "Supprimer la notification",
+    "justNow": "À l'instant",
+    "minutesAgo": "Il y a {{count}} min",
+    "hoursAgo": "Il y a {{count}} h",
+    "daysAgo": "Il y a {{count}} j",
+    "taskReminderTitle": "Tâches à compléter",
+    "taskReminderMessage": "Vous avez {{count}} tâche(s) non complétée(s) : {{titles}}{{more}}",
+    "taskReminderMore": " et {{count}} autres",
+    "expenseReminderTitle": "Rappel de dépenses",
+    "expenseReminderMessage": "N'oubliez pas d'ajouter vos dépenses d'aujourd'hui !",
+    "waterReminderTitle": "Rappel : Boire de l'eau",
+    "waterReminderMessage": "Vous avez bu {{amount}} ml aujourd'hui. Pensez à boire régulièrement !",
+    "householdReminderTitle": "Tâches ménagères",
+    "householdReminderMessage": "Vous avez {{count}} tâche(s) ménagère(s) à faire : {{names}}{{more}}",
+    "householdReminderMore": " et {{count}} autres",
+    "testTitle": "Test de notification",
+    "testMessage": "Les notifications fonctionnent correctement !"
   }
 }

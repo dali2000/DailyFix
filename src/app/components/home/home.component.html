@@ -36,7 +36,7 @@
         <span>{{ 'home.remainingBalance' | translate }}</span>
         <i class="bi bi-currency-dollar"></i>
       </div>
-      <div class="card-value" [class.negative]="remainingBalance < 0">€{{ remainingBalance | number:'1.0-0' }}</div>
+      <div class="card-value" [class.negative]="remainingBalance < 0">{{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}</div>
     </div>
 
     <!-- Events Card -->
@@ -94,9 +94,9 @@
           <small>{{ 'home.financesDesc' | translate }}</small>
         </div>
       </div>
-      <p>{{ 'home.expensesThisMonth' | translate }}: €{{ monthlyExpenses | number:'1.0-0' }}</p>
+      <p>{{ 'home.expensesThisMonth' | translate }}: {{ currencySymbol }}{{ monthlyExpenses | number:'1.0-0' }}</p>
       <p [class.green-text]="remainingBalance >= 0" [class.red-text]="remainingBalance < 0">
-        {{ 'home.remainingBalance' | translate }}: €{{ remainingBalance | number:'1.0-0' }}
+        {{ 'home.remainingBalance' | translate }}: {{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}
       </p>
       <div class="progress">
         <div class="progress-bar grey1"></div>
@@ -201,7 +201,7 @@
           <div *ngFor="let item of expenseCategoryData" class="category-bar-item">
             <div class="category-label">
               <span>{{ item.category }}</span>
-              <span class="category-amount">€{{ item.amount | number:'1.0-0' }}</span>
+              <span class="category-amount">{{ currencySymbol }}{{ item.amount | number:'1.0-0' }}</span>
             </div>
             <div class="category-bar">
               <div class="category-bar-fill" [style.width.%]="item.percentage"></div>
@@ -222,7 +222,7 @@
           <div class="history-bars">
             <div *ngFor="let item of monthlyExpenseHistory" class="history-bar-item">
               <div class="history-bar" [style.height.%]="getMaxExpense() > 0 ? (item.amount / getMaxExpense()) * 100 : 0">
-                <span class="history-amount">€{{ item.amount | number:'1.0-0' }}</span>
+                <span class="history-amount">{{ currencySymbol }}{{ item.amount | number:'1.0-0' }}</span>
               </div>
               <span class="history-month">{{ item.month }}</span>
             </div>
@@ -243,7 +243,7 @@
         <div class="stat-icon">💸</div>
         <div class="stat-info">
           <div class="stat-label">{{ 'home.totalExpenses' | translate }}</div>
-          <div class="stat-value">€{{ totalExpenses | number:'1.0-0' }}</div>
+          <div class="stat-value">{{ currencySymbol }}{{ totalExpenses | number:'1.0-0' }}</div>
         </div>
       </div>
       <div class="stat-item">

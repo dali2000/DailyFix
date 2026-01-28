@@ -5,6 +5,7 @@ import { WeatherService, WeatherData } from '../../../services/weather.service';
 import { SidebarService } from '../../../services/sidebar.service';
 import { AuthService, User } from '../../../services/auth.service';
 import { ThemeService, Theme } from '../../../services/theme.service';
+import { I18nService, Locale } from '../../../services/i18n.service';
 import { NotificationsComponent } from '../notifications/notifications.component';
 import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -24,19 +25,30 @@ export class NavbarComponent implements OnInit, OnDestroy {
   isMobile = false;
   currentUser: User | null = null;
   currentTheme: Theme = 'light';
+  isFullscreen = false;
+  showLangDropdown = false;
+  currentLang: Locale = 'fr';
+  readonly langOptions: { code: Locale; label: string }[] = [
+    { code: 'fr', label: 'Français' },
+    { code: 'en', label: 'English' },
+    { code: 'ar', label: 'العربية' }
+  ];
   private userSubscription?: Subscription;
   private themeSubscription?: Subscription;
+  private langSubscription?: Subscription;
+  private fullscreenChangeHandler = () => this.updateFullscreenState();
 
   constructor(
     private weatherService: WeatherService,
     private sidebarService: SidebarService,
     private router: Router,
     private authService: AuthService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private i18n: I18nService
   ) {}
 
   @HostListener('window:resize', ['$event'])
-  onResize() {
+  onResize(_event?: Event) {
     this.checkMobile();
   }
 
@@ -46,6 +58,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
     if (!target.closest('.profile-container')) {
       this.showProfileDropdown = false;
     }
+    if (!target.closest('.lang-container')) {
+      this.showLangDropdown = false;
+    }
   }
 
   checkMobile() {
@@ -54,6 +69,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.checkMobile();
+    this.updateFullscreenState();
+    document.addEventListener('fullscreenchange', this.fullscreenChangeHandler);
+    document.addEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
     this.loadWeather();
     this.currentUser = this.authService.getCurrentUser();
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
@@ -63,14 +81,60 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.themeSubscription = this.themeService.theme$.subscribe(theme => {
       this.currentTheme = theme;
     });
+    this.currentLang = this.i18n.currentLang;
+    this.langSubscription = this.i18n.onLangChange.subscribe(lang => {
+      this.currentLang = lang;
+    });
   }
 
   ngOnDestroy(): void {
+    document.removeEventListener('fullscreenchange', this.fullscreenChangeHandler);
+    document.removeEventListener('webkitfullscreenchange', this.fullscreenChangeHandler);
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
     }
     if (this.themeSubscription) {
       this.themeSubscription.unsubscribe();
+    }
+    if (this.langSubscription) {
+      this.langSubscription.unsubscribe();
+    }
+  }
+
+  toggleLangDropdown(): void {
+    this.showLangDropdown = !this.showLangDropdown;
+  }
+
+  setLanguage(code: Locale): void {
+    this.i18n.use(code).subscribe();
+    this.showLangDropdown = false;
+    // Persister la locale sur le serveur pour qu’elle survive au rafraîchissement
+    if (this.authService.isAuthenticated()) {
+      this.authService.updateProfile({ locale: code }).subscribe({
+        error: () => { /* locale déjà appliquée localement */ }
+      });
+    }
+  }
+
+  private updateFullscreenState(): void {
+    const doc = document as Document & { fullscreenElement?: Element; webkitFullscreenElement?: Element };
+    this.isFullscreen = !!(doc.fullscreenElement ?? doc.webkitFullscreenElement);
+  }
+
+  toggleFullscreen(): void {
+    const doc = document.documentElement as HTMLElement & { requestFullscreen?: () => Promise<void>; webkitRequestFullscreen?: () => Promise<void>; exitFullscreen?: () => Promise<void>; webkitExitFullscreen?: () => void };
+    if (this.isFullscreen) {
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if ((document as Document & { webkitExitFullscreen?: () => void }).webkitExitFullscreen) {
+        (document as Document & { webkitExitFullscreen: () => void }).webkitExitFullscreen();
+      }
+    } else {
+      if (doc.requestFullscreen) {
+        doc.requestFullscreen();
+      } else if (doc.webkitRequestFullscreen) {
+        doc.webkitRequestFullscreen();
+      }
     }
   }
 

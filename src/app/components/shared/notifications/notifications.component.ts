@@ -1,6 +1,7 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { NotificationService, Notification } from '../../../services/notification.service';
+import { I18nService } from '../../../services/i18n.service';
 import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 
@@ -16,20 +17,25 @@ export class NotificationsComponent implements OnInit, OnDestroy {
   notifications: Notification[] = [];
   unreadCount = 0;
   private notificationsSubscription?: Subscription;
+  private langSubscription?: Subscription;
 
-  constructor(public notificationService: NotificationService) {}
+  constructor(
+    public notificationService: NotificationService,
+    private i18n: I18nService,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.notificationsSubscription = this.notificationService.notifications$.subscribe(notifications => {
       this.notifications = notifications;
       this.unreadCount = this.notificationService.getUnreadCount();
     });
+    this.langSubscription = this.i18n.onLangChange.subscribe(() => this.cdr.markForCheck());
   }
 
   ngOnDestroy(): void {
-    if (this.notificationsSubscription) {
-      this.notificationsSubscription.unsubscribe();
-    }
+    this.notificationsSubscription?.unsubscribe();
+    this.langSubscription?.unsubscribe();
   }
 
   @HostListener('document:click', ['$event'])
@@ -81,11 +87,12 @@ export class NotificationsComponent implements OnInit, OnDestroy {
     const hours = Math.floor(diff / 3600000);
     const days = Math.floor(diff / 86400000);
 
-    if (minutes < 1) return 'À l\'instant';
-    if (minutes < 60) return `Il y a ${minutes} min`;
-    if (hours < 24) return `Il y a ${hours}h`;
-    if (days < 7) return `Il y a ${days}j`;
-    return new Date(date).toLocaleDateString('fr-FR');
+    if (minutes < 1) return this.i18n.instant('notifications.justNow');
+    if (minutes < 60) return this.i18n.instant('notifications.minutesAgo').replace('{{count}}', String(minutes));
+    if (hours < 24) return this.i18n.instant('notifications.hoursAgo').replace('{{count}}', String(hours));
+    if (days < 7) return this.i18n.instant('notifications.daysAgo').replace('{{count}}', String(days));
+    const locale = this.i18n.currentLang === 'fr' ? 'fr-FR' : this.i18n.currentLang === 'ar' ? 'ar' : 'en-US';
+    return new Date(date).toLocaleDateString(locale);
   }
 
   clearAll(): void {

@@ -4,6 +4,7 @@ import { FinanceService } from './finance.service';
 import { HealthService } from './health.service';
 import { HomeService } from './home.service';
 import { AuthService } from './auth.service';
+import { I18nService } from './i18n.service';
 import { Subscription, interval, BehaviorSubject, Observable } from 'rxjs';
 import { Task } from '../models/task.model';
 import { HouseholdTask } from '../models/home.model';
@@ -38,7 +39,8 @@ export class NotificationService implements OnDestroy {
     private financeService: FinanceService,
     private healthService: HealthService,
     private homeService: HomeService,
-    private authService: AuthService
+    private authService: AuthService,
+    private i18n: I18nService
   ) {
     this.initializeNotifications();
   }
@@ -127,14 +129,15 @@ export class NotificationService implements OnDestroy {
       const notificationKey = 'incomplete_tasks';
       if (this.canSendNotification(notificationKey)) {
         const taskTitles = incompleteTasks.slice(0, 3).map(t => t.title).join(', ');
-        const moreCount = incompleteTasks.length > 3 ? ` et ${incompleteTasks.length - 3} autres` : '';
-        
-        this.sendNotification(
-          '📋 Tâches à compléter',
-          `Vous avez ${incompleteTasks.length} tâche(s) non complétée(s): ${taskTitles}${moreCount}`,
-          notificationKey,
-          'task'
-        );
+        const moreCount = incompleteTasks.length > 3
+          ? this.i18n.instant('notifications.taskReminderMore').replace('{{count}}', String(incompleteTasks.length - 3))
+          : '';
+        const title = this.i18n.instant('notifications.taskReminderTitle');
+        const message = this.i18n.instant('notifications.taskReminderMessage')
+          .replace('{{count}}', String(incompleteTasks.length))
+          .replace('{{titles}}', taskTitles)
+          .replace('{{more}}', moreCount);
+        this.sendNotification(`📋 ${title}`, message, notificationKey, 'task');
       }
     }
   }
@@ -152,12 +155,9 @@ export class NotificationService implements OnDestroy {
     if (todayExpenses.length === 0 && today.getHours() >= 14 && today.getHours() < 20) {
       const notificationKey = 'add_expenses_' + today.toDateString();
       if (this.canSendNotification(notificationKey)) {
-        this.sendNotification(
-          '💰 Rappel de dépenses',
-          'N\'oubliez pas d\'ajouter vos dépenses d\'aujourd\'hui !',
-          notificationKey,
-          'expense'
-        );
+        const title = this.i18n.instant('notifications.expenseReminderTitle');
+        const message = this.i18n.instant('notifications.expenseReminderMessage');
+        this.sendNotification(`💰 ${title}`, message, notificationKey, 'expense');
       }
     }
   }
@@ -176,12 +176,9 @@ export class NotificationService implements OnDestroy {
       if (shouldRemind) {
         const notificationKey = 'drink_water_' + hour;
         if (this.canSendNotification(notificationKey)) {
-          this.sendNotification(
-            '💧 Rappel: Boire de l\'eau',
-            `Vous avez bu ${today}ml aujourd'hui. N'oubliez pas de boire de l'eau régulièrement !`,
-            notificationKey,
-            'water'
-          );
+          const title = this.i18n.instant('notifications.waterReminderTitle');
+          const message = this.i18n.instant('notifications.waterReminderMessage').replace('{{amount}}', String(today));
+          this.sendNotification(`💧 ${title}`, message, notificationKey, 'water');
         }
       }
     }
@@ -208,14 +205,15 @@ export class NotificationService implements OnDestroy {
       const notificationKey = 'household_tasks';
       if (this.canSendNotification(notificationKey)) {
         const taskNames = incompleteTasks.slice(0, 2).map(t => t.name).join(', ');
-        const moreCount = incompleteTasks.length > 2 ? ` et ${incompleteTasks.length - 2} autres` : '';
-        
-        this.sendNotification(
-          '🏠 Tâches ménagères',
-          `Vous avez ${incompleteTasks.length} tâche(s) ménagère(s) à faire: ${taskNames}${moreCount ? ' ' + moreCount : ''}`,
-          notificationKey,
-          'household'
-        );
+        const moreCount = incompleteTasks.length > 2
+          ? ' ' + this.i18n.instant('notifications.householdReminderMore').replace('{{count}}', String(incompleteTasks.length - 2))
+          : '';
+        const title = this.i18n.instant('notifications.householdReminderTitle');
+        const message = this.i18n.instant('notifications.householdReminderMessage')
+          .replace('{{count}}', String(incompleteTasks.length))
+          .replace('{{names}}', taskNames)
+          .replace('{{more}}', moreCount);
+        this.sendNotification(`🏠 ${title}`, message, notificationKey, 'household');
       }
     }
   }
@@ -275,12 +273,9 @@ export class NotificationService implements OnDestroy {
 
   // Méthode publique pour tester les notifications
   testNotification(): void {
-    this.sendNotification(
-      'Test de notification',
-      'Les notifications fonctionnent correctement !',
-      'test',
-      'task'
-    );
+    const title = this.i18n.instant('notifications.testTitle');
+    const message = this.i18n.instant('notifications.testMessage');
+    this.sendNotification(title, message, 'test', 'task');
   }
 
   // Marquer une notification comme lue

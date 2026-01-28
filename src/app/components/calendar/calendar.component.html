@@ -78,8 +78,8 @@
   <div class="calendar-container">
     <div *ngIf="viewMode === 'month'" class="month-view">
       <div class="weekdays-header">
-        <div *ngFor="let day of ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam']" class="weekday">
-          {{ day }}
+        <div *ngFor="let key of weekdayKeys" class="weekday">
+          {{ key | translate }}
         </div>
       </div>
       <div class="days-grid">
@@ -122,7 +122,7 @@
             <div *ngFor="let event of getEventsForDate(day)" class="event-item" [style.border-left-color]="getEventColor(event)">
               <div class="event-title">{{ event.title }}</div>
               <div *ngIf="event.description" class="event-description">{{ event.description }}</div>
-              <div class="event-time">{{ getEventDate(event) | date:'short' }}</div>
+              <div class="event-time">{{ getEventDate(event) | date:'short':'':currentLocale }}</div>
             </div>
           </div>
         </div>
@@ -131,7 +131,7 @@
 
     <div *ngIf="viewMode === 'day'" class="day-view">
       <div class="selected-day-header">
-        <h3>{{ selectedDate ? (selectedDate | date:'fullDate') : (currentDate | date:'fullDate') }}</h3>
+        <h3>{{ selectedDate ? (selectedDate | date:'fullDate':'':currentLocale) : (currentDate | date:'fullDate':'':currentLocale) }}</h3>
       </div>
       <div class="day-details">
         <div class="events-section">
@@ -149,7 +149,7 @@
             </div>
             <p *ngIf="event.description">{{ event.description }}</p>
             <div class="event-meta">
-              <small>{{ getEventDate(event) | date:'short' }}</small>
+              <small>{{ getEventDate(event) | date:'short':'':currentLocale }}</small>
               <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
                 {{ event.type === 'reminder' ? ('🔔 ' + ('calendar.reminder' | translate)) : ('📅 ' + ('calendar.eventType' | translate)) }}
               </span>
@@ -161,7 +161,7 @@
   </div>
 
   <div *ngIf="selectedDate" class="selected-date-panel">
-    <h3>{{ selectedDate | date:'fullDate' }}</h3>
+    <h3>{{ selectedDate | date:'fullDate':'':currentLocale }}</h3>
     <div class="selected-events">
       <h4>{{ 'calendar.eventType' | translate }} & {{ 'calendar.reminder' | translate }} ({{ eventsForSelectedDate.length }})</h4>
       <div *ngIf="eventsForSelectedDate.length === 0" class="empty">
@@ -171,7 +171,7 @@
         <div class="event-title">{{ event.title }}</div>
         <div *ngIf="event.description" class="event-description">{{ event.description }}</div>
         <div class="event-meta">
-          <small>{{ getEventDate(event) | date:'short' }}</small>
+          <small>{{ getEventDate(event) | date:'short':'':currentLocale }}</small>
           <span *ngIf="isCalendarEvent(event)" class="event-type-badge">
             {{ event.type === 'reminder' ? ('🔔 ' + ('calendar.reminder' | translate)) : ('📅 ' + ('calendar.eventType' | translate)) }}
           </span>

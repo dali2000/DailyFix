@@ -323,6 +323,60 @@
   color: inherit;
 }
 
+/* Sélecteur de langue */
+.lang-container {
+  position: relative;
+}
+
+.lang-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  box-shadow: var(--notion-shadow-lg);
+  min-width: 140px;
+  z-index: 1001;
+  overflow: hidden;
+  animation: fadeIn 0.15s ease-in;
+}
+
+.lang-dropdown .lang-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+  padding: 8px 12px;
+  color: var(--notion-text-primary);
+  font-size: 14px;
+  cursor: pointer;
+  border: none;
+  background: none;
+  text-align: left;
+  transition: background 20ms ease-in 0s;
+}
+
+.lang-dropdown .lang-item:hover {
+  background: var(--notion-bg-hover);
+}
+
+.lang-dropdown .lang-item.active {
+  background: var(--notion-bg-hover);
+  font-weight: 500;
+}
+
+.lang-dropdown .lang-label {
+  flex: 1;
+}
+
+.lang-dropdown .lang-code {
+  font-size: 11px;
+  color: var(--notion-text-tertiary);
+  font-weight: 500;
+}
+
 .profile-container {
   position: relative;
 }

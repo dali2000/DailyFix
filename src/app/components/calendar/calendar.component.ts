@@ -1,12 +1,14 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../services/task.service';
 import { SocialService } from '../../services/social.service';
+import { I18nService } from '../../services/i18n.service';
 import { Task, CalendarEvent } from '../../models/task.model';
 import { SocialEvent } from '../../models/social.model';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
@@ -15,7 +17,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
-export class CalendarComponent implements OnInit {
+export class CalendarComponent implements OnInit, OnDestroy {
   currentDate = new Date();
   viewMode: 'month' | 'week' | 'day' = 'month';
   
@@ -50,13 +52,36 @@ export class CalendarComponent implements OnInit {
     { value: '#ec4899', labelKey: 'calendar.pink' }
   ];
 
+  private langSubscription?: Subscription;
+
   constructor(
     private taskService: TaskService,
-    private socialService: SocialService
+    private socialService: SocialService,
+    private i18n: I18nService,
+    private cdr: ChangeDetectorRef
   ) {}
+
+  /** Locale pour Intl (mois, jours) : fr-FR, en-US, ar */
+  get dateLocale(): string {
+    const lang = this.i18n.currentLang;
+    if (lang === 'fr') return 'fr-FR';
+    if (lang === 'en') return 'en-US';
+    if (lang === 'ar') return 'ar';
+    return 'fr-FR';
+  }
+
+  /** Locale pour le pipe date Angular (fr, en, ar) */
+  get currentLocale(): string {
+    return this.i18n.currentLang;
+  }
 
   ngOnInit(): void {
     this.loadCalendar();
+    this.langSubscription = this.i18n.onLangChange.subscribe(() => this.cdr.markForCheck());
+  }
+
+  ngOnDestroy(): void {
+    this.langSubscription?.unsubscribe();
   }
 
   loadCalendar(): void {
@@ -289,11 +314,11 @@ export class CalendarComponent implements OnInit {
   }
 
   getMonthName(): string {
-    return this.currentDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+    return this.currentDate.toLocaleDateString(this.dateLocale, { month: 'long', year: 'numeric' });
   }
 
   getMonthNameOnly(): string {
-    return this.currentDate.toLocaleDateString('fr-FR', { month: 'long' });
+    return this.currentDate.toLocaleDateString(this.dateLocale, { month: 'long' });
   }
 
   getYear(): number {
@@ -301,7 +326,7 @@ export class CalendarComponent implements OnInit {
   }
 
   getDayName(date: Date): string {
-    return date.toLocaleDateString('fr-FR', { weekday: 'short' });
+    return date.toLocaleDateString(this.dateLocale, { weekday: 'short' });
   }
 
   getDayNumber(date: Date): number {
