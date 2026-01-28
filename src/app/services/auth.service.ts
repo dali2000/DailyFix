@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, of } from 'rxjs';
+import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { environment } from '../../environments/environment';
 
@@ -39,6 +40,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'dailyfix_token';
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
+  private ensureAuthInFlight$?: Observable<boolean>;
 
   constructor(
     private router: Router,
@@ -46,7 +48,7 @@ export class AuthService {
     private http: HttpClient
   ) {
     // Vérifier si le token est valide au démarrage
-    this.validateToken();
+    this.ensureAuthenticated$().subscribe();
   }
 
   private setCurrentUser(user: User | null): void {
@@ -63,6 +65,10 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
+  }
+
+  hasToken(): boolean {
+    return this.getToken() !== null;
   }
 
   signup(signupData: SignupData): Observable<AuthResponse> {
@@ -111,49 +117,63 @@ export class AuthService {
     return this.getToken() !== null && this.getCurrentUser() !== null;
   }
 
-  // Valider le token avec le backend
-  validateToken(): void {
+  /**
+   * S'assure que l'utilisateur est restauré à partir du token (appel /auth/me).
+   * - Renvoie `true` si on peut considérer l'accès comme authentifié.
+   * - En cas de 401, purge le token et renvoie `false`.
+   * - En cas d'erreur réseau/serveur, garde le token et renvoie `true` pour éviter une redirection login au refresh.
+   */
+  ensureAuthenticated$(): Observable<boolean> {
     const token = this.getToken();
     if (!token) {
       this.setCurrentUser(null);
-      return;
+      return of(false);
     }
 
-    // Utiliser HttpClient directement pour avoir accès au status de l'erreur HTTP
+    // Déjà chargé
+    if (this.getCurrentUser()) {
+      return of(true);
+    }
+
+    // Partager l'appel en cours (guards multiples, refresh, etc.)
+    if (this.ensureAuthInFlight$) {
+      return this.ensureAuthInFlight$;
+    }
+
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json'
     });
 
-    this.http.get<AuthResponse>(`${environment.apiUrl}/auth/me`, { headers })
-      .subscribe({
-        next: (response: AuthResponse) => {
-          if (response.success && response.user) {
-            this.setCurrentUser(response.user);
-          } else {
-            console.warn('Token validation failed: invalid response', response);
-            this.setCurrentUser(null);
-          }
-        },
-        error: (error: any) => {
-          // Ne supprimer le token que si c'est une erreur 401 (Unauthorized)
-          // Pour les autres erreurs (connexion, serveur, etc.), garder le token
-          const status = error?.status || 0;
-          const isUnauthorized = status === 401;
-          
-          if (isUnauthorized) {
-            console.warn('Token validation failed: unauthorized (401)', error);
-            // Token invalide ou expiré - supprimer le token
-            this.setCurrentUser(null);
-          } else {
-            // Erreur de connexion (status 0) ou serveur (500, etc.) - garder le token
-            console.warn('Token validation error (keeping token, status:', status, ')', error);
-            // Ne pas définir l'utilisateur mais garder le token
-            // L'utilisateur restera null jusqu'à ce que la connexion soit rétablie
-            // Le token reste dans localStorage pour une nouvelle tentative
-          }
+    this.ensureAuthInFlight$ = this.http.get<AuthResponse>(`${environment.apiUrl}/auth/me`, { headers }).pipe(
+      map((response: AuthResponse) => {
+        if (response.success && response.user) {
+          this.setCurrentUser(response.user);
+          return true;
         }
-      });
+        // Réponse invalide: on déconnecte (comportement strict)
+        console.warn('Token validation failed: invalid response', response);
+        this.setCurrentUser(null);
+        return false;
+      }),
+      catchError((error: any) => {
+        const status = error?.status || 0;
+        if (status === 401) {
+          console.warn('Token validation failed: unauthorized (401)', error);
+          this.setCurrentUser(null);
+          return of(false);
+        }
+        // Erreur réseau/serveur: ne pas forcer la redirection login au refresh
+        console.warn('Token validation error (keeping token, status:', status, ')', error);
+        return of(true);
+      }),
+      finalize(() => {
+        this.ensureAuthInFlight$ = undefined;
+      }),
+      shareReplay(1)
+    );
+
+    return this.ensureAuthInFlight$;
   }
 
   // Méthode pour mettre à jour le profil utilisateur

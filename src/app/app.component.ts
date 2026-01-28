@@ -71,35 +71,44 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private updateVisibility(url: string): void {
+    // Normaliser l'URL (HashLocationStrategy + query params)
+    const normalizedUrl = (url || '')
+      .replace(/^\/#/, '') // "/#/home" -> "/home"
+      .split('?')[0]; // "/login?returnUrl=..." -> "/login"
+
     // Vérifier si c'est la page de login
-    const isLoginPage = url === '/login' || url === '/' || url.startsWith('/#/login');
-    
-    // Vérifier si c'est la page admin (enlever le hash si présent)
-    const cleanUrl = url.replace(/^\/#/, '');
-    const isAdminPage = cleanUrl.startsWith('/admin');
-    
-    // Vérifier si l'utilisateur est authentifié (doit avoir un token ET un utilisateur)
-    const isAuthenticated = this.authService.isAuthenticated();
+    const isLoginPage = normalizedUrl === '/login' || normalizedUrl === '/';
+
+    // Vérifier si c'est la page admin
+    const isAdminPage = normalizedUrl.startsWith('/admin');
+
+    /**
+     * IMPORTANT:
+     * On affiche le layout dès qu'un token existe.
+     * Le `currentUser` peut être temporairement null juste après login / au premier chargement,
+     * ce qui forçait un refresh pour voir navbar/sidebar.
+     */
+    const hasToken = this.authService.hasToken();
     const currentUser = this.authService.getCurrentUser();
-    
+
     // Vérification stricte : l'utilisateur doit être admin
     const isAdmin = !!(currentUser && currentUser.role === 'admin');
-    
-    // Afficher navbar seulement si l'utilisateur est authentifié ET pas sur la page de login
-    this.showNavbar = isAuthenticated && !isLoginPage;
+
+    // Afficher navbar seulement si un token existe ET pas sur la page de login
+    this.showNavbar = hasToken && !isLoginPage;
     
     // Afficher la sidebar admin UNIQUEMENT si :
-    // 1. L'utilisateur est authentifié
+    // 1. Un token existe
     // 2. Ce n'est pas la page de login
     // 3. C'est la page admin (/admin)
     // 4. L'utilisateur est admin
-    this.showAdminSidebar = !!(isAuthenticated && !isLoginPage && isAdminPage && isAdmin);
+    this.showAdminSidebar = !!(hasToken && !isLoginPage && isAdminPage && isAdmin);
     
     // Afficher la sidebar normale si :
-    // 1. L'utilisateur est authentifié
+    // 1. Un token existe
     // 2. Ce n'est pas la page de login
     // 3. Ce n'est PAS la page admin (ou l'utilisateur n'est pas admin)
-    this.showSidebar = !!(isAuthenticated && !isLoginPage && !isAdminPage);
+    this.showSidebar = !!(hasToken && !isLoginPage && !isAdminPage);
 
     // Forcer la détection des changements pour que navbar/sidebar s'affichent immédiatement
     // (évite d'avoir à rafraîchir après le login)
