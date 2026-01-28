@@ -7,16 +7,28 @@
   </div>
 
   <div *ngIf="error" class="alert alert-error">
-    {{ error }}
-    <button (click)="error = null">×</button>
+    <span>{{ error }}</span>
+    <button type="button" class="alert-close" (click)="dismissMessages()" aria-label="Fermer">×</button>
+  </div>
+  <div *ngIf="successMessage" class="alert alert-success">
+    <span>{{ successMessage }}</span>
+    <button type="button" class="alert-close" (click)="successMessage = null" aria-label="Fermer">×</button>
   </div>
 
   <!-- Statistics Section -->
-  <div class="stats-section" *ngIf="stats">
+  <section class="stats-section" aria-label="Statistiques">
     <h2>Statistiques Générales</h2>
-    <div class="stats-grid">
-      <!-- Users Stats -->
-      <div class="stat-card">
+    <div *ngIf="loadingStats" class="stats-grid stats-skeleton">
+      <div class="stat-card skeleton" *ngFor="let i of skeletonCount">
+        <div class="stat-icon skeleton-icon"></div>
+        <div class="stat-content">
+          <div class="skeleton-line short"></div>
+          <div class="skeleton-line long"></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid" *ngIf="!loadingStats && stats">
+      <div class="stat-card stat-users">
         <div class="stat-icon">👥</div>
         <div class="stat-content">
           <h3>Utilisateurs</h3>
@@ -27,9 +39,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Tasks Stats -->
-      <div class="stat-card">
+      <div class="stat-card stat-tasks">
         <div class="stat-icon">✅</div>
         <div class="stat-content">
           <h3>Tâches</h3>
@@ -40,9 +50,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Events Stats -->
-      <div class="stat-card">
+      <div class="stat-card stat-events">
         <div class="stat-icon">📅</div>
         <div class="stat-content">
           <h3>Événements</h3>
@@ -52,10 +60,8 @@
           </div>
         </div>
       </div>
-
-      <!-- Health Stats -->
-      <div class="stat-card">
-        <div class="stat-icon">🏥</div>
+      <div class="stat-card stat-health">
+        <div class="stat-icon">❤️</div>
         <div class="stat-content">
           <h3>Santé</h3>
           <div class="stat-value">{{ stats.health.meals + stats.health.activities + stats.health.sleepRecords }}</div>
@@ -65,9 +71,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Finance Stats -->
-      <div class="stat-card">
+      <div class="stat-card stat-finance">
         <div class="stat-icon">💰</div>
         <div class="stat-content">
           <h3>Finance</h3>
@@ -78,9 +82,7 @@
           </div>
         </div>
       </div>
-
-      <!-- Wellness Stats -->
-      <div class="stat-card">
+      <div class="stat-card stat-wellness">
         <div class="stat-icon">🧘</div>
         <div class="stat-content">
           <h3>Bien-être</h3>
@@ -91,106 +93,140 @@
           </div>
         </div>
       </div>
+      <div class="stat-card stat-social">
+        <div class="stat-icon">👥</div>
+        <div class="stat-content">
+          <h3>Social</h3>
+          <div class="stat-value">{{ stats.social.events }}</div>
+          <div class="stat-details">
+            <span>Événements sociaux</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Recent users (from stats) -->
+  <section class="recent-section" *ngIf="recentUsers.length" aria-label="Inscriptions récentes">
+    <h2>Inscriptions récentes (7 derniers jours)</h2>
+    <div class="recent-list">
+      <div class="recent-item" *ngFor="let u of recentUsers">
+        <span class="recent-name">{{ u.fullName }}</span>
+        <span class="recent-email">{{ u.email }}</span>
+        <span class="badge" [ngClass]="getRoleBadgeClass(u.role)">{{ u.role }}</span>
+        <span class="recent-date">{{ u.createdAt | date:'short' }}</span>
+      </div>
+    </div>
+  </section>
 
   <!-- Users Management Section -->
-  <div class="users-section">
+  <section class="users-section" aria-label="Gestion des utilisateurs">
     <div class="section-header">
       <h2>Gestion des Utilisateurs</h2>
-      <button class="btn-primary" (click)="openCreateModal()">+ Nouvel Utilisateur</button>
+      <button type="button" class="btn-primary" (click)="openCreateModal()">+ Nouvel Utilisateur</button>
     </div>
 
-    <!-- Search -->
     <div class="search-bar">
       <input 
-        type="text" 
-        placeholder="Rechercher un utilisateur..." 
+        type="search" 
+        placeholder="Rechercher par nom ou email..." 
         [(ngModel)]="searchTerm"
         (keyup.enter)="searchUsers()"
+        aria-label="Rechercher un utilisateur"
       />
-      <button (click)="searchUsers()">Rechercher</button>
+      <button type="button" (click)="searchUsers()">Rechercher</button>
     </div>
 
-    <!-- Users Table -->
-    <div class="table-container" *ngIf="!loading">
-      <table class="users-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Rôle</th>
-            <th>Provider</th>
-            <th>Date d'inscription</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.id }}</td>
-            <td>{{ user.fullName }}</td>
-            <td>{{ user.email }}</td>
-            <td>
-              <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">
-                {{ user.role }}
-              </span>
-            </td>
-            <td>{{ user.provider }}</td>
-            <td>{{ user.createdAt | date:'short' }}</td>
-            <td class="actions">
-              <button class="btn-edit" (click)="openEditModal(user)">Modifier</button>
-              <button class="btn-delete" (click)="deleteUser(user)">Supprimer</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <div *ngIf="loadingUsers" class="loading loading-users">
+      <span class="spinner" aria-hidden="true"></span>
+      <span>Chargement des utilisateurs...</span>
     </div>
 
-    <!-- Pagination -->
-    <div class="pagination" *ngIf="totalPages > 1">
-      <button 
-        [disabled]="currentPage === 1" 
-        (click)="changePage(currentPage - 1)"
-      >
-        Précédent
-      </button>
-      <span>Page {{ currentPage }} sur {{ totalPages }} ({{ totalUsers }} utilisateurs)</span>
-      <button 
-        [disabled]="currentPage === totalPages" 
-        (click)="changePage(currentPage + 1)"
-      >
-        Suivant
-      </button>
+    <div class="table-wrapper" *ngIf="!loadingUsers && users.length > 0">
+      <div class="table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Provider</th>
+              <th>Inscription</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td data-label="ID">{{ user.id }}</td>
+              <td data-label="Nom">{{ user.fullName }}</td>
+              <td data-label="Email">{{ user.email }}</td>
+              <td data-label="Rôle">
+                <span class="badge" [ngClass]="getRoleBadgeClass(user.role)">{{ user.role }}</span>
+              </td>
+              <td data-label="Provider">{{ user.provider }}</td>
+              <td data-label="Inscription">{{ user.createdAt | date:'short' }}</td>
+              <td data-label="Actions" class="actions-cell">
+                <button type="button" class="btn-edit" (click)="openEditModal(user)" title="Modifier">Modifier</button>
+                <button type="button" class="btn-delete" (click)="deleteUser(user)" title="Supprimer">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" *ngIf="totalPages > 1">
+        <button 
+          type="button"
+          [disabled]="currentPage === 1" 
+          (click)="changePage(currentPage - 1)"
+          aria-label="Page précédente"
+        >
+          ← Précédent
+        </button>
+        <span class="pagination-info">Page {{ currentPage }} / {{ totalPages }} ({{ totalUsers }} utilisateur{{ totalUsers > 1 ? 's' : '' }})</span>
+        <button 
+          type="button"
+          [disabled]="currentPage === totalPages" 
+          (click)="changePage(currentPage + 1)"
+          aria-label="Page suivante"
+        >
+          Suivant →
+        </button>
+      </div>
     </div>
 
-    <div *ngIf="loading" class="loading">Chargement...</div>
-  </div>
+    <div class="empty-state" *ngIf="!loadingUsers && users.length === 0">
+      <p>Aucun utilisateur trouvé.</p>
+      <p *ngIf="searchTerm">Essayez avec d'autres termes ou <button type="button" class="btn-link" (click)="searchTerm = ''; searchUsers()">effacer la recherche</button>.</p>
+      <button type="button" class="btn-primary" (click)="openCreateModal()" *ngIf="!searchTerm">Créer le premier utilisateur</button>
+    </div>
+  </section>
 
   <!-- Create User Modal -->
-  <div class="modal" *ngIf="showCreateModal" (click)="closeModal()">
+  <div class="modal" *ngIf="showCreateModal" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="create-modal-title">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Créer un nouvel utilisateur</h3>
-        <button class="close-btn" (click)="closeModal()">×</button>
+        <h3 id="create-modal-title">Créer un nouvel utilisateur</h3>
+        <button type="button" class="close-btn" (click)="closeModal()" aria-label="Fermer">×</button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="createUser()">
           <div class="form-group">
-            <label>Nom complet *</label>
-            <input type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+            <label for="create-fullName">Nom complet *</label>
+            <input id="create-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
           </div>
           <div class="form-group">
-            <label>Email *</label>
-            <input type="email" [(ngModel)]="userForm.email" name="email" required />
+            <label for="create-email">Email *</label>
+            <input id="create-email" type="email" [(ngModel)]="userForm.email" name="email" required />
           </div>
           <div class="form-group">
-            <label>Mot de passe</label>
-            <input type="password" [(ngModel)]="userForm.password" name="password" />
+            <label for="create-password">Mot de passe</label>
+            <input id="create-password" type="password" [(ngModel)]="userForm.password" name="password" />
           </div>
           <div class="form-group">
-            <label>Rôle</label>
-            <select [(ngModel)]="userForm.role" name="role">
+            <label for="create-role">Rôle</label>
+            <select id="create-role" [(ngModel)]="userForm.role" name="role">
               <option value="user">Utilisateur</option>
               <option value="admin">Administrateur</option>
             </select>
@@ -205,29 +241,29 @@
   </div>
 
   <!-- Edit User Modal -->
-  <div class="modal" *ngIf="showUserModal" (click)="closeModal()">
+  <div class="modal" *ngIf="showUserModal" (click)="closeModal()" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>Modifier l'utilisateur</h3>
-        <button class="close-btn" (click)="closeModal()">×</button>
+        <h3 id="edit-modal-title">Modifier l'utilisateur</h3>
+        <button type="button" class="close-btn" (click)="closeModal()" aria-label="Fermer">×</button>
       </div>
       <div class="modal-body">
         <form (ngSubmit)="updateUser()">
           <div class="form-group">
-            <label>Nom complet *</label>
-            <input type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+            <label for="edit-fullName">Nom complet *</label>
+            <input id="edit-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
           </div>
           <div class="form-group">
-            <label>Email *</label>
-            <input type="email" [(ngModel)]="userForm.email" name="email" required />
+            <label for="edit-email">Email *</label>
+            <input id="edit-email" type="email" [(ngModel)]="userForm.email" name="email" required />
           </div>
           <div class="form-group">
-            <label>Nouveau mot de passe (laisser vide pour ne pas changer)</label>
-            <input type="password" [(ngModel)]="userForm.password" name="password" />
+            <label for="edit-password">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+            <input id="edit-password" type="password" [(ngModel)]="userForm.password" name="password" />
           </div>
           <div class="form-group">
-            <label>Rôle</label>
-            <select [(ngModel)]="userForm.role" name="role">
+            <label for="edit-role">Rôle</label>
+            <select id="edit-role" [(ngModel)]="userForm.role" name="role">
               <option value="user">Utilisateur</option>
               <option value="admin">Administrateur</option>
             </select>

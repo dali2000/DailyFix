@@ -15,8 +15,10 @@ import { FormsModule } from '@angular/forms';
 export class AdminComponent implements OnInit {
   stats: AdminStats | null = null;
   users: User[] = [];
-  loading = false;
+  loadingStats = false;
+  loadingUsers = false;
   error: string | null = null;
+  successMessage: string | null = null;
   
   // Pagination
   currentPage = 1;
@@ -38,6 +40,12 @@ export class AdminComponent implements OnInit {
     role: 'user' as 'user' | 'admin'
   };
 
+  readonly skeletonCount = [1, 2, 3, 4, 5, 6, 7];
+
+  get recentUsers(): User[] {
+    return this.stats?.users?.recent ?? [];
+  }
+
   constructor(
     private adminService: AdminService,
     private authService: AuthService,
@@ -57,30 +65,27 @@ export class AdminComponent implements OnInit {
   }
 
   loadStats() {
-    this.loading = true;
+    this.loadingStats = true;
     this.error = null;
     this.adminService.getStats().subscribe({
       next: (response) => {
         if (response.success) {
           this.stats = response.data;
-          this.error = null;
-        } else {
-          this.error = response.message || 'Erreur lors du chargement des statistiques';
         }
-        this.loading = false;
+        this.loadingStats = false;
       },
       error: (error) => {
         console.error('Error loading stats:', error);
-        // Afficher le message d'erreur détaillé pour le débogage
         const errorMessage = error?.error?.error || error?.error?.message || error?.message || 'Erreur lors du chargement des statistiques';
         this.error = errorMessage;
-        this.loading = false;
+        this.loadingStats = false;
       }
     });
   }
 
   loadUsers() {
-    this.loading = true;
+    this.loadingUsers = true;
+    this.error = null;
     this.adminService.getUsers(this.currentPage, this.limit, this.searchTerm).subscribe({
       next: (response) => {
         if (response.success) {
@@ -88,14 +93,24 @@ export class AdminComponent implements OnInit {
           this.totalPages = response.data.pagination.totalPages;
           this.totalUsers = response.data.pagination.total;
         }
-        this.loading = false;
+        this.loadingUsers = false;
       },
       error: (error) => {
         console.error('Error loading users:', error);
-        this.error = 'Erreur lors du chargement des utilisateurs';
-        this.loading = false;
+        this.error = error?.error?.message || error?.message || 'Erreur lors du chargement des utilisateurs';
+        this.loadingUsers = false;
       }
     });
+  }
+
+  showSuccess(message: string) {
+    this.successMessage = message;
+    setTimeout(() => (this.successMessage = null), 4000);
+  }
+
+  dismissMessages() {
+    this.error = null;
+    this.successMessage = null;
   }
 
   searchUsers() {
@@ -145,20 +160,20 @@ export class AdminComponent implements OnInit {
       return;
     }
 
-    this.loading = true;
+    this.loadingUsers = true;
     this.adminService.createUser(this.userForm).subscribe({
       next: (response) => {
         if (response.success) {
           this.closeModal();
           this.loadUsers();
           this.loadStats();
+          this.showSuccess('Utilisateur créé avec succès');
         }
-        this.loading = false;
+        this.loadingUsers = false;
       },
       error: (error) => {
-        console.error('Error creating user:', error);
-        this.error = error.message || 'Erreur lors de la création de l\'utilisateur';
-        this.loading = false;
+        this.error = error?.error?.message || error?.message || 'Erreur lors de la création de l\'utilisateur';
+        this.loadingUsers = false;
       }
     });
   }
@@ -166,13 +181,12 @@ export class AdminComponent implements OnInit {
   updateUser() {
     if (!this.selectedUser) return;
 
-    this.loading = true;
-    const updateData: any = {
+    this.loadingUsers = true;
+    const updateData: { fullName: string; email: string; role: 'user' | 'admin'; password?: string } = {
       fullName: this.userForm.fullName,
       email: this.userForm.email,
       role: this.userForm.role
     };
-
     if (this.userForm.password) {
       updateData.password = this.userForm.password;
     }
@@ -183,35 +197,35 @@ export class AdminComponent implements OnInit {
           this.closeModal();
           this.loadUsers();
           this.loadStats();
+          this.showSuccess('Utilisateur mis à jour avec succès');
         }
-        this.loading = false;
+        this.loadingUsers = false;
       },
       error: (error) => {
-        console.error('Error updating user:', error);
-        this.error = error.message || 'Erreur lors de la mise à jour de l\'utilisateur';
-        this.loading = false;
+        this.error = error?.error?.message || error?.message || 'Erreur lors de la mise à jour de l\'utilisateur';
+        this.loadingUsers = false;
       }
     });
   }
 
   deleteUser(user: User) {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.fullName} ?`)) {
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur ${user.fullName} ? Toutes ses données seront supprimées.`)) {
       return;
     }
 
-    this.loading = true;
+    this.loadingUsers = true;
     this.adminService.deleteUser(user.id as number).subscribe({
       next: (response) => {
         if (response.success) {
           this.loadUsers();
           this.loadStats();
+          this.showSuccess('Utilisateur supprimé avec succès');
         }
-        this.loading = false;
+        this.loadingUsers = false;
       },
       error: (error) => {
-        console.error('Error deleting user:', error);
-        this.error = error.message || 'Erreur lors de la suppression de l\'utilisateur';
-        this.loading = false;
+        this.error = error?.error?.message || error?.message || 'Erreur lors de la suppression de l\'utilisateur';
+        this.loadingUsers = false;
       }
     });
   }

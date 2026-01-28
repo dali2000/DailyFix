@@ -96,7 +96,7 @@ export class AdminService {
     return this.apiService.post<UserResponse>('/admin/users', userData);
   }
 
-  updateUser(id: number, userData: { fullName?: string; email?: string; role?: 'user' | 'admin' }): Observable<UserResponse> {
+  updateUser(id: number, userData: { fullName?: string; email?: string; role?: 'user' | 'admin'; password?: string }): Observable<UserResponse> {
     return this.apiService.put<UserResponse>(`/admin/users/${id}`, userData);
   }
 
