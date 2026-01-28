@@ -55,6 +55,9 @@
     "themeLight": "Light mode",
     "themeDark": "Dark mode",
     "settings": "Settings",
+    "fullscreen": "Fullscreen",
+    "exitFullscreen": "Exit fullscreen",
+    "changeLanguage": "Change language",
     "userAccount": "User account",
     "adminDashboard": "Admin Dashboard"
   },
@@ -351,6 +354,22 @@
     "unread": "unread",
     "clearAll": "Clear all",
     "noNotifications": "No notifications",
-    "removeLabel": "Remove notification"
+    "removeLabel": "Remove notification",
+    "justNow": "Just now",
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}}h ago",
+    "daysAgo": "{{count}} days ago",
+    "taskReminderTitle": "Tasks to complete",
+    "taskReminderMessage": "You have {{count}} incomplete task(s): {{titles}}{{more}}",
+    "taskReminderMore": " and {{count}} more",
+    "expenseReminderTitle": "Expense reminder",
+    "expenseReminderMessage": "Don't forget to add today's expenses!",
+    "waterReminderTitle": "Reminder: Drink water",
+    "waterReminderMessage": "You've drunk {{amount}} ml today. Remember to drink regularly!",
+    "householdReminderTitle": "Household tasks",
+    "householdReminderMessage": "You have {{count}} household task(s) to do: {{names}}{{more}}",
+    "householdReminderMore": " and {{count}} more",
+    "testTitle": "Notification test",
+    "testMessage": "Notifications are working correctly!"
   }
 }
