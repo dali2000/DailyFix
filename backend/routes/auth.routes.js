@@ -64,7 +64,8 @@ router.post('/register', [
         email: user.email,
         provider: user.provider,
         role: user.role || 'user',
-        currency: user.currency || 'EUR'
+        currency: user.currency || 'EUR',
+        theme: user.theme || 'light'
       }
     });
   } catch (error) {
@@ -149,7 +150,8 @@ router.post('/login', [
         email: user.email,
         provider: user.provider,
         role: user.role || 'user',
-        currency: user.currency || 'EUR'
+        currency: user.currency || 'EUR',
+        theme: user.theme || 'light'
       }
     });
   } catch (error) {
@@ -263,7 +265,8 @@ router.post('/google', [
         email: user.email,
         provider: user.provider,
         role: user.role || 'user',
-        currency: user.currency || 'EUR'
+        currency: user.currency || 'EUR',
+        theme: user.theme || 'light'
       }
     });
   } catch (error) {
@@ -320,7 +323,8 @@ router.get('/me', protect, async (req, res) => {
         email: user.email,
         provider: user.provider,
         role: user.role || 'user',
-        currency: user.currency || 'EUR'
+        currency: user.currency || 'EUR',
+        theme: user.theme || 'light'
       }
     });
   } catch (error) {
@@ -333,12 +337,14 @@ router.get('/me', protect, async (req, res) => {
 });
 
 const ALLOWED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
+const ALLOWED_THEMES = ['light', 'dark', 'blue', 'forest', 'purple'];
 
 // @route   PATCH /api/auth/me
-// @desc    Update current user profile (e.g. currency)
+// @desc    Update current user profile (e.g. currency, theme)
 // @access  Private
 router.patch('/me', protect, [
-  body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée')
+  body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée'),
+  body('theme').optional().isIn(ALLOWED_THEMES).withMessage('Thème non supporté')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -358,6 +364,9 @@ router.patch('/me', protect, [
     if (req.body.currency !== undefined) {
       updates.currency = req.body.currency;
     }
+    if (req.body.theme !== undefined) {
+      updates.theme = req.body.theme;
+    }
 
     if (Object.keys(updates).length > 0) {
       await user.update(updates);
@@ -372,7 +381,8 @@ router.patch('/me', protect, [
         email: user.email,
         provider: user.provider,
         role: user.role || 'user',
-        currency: user.currency || 'EUR'
+        currency: user.currency || 'EUR',
+        theme: user.theme || 'light'
       }
     });
   } catch (error) {

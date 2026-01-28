@@ -313,6 +313,16 @@
   height: 16px;
 }
 
+/* Icône thème toujours visible dans tous les thèmes (clair, sombre, bleu, forêt, violet) */
+.theme-toggle-btn,
+.theme-toggle-btn:hover {
+  color: var(--notion-text-primary) !important;
+}
+
+.theme-toggle-btn svg {
+  color: inherit;
+}
+
 .profile-container {
   position: relative;
 }

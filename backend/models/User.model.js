@@ -48,6 +48,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(10),
     defaultValue: 'EUR',
     allowNull: false
+  },
+  theme: {
+    type: DataTypes.STRING(20),
+    defaultValue: 'light',
+    allowNull: false
   }
 }, {
   tableName: 'users',

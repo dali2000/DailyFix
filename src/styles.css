@@ -558,3 +558,93 @@ img, video, iframe, svg {
   --notion-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
   --notion-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
+/* Blue theme - clair avec accents bleus prononcés */
+.blue-theme {
+  --notion-bg: #f5f7ff;
+  --notion-bg-secondary: #eef2ff;
+  --notion-bg-tertiary: #e0e7ff;
+  --notion-bg-hover: #e0e7ff;
+
+  --notion-text-primary: #0f172a;
+  --notion-text-secondary: #475569;
+  --notion-text-tertiary: #64748b;
+
+  --notion-blue: #2563eb;
+  --notion-blue-bg: #dbeafe;
+  --notion-purple: #6366f1;
+  --notion-purple-bg: #e0e7ff;
+  --notion-green: #059669;
+  --notion-green-bg: #dcfce7;
+  --notion-orange: #ea580c;
+  --notion-orange-bg: #ffedd5;
+  --notion-red: #dc2626;
+  --notion-red-bg: #fee2e2;
+  --notion-yellow: #eab308;
+  --notion-yellow-bg: #fef9c3;
+  --notion-gray: #6b7280;
+  --notion-gray-bg: #e5e7eb;
+
+  --notion-border: #d4d4ff;
+  --notion-border-hover: #a5b4fc;
+}
+
+/* Forest theme - clair avec accents verts */
+.forest-theme {
+  --notion-bg: #f4f9f4;
+  --notion-bg-secondary: #e8f5e9;
+  --notion-bg-tertiary: #dcedc8;
+  --notion-bg-hover: #dcedc8;
+
+  --notion-text-primary: #1b4332;
+  --notion-text-secondary: #2d6a4f;
+  --notion-text-tertiary: #40916c;
+
+  --notion-blue: #1d4ed8;
+  --notion-blue-bg: #e0f2fe;
+  --notion-purple: #7c3aed;
+  --notion-purple-bg: #ede9fe;
+  --notion-green: #15803d;
+  --notion-green-bg: #bbf7d0;
+  --notion-orange: #ea580c;
+  --notion-orange-bg: #ffedd5;
+  --notion-red: #b91c1c;
+  --notion-red-bg: #fee2e2;
+  --notion-yellow: #ca8a04;
+  --notion-yellow-bg: #fef9c3;
+  --notion-gray: #64748b;
+  --notion-gray-bg: #e2e8f0;
+
+  --notion-border: #c5e1a5;
+  --notion-border-hover: #9ccc65;
+}
+
+/* Purple theme - clair avec accents violets */
+.purple-theme {
+  --notion-bg: #faf5ff;
+  --notion-bg-secondary: #f3e8ff;
+  --notion-bg-tertiary: #e9d5ff;
+  --notion-bg-hover: #e9d5ff;
+
+  --notion-text-primary: #312e81;
+  --notion-text-secondary: #4c1d95;
+  --notion-text-tertiary: #6d28d9;
+
+  --notion-blue: #1d4ed8;
+  --notion-blue-bg: #dbeafe;
+  --notion-purple: #7c3aed;
+  --notion-purple-bg: #ede9fe;
+  --notion-green: #16a34a;
+  --notion-green-bg: #dcfce7;
+  --notion-orange: #f97316;
+  --notion-orange-bg: #ffedd5;
+  --notion-red: #e11d48;
+  --notion-red-bg: #ffe4e6;
+  --notion-yellow: #eab308;
+  --notion-yellow-bg: #fef9c3;
+  --notion-gray: #6b7280;
+  --notion-gray-bg: #e5e7eb;
+
+  --notion-border: #ddd6fe;
+  --notion-border-hover: #c4b5fd;
+}

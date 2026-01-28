@@ -9,7 +9,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <h3>Thème</h3>
-          <p>Choisissez entre le mode clair et le mode sombre</p>
+          <p>Choisissez le style visuel de l'interface</p>
         </div>
         <div class="setting-control">
           <div class="theme-toggle">
@@ -40,6 +40,30 @@
                 <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
               </svg>
               <span>Sombre</span>
+            </button>
+            <button 
+              class="theme-option" 
+              [class.active]="currentTheme === 'blue'"
+              (click)="setTheme('blue')"
+              aria-label="Thème bleu">
+              <span style="width: 12px; height: 12px; border-radius: 999px; background:#2563eb;"></span>
+              <span>Bleu</span>
+            </button>
+            <button 
+              class="theme-option" 
+              [class.active]="currentTheme === 'forest'"
+              (click)="setTheme('forest')"
+              aria-label="Thème forêt">
+              <span style="width: 12px; height: 12px; border-radius: 999px; background:#15803d;"></span>
+              <span>Forêt</span>
+            </button>
+            <button 
+              class="theme-option" 
+              [class.active]="currentTheme === 'purple'"
+              (click)="setTheme('purple')"
+              aria-label="Thème violet">
+              <span style="width: 12px; height: 12px; border-radius: 999px; background:#7c3aed;"></span>
+              <span>Violet</span>
             </button>
           </div>
         </div>

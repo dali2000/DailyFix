@@ -72,6 +72,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   setTheme(theme: Theme): void {
     this.themeService.setTheme(theme);
+    if (this.authService.getCurrentUser()) {
+      this.authService.updateProfile({ theme }).subscribe({
+        error: (err) => console.error('Erreur lors de la sauvegarde du thème', err)
+      });
+    }
   }
 
   logout(): void {

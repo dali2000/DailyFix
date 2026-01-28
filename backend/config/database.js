@@ -116,6 +116,7 @@ const connectDB = async () => {
     // Ajouter les colonnes supplémentaires si elles n'existent pas
     await addRoleColumnIfNeeded();
     await addCurrencyColumnIfNeeded();
+    await addThemeColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -254,6 +255,62 @@ const addCurrencyColumnIfNeeded = async () => {
     } else {
       console.warn('⚠️ Warning: Could not add currency column:', error.message);
       // Ne pas faire échouer le démarrage, juste logger l'avertissement
+    }
+  }
+};
+
+// Fonction pour ajouter la colonne theme si elle n'existe pas
+const addThemeColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+
+    if (dialect === 'postgres') {
+      const [results] = await sequelize.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'theme'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "theme" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN theme VARCHAR(20) DEFAULT 'light' NOT NULL
+      `);
+      console.log('✅ Column "theme" added successfully to users table');
+    } else if (dialect === 'mysql') {
+      const [results] = await sequelize.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'users' 
+        AND COLUMN_NAME = 'theme'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "theme" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN theme VARCHAR(20) DEFAULT 'light' NOT NULL
+      `);
+      console.log('✅ Column "theme" added successfully to users table');
+    }
+  } catch (error) {
+    if (error.message && (
+      error.message.includes('already exists') ||
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Column "theme" already exists (or similar column)');
+    } else {
+      console.warn('⚠️ Warning: Could not add theme column:', error.message);
     }
   }
 };

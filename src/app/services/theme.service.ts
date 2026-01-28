@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-export type Theme = 'light' | 'dark';
+export type Theme = 'light' | 'dark' | 'blue' | 'forest' | 'purple';
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +10,7 @@ export class ThemeService {
   private readonly THEME_KEY = 'dailyfix-theme';
   private themeSubject: BehaviorSubject<Theme>;
   public theme$: Observable<Theme>;
+  private readonly allowedThemes: Theme[] = ['light', 'dark', 'blue', 'forest', 'purple'];
 
   constructor() {
     // Récupérer le thème depuis localStorage ou utiliser la préférence système
@@ -26,9 +27,7 @@ export class ThemeService {
    */
   private getSavedTheme(): Theme {
     const saved = localStorage.getItem(this.THEME_KEY) as Theme;
-    if (saved === 'light' || saved === 'dark') {
-      return saved;
-    }
+    if (saved && this.allowedThemes.includes(saved)) return saved;
     
     // Utiliser la préférence système si disponible
     if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -46,11 +45,12 @@ export class ThemeService {
   }
 
   /**
-   * Bascule entre light et dark mode
+   * Bascule entre mode sombre et mode clair (depuis la navbar).
+   * En mode sombre → passer en clair ; en tout autre thème → passer en sombre.
    */
   toggleTheme(): void {
     const currentTheme = this.themeSubject.value;
-    const newTheme: Theme = currentTheme === 'light' ? 'dark' : 'light';
+    const newTheme: Theme = currentTheme === 'dark' ? 'light' : 'dark';
     this.setTheme(newTheme);
   }
 
@@ -68,14 +68,10 @@ export class ThemeService {
    */
   private applyTheme(theme: Theme): void {
     const htmlElement = document.documentElement;
-    
-    if (theme === 'dark') {
-      htmlElement.classList.add('dark-theme');
-      htmlElement.classList.remove('light-theme');
-    } else {
-      htmlElement.classList.add('light-theme');
-      htmlElement.classList.remove('dark-theme');
-    }
+    // Nettoyer les anciennes classes de thème
+    this.allowedThemes.forEach(t => htmlElement.classList.remove(`${t}-theme`));
+    // Ajouter la classe du thème courant
+    htmlElement.classList.add(`${theme}-theme`);
   }
 
   /**

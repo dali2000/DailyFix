@@ -5,6 +5,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { CurrencyService } from './currency.service';
+import { ThemeService, Theme } from './theme.service';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -14,6 +15,7 @@ export interface User {
   provider?: 'local' | 'google';
   role?: 'user' | 'admin';
   currency?: string;
+  theme?: string;
 }
 
 export interface LoginCredentials {
@@ -53,7 +55,8 @@ export class AuthService {
     private router: Router,
     private apiService: ApiService,
     private http: HttpClient,
-    private currencyService: CurrencyService
+    private currencyService: CurrencyService,
+    private themeService: ThemeService
   ) {
     // Vérifier si le token est valide au démarrage
     this.ensureAuthenticated$().subscribe();
@@ -62,8 +65,9 @@ export class AuthService {
   private setCurrentUser(user: User | null): void {
     if (!user) {
       localStorage.removeItem(this.TOKEN_KEY);
-    } else if (user.currency) {
-      this.currencyService.setSelectedCurrency(user.currency);
+    } else {
+      if (user.currency) this.currencyService.setSelectedCurrency(user.currency);
+      if (user.theme) this.themeService.setTheme(user.theme as Theme);
     }
     this.currentUserSubject.next(user);
   }
@@ -193,9 +197,9 @@ export class AuthService {
   }
 
   /**
-   * Met à jour le profil sur le serveur (ex. devise) et synchronise l'état local.
+   * Met à jour le profil sur le serveur (devise, thème) et synchronise l'état local.
    */
-  updateProfile(patch: { currency?: string }): Observable<UpdateProfileResponse> {
+  updateProfile(patch: { currency?: string; theme?: string }): Observable<UpdateProfileResponse> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
       'Content-Type': 'application/json'
