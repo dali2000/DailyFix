@@ -113,8 +113,9 @@ const connectDB = async () => {
     await sequelize.sync(syncOptions);
     console.log('✅ Database models synchronized (tables created if needed)');
     
-    // Ajouter la colonne role si elle n'existe pas
+    // Ajouter les colonnes supplémentaires si elles n'existent pas
     await addRoleColumnIfNeeded();
+    await addCurrencyColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -190,6 +191,68 @@ const addRoleColumnIfNeeded = async () => {
       console.log('✅ Column "role" already exists (or similar column)');
     } else {
       console.warn('⚠️ Warning: Could not add role column:', error.message);
+      // Ne pas faire échouer le démarrage, juste logger l'avertissement
+    }
+  }
+};
+
+// Fonction pour ajouter la colonne currency si elle n'existe pas
+const addCurrencyColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+
+    if (dialect === 'postgres') {
+      // Vérifier si la colonne existe déjà (PostgreSQL)
+      const [results] = await sequelize.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'currency'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "currency" already exists');
+        return;
+      }
+
+      // Ajouter la colonne currency
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN currency VARCHAR(10) DEFAULT 'EUR' NOT NULL
+      `);
+      console.log('✅ Column "currency" added successfully to users table');
+    } else if (dialect === 'mysql') {
+      // Vérifier si la colonne existe déjà (MySQL)
+      const [results] = await sequelize.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'users' 
+        AND COLUMN_NAME = 'currency'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "currency" already exists');
+        return;
+      }
+
+      // Ajouter la colonne currency
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN currency VARCHAR(10) DEFAULT 'EUR' NOT NULL
+      `);
+      console.log('✅ Column "currency" added successfully to users table');
+    }
+  } catch (error) {
+    // Ne pas faire échouer le démarrage si la colonne existe déjà ou autre erreur mineure
+    if (error.message && (
+      error.message.includes('already exists') || 
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Column "currency" already exists (or similar column)');
+    } else {
+      console.warn('⚠️ Warning: Could not add currency column:', error.message);
       // Ne pas faire échouer le démarrage, juste logger l'avertissement
     }
   }
