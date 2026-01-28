@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, BehaviorSubject, map, tap, distinctUntilChanged } from 'rxjs';
 import { Task, CalendarEvent } from '../models/task.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -16,6 +16,7 @@ interface ApiResponse<T> {
 })
 export class TaskService {
   private tasks: Task[] = [];
+  private tasksSubject = new BehaviorSubject<Task[]>([]);
   private events: CalendarEvent[] = [];
 
   constructor(
@@ -27,12 +28,13 @@ export class TaskService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
+        // Utilisateur connecté - charger les données (un seul GET)
         this.loadTasks();
         this.loadEvents();
       } else {
         // Utilisateur déconnecté - vider les données
         this.tasks = [];
+        this.tasksSubject.next([]);
         this.events = [];
       }
     });
@@ -43,11 +45,9 @@ export class TaskService {
     return [...this.tasks];
   }
 
+  /** Observable partagé : un seul GET au login, les composants reçoivent le cache et les mises à jour. */
   getTasksObservable(): Observable<Task[]> {
-    return this.apiService.get<ApiResponse<Task[]>>('/tasks').pipe(
-      map(response => response.data || []),
-      tap(tasks => this.tasks = tasks)
-    );
+    return this.tasksSubject.asObservable();
   }
 
   getTaskById(id: string): Task | undefined {
@@ -64,7 +64,9 @@ export class TaskService {
     return this.apiService.post<ApiResponse<Task>>('/tasks', task).pipe(
       map(response => response.data!),
       tap(newTask => {
-        this.tasks.push(newTask);
+        const normalized = this.normalizeTask(newTask);
+        this.tasks.push(normalized);
+        this.tasksSubject.next([...this.tasks]);
       })
     );
   }
@@ -73,10 +75,12 @@ export class TaskService {
     return this.apiService.put<ApiResponse<Task>>(`/tasks/${id}`, updates).pipe(
       map(response => response.data!),
       tap(updatedTask => {
+        const normalized = this.normalizeTask(updatedTask);
         const index = this.tasks.findIndex(t => t.id === id);
         if (index !== -1) {
-          this.tasks[index] = updatedTask;
+          this.tasks[index] = normalized;
         }
+        this.tasksSubject.next([...this.tasks]);
       })
     );
   }
@@ -89,6 +93,7 @@ export class TaskService {
         if (index !== -1) {
           this.tasks.splice(index, 1);
         }
+        this.tasksSubject.next([...this.tasks]);
       })
     );
   }
@@ -186,29 +191,38 @@ export class TaskService {
     );
   }
 
+  private normalizeTask(t: any): Task {
+    return {
+      ...t,
+      id: t.id?.toString() ?? t.id,
+      status: t.status || (t.completed ? 'done' : 'todo'),
+      priority: t.priority || 'medium',
+      dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+      reminder: t.reminder ? new Date(t.reminder) : undefined,
+      createdAt: new Date(t.createdAt),
+      updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(t.createdAt)
+    };
+  }
+
   private loadTasks(): void {
-    if (this.authService.isAuthenticated()) {
-      this.getTasksObservable().subscribe({
-        next: (tasks) => {
-          this.tasks = tasks.map((t: any) => ({
-            ...t,
-            id: t.id.toString(),
-            status: t.status || (t.completed ? 'done' : 'todo'),
-            priority: t.priority || 'medium',
-            dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-            reminder: t.reminder ? new Date(t.reminder) : undefined,
-            createdAt: new Date(t.createdAt),
-            updatedAt: t.updatedAt ? new Date(t.updatedAt) : new Date(t.createdAt)
-          }));
-        },
-        error: (error) => {
-          console.error('Error loading tasks:', error);
-          this.tasks = [];
-        }
-      });
-    } else {
+    if (!this.authService.isAuthenticated()) {
       this.tasks = [];
+      this.tasksSubject.next([]);
+      return;
     }
+    this.apiService.get<ApiResponse<Task[]>>('/tasks').pipe(
+      map(response => (response.data || []).map((t: any) => this.normalizeTask(t)))
+    ).subscribe({
+      next: (tasks) => {
+        this.tasks = tasks;
+        this.tasksSubject.next([...this.tasks]);
+      },
+      error: (error) => {
+        console.error('Error loading tasks:', error);
+        this.tasks = [];
+        this.tasksSubject.next([]);
+      }
+    });
   }
 
   private loadEvents(): void {

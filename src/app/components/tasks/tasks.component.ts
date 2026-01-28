@@ -180,7 +180,7 @@ export class TasksComponent implements OnInit, OnDestroy {
           this.editingTask = null;
           this.showAddForm = false;
           this.resetForm();
-          this.loadTasks();
+          // Liste mise à jour via getTasksObservable(), pas besoin de recharger
         }
       });
     } else {
@@ -188,7 +188,7 @@ export class TasksComponent implements OnInit, OnDestroy {
         next: () => {
           this.showAddForm = false;
           this.resetForm();
-          this.loadTasks();
+          // Liste mise à jour via getTasksObservable(), pas besoin de recharger
         }
       });
     }
@@ -213,7 +213,7 @@ export class TasksComponent implements OnInit, OnDestroy {
     if (confirm('Supprimer cette tâche ?')) {
       this.taskService.deleteTask(task.id).subscribe({
         next: () => {
-          this.loadTasks();
+          // Liste mise à jour via getTasksObservable(), pas besoin de recharger
         }
       });
     }
