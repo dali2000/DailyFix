@@ -1,11 +1,11 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
-import { AuthService } from '../services/auth.service';
+
+/** Clé du token en localStorage (même valeur que AuthService) — lecture directe pour éviter NG0200 (circular DI). */
+const TOKEN_KEY = 'dailyfix_token';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   try {
-    const authService = inject(AuthService);
-    const token = authService.getToken();
+    const token = typeof localStorage !== 'undefined' ? localStorage.getItem(TOKEN_KEY) : null;
 
     // Si un token existe, l'ajouter au header Authorization
     if (token) {
