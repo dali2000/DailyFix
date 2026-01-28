@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HealthService } from '../../services/health.service';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../../models/health.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-health',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './health.component.html',
   styleUrl: './health.component.css'
 })
@@ -108,6 +109,31 @@ export class HealthComponent implements OnInit, OnDestroy {
   }
 
   // Meal methods
+  closeMealModal(): void {
+    this.showMealForm = false;
+    this.newMeal = { type: 'breakfast' };
+  }
+
+  closeActivityModal(): void {
+    this.showActivityForm = false;
+    this.newActivity = {};
+  }
+
+  closeSleepModal(): void {
+    this.showSleepForm = false;
+    this.newSleep = { quality: 'good' };
+  }
+
+  closeMeditationModal(): void {
+    this.showMeditationForm = false;
+    this.newMeditation = { duration: 10, type: 'guided' };
+  }
+
+  closeWaterModal(): void {
+    this.showWaterForm = false;
+    this.waterAmount = 0.5;
+  }
+
   addMeal(): void {
     if (!this.newMeal.name) return;
     this.healthService.addMeal({

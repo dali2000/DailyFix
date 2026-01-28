@@ -10,20 +10,7 @@
   <div *ngIf="activeTab === 'shopping'" class="tab-content">
     <div class="section-header">
       <h2>Listes de courses</h2>
-      <button class="btn btn-primary" (click)="showShoppingForm = !showShoppingForm">
-        {{ showShoppingForm ? 'Annuler' : '+ Nouvelle liste' }}
-      </button>
-    </div>
-
-    <div *ngIf="showShoppingForm" class="form-card">
-      <h3>Créer une nouvelle liste</h3>
-      <form (ngSubmit)="createShoppingList()">
-        <div class="form-group">
-          <label>Nom de la liste *</label>
-          <input type="text" [(ngModel)]="newListName" name="listName" required>
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showShoppingForm = true">+ Nouvelle liste</button>
     </div>
 
     <div class="shopping-lists-container">
@@ -99,39 +86,7 @@
   <div *ngIf="activeTab === 'tasks'" class="tab-content">
     <div class="section-header">
       <h2>Tâches ménagères</h2>
-      <button class="btn btn-primary" (click)="showTaskForm = !showTaskForm">
-        {{ showTaskForm ? 'Annuler' : '+ Nouvelle tâche' }}
-      </button>
-    </div>
-
-    <div *ngIf="showTaskForm" class="form-card">
-      <h3>Nouvelle tâche ménagère</h3>
-      <form (ngSubmit)="addHouseholdTask()">
-        <div class="form-group">
-          <label>Nom de la tâche *</label>
-          <input type="text" [(ngModel)]="newTask.name" name="name" required>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="newTask.description" name="description" rows="2"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Fréquence</label>
-            <select [(ngModel)]="newTask.frequency" name="frequency">
-              <option value="daily">Quotidienne</option>
-              <option value="weekly">Hebdomadaire</option>
-              <option value="monthly">Mensuelle</option>
-              <option value="one-time">Unique</option>
-            </select>
-          </div>
-          <div class="form-group" *ngIf="newTask.frequency === 'one-time'">
-            <label>Date d'échéance</label>
-            <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showTaskForm = true">+ Nouvelle tâche</button>
     </div>
 
     <div class="upcoming-tasks-section">
@@ -174,6 +129,50 @@
       </div>
     </div>
   </div>
-</div>
 
+  <app-modal *ngIf="showShoppingForm" title="Créer une nouvelle liste" size="sm" (closeModal)="closeShoppingModal()">
+    <form (ngSubmit)="createShoppingList()">
+      <div class="form-group">
+        <label>Nom de la liste *</label>
+        <input type="text" [(ngModel)]="newListName" name="listName" required>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeShoppingModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showTaskForm" title="Nouvelle tâche ménagère" size="md" (closeModal)="closeTaskModal()">
+    <form (ngSubmit)="addHouseholdTask()">
+      <div class="form-group">
+        <label>Nom de la tâche *</label>
+        <input type="text" [(ngModel)]="newTask.name" name="name" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newTask.description" name="description" rows="2"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Fréquence</label>
+          <select [(ngModel)]="newTask.frequency" name="frequency">
+            <option value="daily">Quotidienne</option>
+            <option value="weekly">Hebdomadaire</option>
+            <option value="monthly">Mensuelle</option>
+            <option value="one-time">Unique</option>
+          </select>
+        </div>
+        <div class="form-group" *ngIf="newTask.frequency === 'one-time'">
+          <label>Date d'échéance</label>
+          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeTaskModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </div>
+    </form>
+  </app-modal>
+</div>
 

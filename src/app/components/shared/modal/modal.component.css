@@ -1,0 +1,91 @@
+.app-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 1rem;
+  animation: modalFadeIn 0.2s ease-out;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.app-modal-content {
+  background: var(--notion-bg);
+  border-radius: var(--notion-radius-md);
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--notion-border);
+  animation: modalSlideIn 0.25s ease-out;
+}
+
+.app-modal-sm {
+  width: 100%;
+  max-width: 400px;
+}
+
+.app-modal-md {
+  width: 100%;
+  max-width: 520px;
+}
+
+.app-modal-lg {
+  width: 100%;
+  max-width: 640px;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.app-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--notion-border);
+  flex-shrink: 0;
+}
+
+.app-modal-title {
+  margin: 0;
+  font-size: 1.25rem;
+  color: var(--notion-text-primary);
+}
+
+.app-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.75rem;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--notion-text-tertiary);
+  padding: 0 0.25rem;
+  transition: color 0.15s ease;
+}
+
+.app-modal-close:hover {
+  color: var(--notion-text-primary);
+}
+
+.app-modal-body {
+  padding: 1.5rem;
+}

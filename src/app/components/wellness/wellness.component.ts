@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { WellnessService } from '../../services/wellness.service';
 import { JournalEntry, PersonalGoal, StressManagement } from '../../models/wellness.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-wellness',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './wellness.component.html',
   styleUrl: './wellness.component.css'
 })
@@ -98,6 +99,22 @@ export class WellnessComponent implements OnInit {
         this.loadData();
       }
     });
+  }
+
+  closeJournalModal(): void {
+    this.showJournalForm = false;
+    this.selectedEntry = null;
+    this.newEntry = {};
+  }
+
+  closeGoalModal(): void {
+    this.showGoalForm = false;
+    this.newGoal = { category: 'personal' };
+  }
+
+  closeStressModal(): void {
+    this.showStressForm = false;
+    this.newStress = { stressLevel: 5 };
   }
 
   editJournalEntry(entry: JournalEntry): void {

@@ -46,39 +46,7 @@
   <div *ngIf="activeTab === 'meals'" class="tab-content">
     <div class="section-header">
       <h2>Suivi Alimentaire</h2>
-      <button class="btn btn-primary" (click)="showMealForm = !showMealForm">
-        {{ showMealForm ? 'Annuler' : '+ Ajouter un repas' }}
-      </button>
-    </div>
-
-    <div *ngIf="showMealForm" class="form-card">
-      <h3>Nouveau repas</h3>
-      <form (ngSubmit)="addMeal()">
-        <div class="form-group">
-          <label>Nom du repas *</label>
-          <input type="text" [(ngModel)]="newMeal.name" name="name" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Type</label>
-            <select [(ngModel)]="newMeal.type" name="type">
-              <option value="breakfast">Petit-déjeuner</option>
-              <option value="lunch">Déjeuner</option>
-              <option value="dinner">Dîner</option>
-              <option value="snack">Collation</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Calories</label>
-            <input type="number" [(ngModel)]="newMeal.calories" name="calories">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea [(ngModel)]="newMeal.notes" name="notes" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showMealForm = true">+ Ajouter un repas</button>
     </div>
 
     <div class="meals-list">
@@ -99,34 +67,7 @@
   <div *ngIf="activeTab === 'activity'" class="tab-content">
     <div class="section-header">
       <h2>Activité Physique</h2>
-      <button class="btn btn-primary" (click)="showActivityForm = !showActivityForm">
-        {{ showActivityForm ? 'Annuler' : '+ Ajouter une activité' }}
-      </button>
-    </div>
-
-    <div *ngIf="showActivityForm" class="form-card">
-      <h3>Nouvelle activité</h3>
-      <form (ngSubmit)="addActivity()">
-        <div class="form-group">
-          <label>Type d'activité *</label>
-          <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Durée (minutes) *</label>
-            <input type="number" [(ngModel)]="newActivity.duration" name="duration" required>
-          </div>
-          <div class="form-group">
-            <label>Calories brûlées</label>
-            <input type="number" [(ngModel)]="newActivity.calories" name="calories">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea [(ngModel)]="newActivity.notes" name="notes" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showActivityForm = true">+ Ajouter une activité</button>
     </div>
 
     <div class="activities-list">
@@ -145,35 +86,7 @@
   <div *ngIf="activeTab === 'sleep'" class="tab-content">
     <div class="section-header">
       <h2>Suivi du Sommeil</h2>
-      <button class="btn btn-primary" (click)="showSleepForm = !showSleepForm">
-        {{ showSleepForm ? 'Annuler' : '+ Enregistrer le sommeil' }}
-      </button>
-    </div>
-
-    <div *ngIf="showSleepForm" class="form-card">
-      <h3>Enregistrer le sommeil</h3>
-      <form (ngSubmit)="addSleepRecord()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Heure de coucher *</label>
-            <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" required>
-          </div>
-          <div class="form-group">
-            <label>Heure de réveil *</label>
-            <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Qualité du sommeil</label>
-          <select [(ngModel)]="newSleep.quality" name="quality">
-            <option value="poor">Mauvaise</option>
-            <option value="fair">Moyenne</option>
-            <option value="good">Bonne</option>
-            <option value="excellent">Excellente</option>
-          </select>
-        </div>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showSleepForm = true">+ Enregistrer le sommeil</button>
     </div>
 
     <div class="sleep-records">
@@ -191,35 +104,7 @@
   <div *ngIf="activeTab === 'meditation'" class="tab-content">
     <div class="section-header">
       <h2>Méditation et Relaxation</h2>
-      <button class="btn btn-primary" (click)="showMeditationForm = !showMeditationForm">
-        {{ showMeditationForm ? 'Annuler' : '+ Nouvelle session' }}
-      </button>
-    </div>
-
-    <div *ngIf="showMeditationForm" class="form-card">
-      <h3>Nouvelle session de méditation</h3>
-      <form (ngSubmit)="addMeditationSession()">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Durée (minutes)</label>
-            <input type="number" [(ngModel)]="newMeditation.duration" name="duration" value="10">
-          </div>
-          <div class="form-group">
-            <label>Type</label>
-            <select [(ngModel)]="newMeditation.type" name="type">
-              <option value="guided">Guidée</option>
-              <option value="breathing">Respiration</option>
-              <option value="mindfulness">Pleine conscience</option>
-              <option value="body-scan">Balayage corporel</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea [(ngModel)]="newMeditation.notes" name="notes" rows="2"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showMeditationForm = true">+ Nouvelle session</button>
     </div>
 
     <div class="meditation-sessions">
@@ -232,17 +117,141 @@
     </div>
   </div>
 
-  <!-- Water Intake (Quick Add) -->
+  <!-- Water Intake -->
   <div class="water-quick-add">
-    <button class="btn btn-secondary" (click)="showWaterForm = !showWaterForm">
+    <button type="button" class="btn btn-secondary" (click)="showWaterForm = true">
       💧 Ajouter de l'eau
     </button>
-    <div *ngIf="showWaterForm" class="water-form">
-      <input type="number" [(ngModel)]="waterAmount" step="0.25" min="0.25" max="2">
-      <span>L</span>
-      <button class="btn btn-primary" (click)="addWaterIntake()">Ajouter</button>
-    </div>
   </div>
+
+  <!-- Health Modals -->
+  <app-modal *ngIf="showMealForm" title="Nouveau repas" size="md" (closeModal)="closeMealModal()">
+    <form (ngSubmit)="addMeal()">
+      <div class="form-group">
+        <label>Nom du repas *</label>
+        <input type="text" [(ngModel)]="newMeal.name" name="name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newMeal.type" name="type">
+            <option value="breakfast">Petit-déjeuner</option>
+            <option value="lunch">Déjeuner</option>
+            <option value="dinner">Dîner</option>
+            <option value="snack">Collation</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Calories</label>
+          <input type="number" [(ngModel)]="newMeal.calories" name="calories">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="newMeal.notes" name="notes" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeMealModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showActivityForm" title="Nouvelle activité" size="md" (closeModal)="closeActivityModal()">
+    <form (ngSubmit)="addActivity()">
+      <div class="form-group">
+        <label>Type d'activité *</label>
+        <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durée (minutes) *</label>
+          <input type="number" [(ngModel)]="newActivity.duration" name="duration" required>
+        </div>
+        <div class="form-group">
+          <label>Calories brûlées</label>
+          <input type="number" [(ngModel)]="newActivity.calories" name="calories">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="newActivity.notes" name="notes" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeActivityModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showSleepForm" title="Enregistrer le sommeil" size="md" (closeModal)="closeSleepModal()">
+    <form (ngSubmit)="addSleepRecord()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Heure de coucher *</label>
+          <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" required>
+        </div>
+        <div class="form-group">
+          <label>Heure de réveil *</label>
+          <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" required>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Qualité du sommeil</label>
+        <select [(ngModel)]="newSleep.quality" name="quality">
+          <option value="poor">Mauvaise</option>
+          <option value="fair">Moyenne</option>
+          <option value="good">Bonne</option>
+          <option value="excellent">Excellente</option>
+        </select>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeSleepModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showMeditationForm" title="Nouvelle session de méditation" size="sm" (closeModal)="closeMeditationModal()">
+    <form (ngSubmit)="addMeditationSession()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durée (minutes)</label>
+          <input type="number" [(ngModel)]="newMeditation.duration" name="duration">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select [(ngModel)]="newMeditation.type" name="type">
+            <option value="guided">Guidée</option>
+            <option value="breathing">Respiration</option>
+            <option value="mindfulness">Pleine conscience</option>
+            <option value="body-scan">Balayage corporel</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="newMeditation.notes" name="notes" rows="2"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeMeditationModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showWaterForm" title="Ajouter de l'eau" size="sm" (closeModal)="closeWaterModal()">
+    <form (ngSubmit)="addWaterIntake()">
+      <div class="form-group">
+        <label>Quantité (litres)</label>
+        <input type="number" [(ngModel)]="waterAmount" name="waterAmount" step="0.25" min="0.25" max="2">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeWaterModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </app-modal>
 </div>
 
 

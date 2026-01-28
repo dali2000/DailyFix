@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { SocialService } from '../../services/social.service';
 import { SocialEvent, ActivitySuggestion } from '../../models/social.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-social',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './social.component.html',
   styleUrl: './social.component.css'
 })
@@ -126,6 +127,11 @@ export class SocialComponent implements OnInit {
     this.showEventForm = false;
     this.editingEvent = null;
     this.resetEventForm();
+  }
+
+  closeSuggestionModal(): void {
+    this.showSuggestionForm = false;
+    this.newSuggestion = { category: 'outdoor' };
   }
 
   formatDateForInput(date: Date): string {

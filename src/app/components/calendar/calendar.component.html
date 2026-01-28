@@ -2,8 +2,8 @@
   <div class="calendar-header">
     <h1>Calendrier</h1>
     <div class="header-actions">
-      <button class="btn btn-primary" (click)="toggleEventForm()">
-        {{ showEventForm ? 'Annuler' : '+ Nouvel événement' }}
+      <button type="button" class="btn btn-primary" (click)="toggleEventForm()">
+        + Nouvel événement
       </button>
       <div class="view-controls">
         <button [class.active]="viewMode === 'month'" (click)="setViewMode('month')">Mois</button>
@@ -13,17 +13,21 @@
     </div>
   </div>
 
-  <!-- Event Form -->
-  <div *ngIf="showEventForm" class="event-form">
-    <h3>{{ editingEvent ? 'Modifier l\'événement' : 'Créer un événement' }}</h3>
+  <!-- Event Form Modal -->
+  <app-modal
+    *ngIf="showEventForm"
+    [title]="editingEvent ? 'Modifier l\'événement' : 'Créer un événement'"
+    size="md"
+    (closeModal)="closeEventModal()"
+  >
     <form (ngSubmit)="saveEvent()">
       <div class="form-group">
-        <label>Titre *</label>
-        <input type="text" [(ngModel)]="newEvent.title" name="title" required placeholder="Titre de l'événement">
+        <label for="event-title">Titre *</label>
+        <input id="event-title" type="text" [(ngModel)]="newEvent.title" name="title" required placeholder="Titre de l'événement">
       </div>
       <div class="form-group">
-        <label>Description</label>
-        <textarea [(ngModel)]="newEvent.description" name="description" rows="3" placeholder="Description..."></textarea>
+        <label for="event-desc">Description</label>
+        <textarea id="event-desc" [(ngModel)]="newEvent.description" name="description" rows="3" placeholder="Description..."></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -53,11 +57,11 @@
         </div>
       </div>
       <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeEventModal()">Annuler</button>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <button type="button" class="btn btn-secondary" (click)="toggleEventForm()">Annuler</button>
       </div>
     </form>
-  </div>
+  </app-modal>
 
   <div class="calendar-navigation">
     <button (click)="previousPeriod()" class="btn btn-primary">← Précédent</button>

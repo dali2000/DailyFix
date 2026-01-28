@@ -11,41 +11,7 @@
   <div *ngIf="activeTab === 'journal'" class="tab-content">
     <div class="section-header">
       <h2>Journal intime</h2>
-      <button class="btn btn-primary" (click)="showJournalForm = !showJournalForm">
-        {{ showJournalForm ? 'Annuler' : '+ Nouvelle entrée' }}
-      </button>
-    </div>
-
-    <div *ngIf="showJournalForm" class="form-card">
-      <h3>{{ selectedEntry ? 'Modifier l\'entrée' : 'Nouvelle entrée' }}</h3>
-      <form (ngSubmit)="selectedEntry ? updateJournalEntry() : addJournalEntry()">
-        <div class="form-group">
-          <label>Titre (optionnel)</label>
-          <input type="text" [(ngModel)]="newEntry.title" name="title">
-        </div>
-        <div class="form-group">
-          <label>Contenu *</label>
-          <textarea [(ngModel)]="newEntry.content" name="content" rows="8" required></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Humeur</label>
-            <select [(ngModel)]="newEntry.mood" name="mood">
-              <option value="">Sélectionner</option>
-              <option *ngFor="let mood of moods" [value]="mood">
-                {{ getMoodEmoji(mood) }} {{ mood }}
-              </option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Tags (séparés par des virgules)</label>
-          <input type="text" [(ngModel)]="newEntry.tags" name="tags" placeholder="gratitude, objectifs, réflexion">
-        </div>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <button *ngIf="selectedEntry" type="button" class="btn btn-secondary" 
-                (click)="showJournalForm = false; selectedEntry = null; newEntry = {}">Annuler</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showJournalForm = true">+ Nouvelle entrée</button>
     </div>
 
     <div class="journal-entries">
@@ -73,36 +39,7 @@
   <div *ngIf="activeTab === 'goals'" class="tab-content">
     <div class="section-header">
       <h2>Objectifs personnels</h2>
-      <button class="btn btn-primary" (click)="showGoalForm = !showGoalForm">
-        {{ showGoalForm ? 'Annuler' : '+ Nouvel objectif' }}
-      </button>
-    </div>
-
-    <div *ngIf="showGoalForm" class="form-card">
-      <h3>Nouvel objectif</h3>
-      <form (ngSubmit)="addPersonalGoal()">
-        <div class="form-group">
-          <label>Titre *</label>
-          <input type="text" [(ngModel)]="newGoal.title" name="title" required>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea [(ngModel)]="newGoal.description" name="description" rows="3"></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Catégorie</label>
-            <select [(ngModel)]="newGoal.category" name="category">
-              <option *ngFor="let cat of goalCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Date cible</label>
-            <input type="date" [(ngModel)]="newGoal.targetDate" name="targetDate">
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showGoalForm = true">+ Nouvel objectif</button>
     </div>
 
     <div class="active-goals-section">
@@ -167,35 +104,7 @@
 
     <div class="section-header">
       <h2>Enregistrer le stress</h2>
-      <button class="btn btn-primary" (click)="showStressForm = !showStressForm">
-        {{ showStressForm ? 'Annuler' : '+ Nouvel enregistrement' }}
-      </button>
-    </div>
-
-    <div *ngIf="showStressForm" class="form-card">
-      <h3>Nouvel enregistrement</h3>
-      <form (ngSubmit)="addStressRecord()">
-        <div class="form-group">
-          <label>Niveau de stress (1-10) *</label>
-          <input type="range" min="1" max="10" [(ngModel)]="newStress.stressLevel" name="stressLevel" required>
-          <span class="stress-level-value">{{ newStress.stressLevel }}/10</span>
-        </div>
-        <div class="form-group">
-          <label>Déclencheurs (séparés par des virgules)</label>
-          <input type="text" [(ngModel)]="newStress.triggers" name="triggers" 
-                 placeholder="travail, famille, finances">
-        </div>
-        <div class="form-group">
-          <label>Stratégies d'adaptation (séparées par des virgules)</label>
-          <input type="text" [(ngModel)]="newStress.copingStrategies" name="copingStrategies"
-                 placeholder="respiration, marche, méditation">
-        </div>
-        <div class="form-group">
-          <label>Notes</label>
-          <textarea [(ngModel)]="newStress.notes" name="notes" rows="3"></textarea>
-        </div>
-        <button type="submit" class="btn btn-primary">Enregistrer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showStressForm = true">+ Nouvel enregistrement</button>
     </div>
 
     <div class="stress-records-section">
@@ -219,6 +128,92 @@
       </div>
     </div>
   </div>
-</div>
 
+  <app-modal *ngIf="showJournalForm" [title]="selectedEntry ? 'Modifier l\'entrée' : 'Nouvelle entrée'" size="lg" (closeModal)="closeJournalModal()">
+    <form (ngSubmit)="selectedEntry ? updateJournalEntry() : addJournalEntry()">
+      <div class="form-group">
+        <label>Titre (optionnel)</label>
+        <input type="text" [(ngModel)]="newEntry.title" name="title">
+      </div>
+      <div class="form-group">
+        <label>Contenu *</label>
+        <textarea [(ngModel)]="newEntry.content" name="content" rows="8" required></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Humeur</label>
+          <select [(ngModel)]="newEntry.mood" name="mood">
+            <option value="">Sélectionner</option>
+            <option *ngFor="let mood of moods" [value]="mood">
+              {{ getMoodEmoji(mood) }} {{ mood }}
+            </option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Tags (séparés par des virgules)</label>
+        <input type="text" [(ngModel)]="newEntry.tags" name="tags" placeholder="gratitude, objectifs, réflexion">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeJournalModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showGoalForm" title="Nouvel objectif" size="md" (closeModal)="closeGoalModal()">
+    <form (ngSubmit)="addPersonalGoal()">
+      <div class="form-group">
+        <label>Titre *</label>
+        <input type="text" [(ngModel)]="newGoal.title" name="title" required>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <textarea [(ngModel)]="newGoal.description" name="description" rows="3"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select [(ngModel)]="newGoal.category" name="category">
+            <option *ngFor="let cat of goalCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date cible</label>
+          <input type="date" [(ngModel)]="newGoal.targetDate" name="targetDate">
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeGoalModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <app-modal *ngIf="showStressForm" title="Nouvel enregistrement de stress" size="md" (closeModal)="closeStressModal()">
+    <form (ngSubmit)="addStressRecord()">
+      <div class="form-group">
+        <label>Niveau de stress (1-10) *</label>
+        <input type="range" min="1" max="10" [(ngModel)]="newStress.stressLevel" name="stressLevel" required>
+        <span class="stress-level-value">{{ newStress.stressLevel }}/10</span>
+      </div>
+      <div class="form-group">
+        <label>Déclencheurs (séparés par des virgules)</label>
+        <input type="text" [(ngModel)]="newStress.triggers" name="triggers" placeholder="travail, famille, finances">
+      </div>
+      <div class="form-group">
+        <label>Stratégies d'adaptation (séparées par des virgules)</label>
+        <input type="text" [(ngModel)]="newStress.copingStrategies" name="copingStrategies" placeholder="respiration, marche, méditation">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <textarea [(ngModel)]="newStress.notes" name="notes" rows="3"></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeStressModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Enregistrer</button>
+      </div>
+    </form>
+  </app-modal>
+</div>
 

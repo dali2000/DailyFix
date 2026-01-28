@@ -5,11 +5,12 @@ import { Router } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { Task } from '../../models/task.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-tasks',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './tasks.component.html',
   styleUrl: './tasks.component.css'
 })
@@ -130,6 +131,14 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   toggleAddForm(): void {
     this.showAddForm = !this.showAddForm;
+    if (!this.showAddForm) {
+      this.editingTask = null;
+      this.resetForm();
+    }
+  }
+
+  closeTaskModal(): void {
+    this.showAddForm = false;
     this.editingTask = null;
     this.resetForm();
   }
@@ -217,14 +226,32 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   onDrop(event: DragEvent, targetStatus: string): void {
     event.preventDefault();
-    if (this.draggedTask && this.isValidStatus(targetStatus)) {
-      this.taskService.updateTaskStatus(this.draggedTask.id, targetStatus as Task['status']).subscribe({
-        next: () => {
-          this.draggedTask = null;
-          this.loadTasks();
-        }
-      });
+    if (!this.draggedTask || !this.isValidStatus(targetStatus)) return;
+
+    const taskId = this.draggedTask.id;
+    const previousStatus = this.draggedTask.status;
+
+    // Mise à jour optimiste : déplacer la tâche immédiatement dans l'UI
+    const task = this.tasks.find(t => t.id === taskId);
+    if (task) {
+      task.status = targetStatus as Task['status'];
+      task.completed = targetStatus === 'done';
+      this.applyFilters();
     }
+    this.draggedTask = null;
+
+    // Synchroniser avec le serveur en arrière-plan
+    this.taskService.updateTaskStatus(taskId, targetStatus as Task['status']).subscribe({
+      error: () => {
+        // En cas d'erreur, revenir à l'état précédent
+        const t = this.tasks.find(x => x.id === taskId);
+        if (t) {
+          t.status = previousStatus;
+          t.completed = previousStatus === 'done';
+          this.applyFilters();
+        }
+      }
+    });
   }
 
   private isValidStatus(status: string): status is Task['status'] {

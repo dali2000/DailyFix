@@ -5,8 +5,8 @@
       <button class="btn btn-secondary" (click)="viewMode = viewMode === 'kanban' ? 'list' : 'kanban'">
         {{ viewMode === 'kanban' ? '📋 Liste' : '📊 Kanban' }}
       </button>
-      <button class="btn btn-primary" (click)="toggleAddForm()">
-        {{ showAddForm ? 'Annuler' : '+ Créer une tâche' }}
+      <button type="button" class="btn btn-primary" (click)="toggleAddForm()">
+        + Créer une tâche
       </button>
       <button class="btn btn-secondary" (click)="navigateToCalendar()">📅 Calendrier</button>
     </div>
@@ -40,17 +40,21 @@
     </div>
   </div>
 
-  <!-- Add/Edit Form -->
-  <div class="add-form" *ngIf="showAddForm">
-    <h3>{{ editingTask ? 'Modifier la tâche' : 'Créer une nouvelle tâche' }}</h3>
+  <!-- Add/Edit Task Modal -->
+  <app-modal
+    *ngIf="showAddForm"
+    [title]="editingTask ? 'Modifier la tâche' : 'Créer une nouvelle tâche'"
+    size="lg"
+    (closeModal)="closeTaskModal()"
+  >
     <form (ngSubmit)="saveTask()">
       <div class="form-group">
-        <label>Titre *</label>
-        <input type="text" [(ngModel)]="newTask.title" name="title" required placeholder="Résumé de la tâche">
+        <label for="task-title">Titre *</label>
+        <input id="task-title" type="text" [(ngModel)]="newTask.title" name="title" required placeholder="Résumé de la tâche">
       </div>
       <div class="form-group">
-        <label>Description</label>
-        <textarea [(ngModel)]="newTask.description" name="description" rows="4" placeholder="Décrivez la tâche..."></textarea>
+        <label for="task-desc">Description</label>
+        <textarea id="task-desc" [(ngModel)]="newTask.description" name="description" rows="4" placeholder="Décrivez la tâche..."></textarea>
       </div>
       <div class="form-row">
         <div class="form-group">
@@ -90,11 +94,11 @@
         </div>
       </div>
       <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeTaskModal()">Annuler</button>
         <button type="submit" class="btn btn-primary">Enregistrer</button>
-        <button type="button" class="btn btn-secondary" (click)="toggleAddForm()">Annuler</button>
       </div>
     </form>
-  </div>
+  </app-modal>
 
   <!-- Kanban View -->
   <div *ngIf="viewMode === 'kanban'" class="kanban-board">

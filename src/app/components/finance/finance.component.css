@@ -689,6 +689,13 @@
   gap: 12px;
 }
 
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
 @media (max-width: 768px) {
   .form-row {
     grid-template-columns: 1fr !important;

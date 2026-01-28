@@ -1,0 +1,31 @@
+<div
+  class="app-modal-backdrop"
+  (click)="onBackdropClick()"
+  role="dialog"
+  aria-modal="true"
+  [attr.aria-labelledby]="title ? 'modal-title' : null"
+>
+  <div
+    class="app-modal-content"
+    [class.app-modal-sm]="size === 'sm'"
+    [class.app-modal-md]="size === 'md'"
+    [class.app-modal-lg]="size === 'lg'"
+    (click)="onContentClick($event)"
+  >
+    <div class="app-modal-header">
+      <h2 *ngIf="title" id="modal-title" class="app-modal-title">{{ title }}</h2>
+      <ng-content select="[modal-header]"></ng-content>
+      <button
+        type="button"
+        class="app-modal-close"
+        (click)="close()"
+        aria-label="Fermer"
+      >
+        ×
+      </button>
+    </div>
+    <div class="app-modal-body">
+      <ng-content></ng-content>
+    </div>
+  </div>
+</div>

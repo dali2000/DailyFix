@@ -5,11 +5,12 @@ import { FinanceService } from '../../services/finance.service';
 import { AuthService } from '../../services/auth.service';
 import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-finance',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
@@ -130,6 +131,26 @@ export class FinanceComponent implements OnInit, OnDestroy {
     this.monthlyBudget = this.financeService.getMonthlyBudget();
     this.remainingBudget = this.financeService.getRemainingBudget();
     this.savingsSuggestions = this.financeService.getSavingsSuggestions();
+  }
+
+  closeSalaryModal(): void {
+    this.showSalaryForm = false;
+    this.newSalary = { period: 'monthly' };
+  }
+
+  closeExpenseModal(): void {
+    this.showExpenseForm = false;
+    this.newExpense = { category: 'other' };
+  }
+
+  closeBudgetModal(): void {
+    this.showBudgetForm = false;
+    this.newBudget = { period: 'monthly' };
+  }
+
+  closeSavingsModal(): void {
+    this.showSavingsForm = false;
+    this.newSavingsGoal = {};
   }
 
   addExpense(): void {

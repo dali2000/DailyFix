@@ -89,37 +89,7 @@
   <div *ngIf="activeTab === 'salary'" class="tab-content">
     <div class="section-header">
       <h2>💵 Salaires</h2>
-      <button class="btn btn-primary" (click)="showSalaryForm = !showSalaryForm">
-        {{ showSalaryForm ? 'Annuler' : '+ Ajouter un salaire' }}
-      </button>
-    </div>
-
-    <div *ngIf="showSalaryForm" class="form-card">
-      <h3>Nouveau salaire</h3>
-      <form (ngSubmit)="addSalary()">
-        <div class="form-group">
-          <label>Montant (€) *</label>
-          <input type="number" step="0.01" [(ngModel)]="newSalary.amount" name="amount" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Période *</label>
-            <select [(ngModel)]="newSalary.period" name="period" required>
-              <option value="monthly">Mensuel</option>
-              <option value="yearly">Annuel</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Date</label>
-            <input type="date" [(ngModel)]="newSalary.date" name="date">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <input type="text" [(ngModel)]="newSalary.description" name="description" placeholder="Ex: Salaire principal">
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showSalaryForm = true">+ Ajouter un salaire</button>
     </div>
 
     <div class="salaries-list">
@@ -146,36 +116,7 @@
   <div *ngIf="activeTab === 'expenses'" class="tab-content">
     <div class="section-header">
       <h2>💸 Dépenses</h2>
-      <button class="btn btn-primary" (click)="showExpenseForm = !showExpenseForm">
-        {{ showExpenseForm ? 'Annuler' : '+ Ajouter une dépense' }}
-      </button>
-    </div>
-
-    <div *ngIf="showExpenseForm" class="form-card">
-      <h3>Nouvelle dépense</h3>
-      <form (ngSubmit)="addExpense()">
-        <div class="form-group">
-          <label>Description *</label>
-          <input type="text" [(ngModel)]="newExpense.description" name="description" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Montant (€) *</label>
-            <input type="number" step="0.01" [(ngModel)]="newExpense.amount" name="amount" required>
-          </div>
-          <div class="form-group">
-            <label>Catégorie</label>
-            <select [(ngModel)]="newExpense.category" name="category">
-              <option *ngFor="let cat of expenseCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Moyen de paiement</label>
-          <input type="text" [(ngModel)]="newExpense.paymentMethod" name="paymentMethod" placeholder="Ex: Carte bancaire">
-        </div>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showExpenseForm = true">+ Ajouter une dépense</button>
     </div>
 
     <div class="expenses-list">
@@ -203,34 +144,7 @@
   <div *ngIf="activeTab === 'budget'" class="tab-content">
     <div class="section-header">
       <h2>📊 Budgets</h2>
-      <button class="btn btn-primary" (click)="showBudgetForm = !showBudgetForm">
-        {{ showBudgetForm ? 'Annuler' : '+ Nouveau budget' }}
-      </button>
-    </div>
-
-    <div *ngIf="showBudgetForm" class="form-card">
-      <h3>Nouveau budget</h3>
-      <form (ngSubmit)="addBudget()">
-        <div class="form-group">
-          <label>Catégorie *</label>
-          <input type="text" [(ngModel)]="newBudget.category" name="category" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Limite (€) *</label>
-            <input type="number" step="0.01" [(ngModel)]="newBudget.limit" name="limit" required>
-          </div>
-          <div class="form-group">
-            <label>Période</label>
-            <select [(ngModel)]="newBudget.period" name="period">
-              <option value="weekly">Hebdomadaire</option>
-              <option value="monthly">Mensuel</option>
-              <option value="yearly">Annuel</option>
-            </select>
-          </div>
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showBudgetForm = true">+ Nouveau budget</button>
     </div>
 
     <div class="budgets-list">
@@ -260,34 +174,7 @@
   <div *ngIf="activeTab === 'savings'" class="tab-content">
     <div class="section-header">
       <h2>🎯 Objectifs d'épargne</h2>
-      <button class="btn btn-primary" (click)="showSavingsForm = !showSavingsForm">
-        {{ showSavingsForm ? 'Annuler' : '+ Nouvel objectif' }}
-      </button>
-    </div>
-
-    <div *ngIf="showSavingsForm" class="form-card">
-      <h3>Nouvel objectif d'épargne</h3>
-      <form (ngSubmit)="addSavingsGoal()">
-        <div class="form-group">
-          <label>Nom *</label>
-          <input type="text" [(ngModel)]="newSavingsGoal.name" name="name" required>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Montant cible (€) *</label>
-            <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.targetAmount" name="targetAmount" required>
-          </div>
-          <div class="form-group">
-            <label>Montant actuel (€)</label>
-            <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.currentAmount" name="currentAmount" value="0">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Date limite</label>
-          <input type="date" [(ngModel)]="newSavingsGoal.deadline" name="deadline">
-        </div>
-        <button type="submit" class="btn btn-primary">Créer</button>
-      </form>
+      <button type="button" class="btn btn-primary" (click)="showSavingsForm = true">+ Nouvel objectif</button>
     </div>
 
     <div class="savings-goals-list">
@@ -317,4 +204,121 @@
       </div>
     </div>
   </div>
+
+  <!-- Salary Modal -->
+  <app-modal *ngIf="showSalaryForm" title="Nouveau salaire" size="sm" (closeModal)="closeSalaryModal()">
+    <form (ngSubmit)="addSalary()">
+      <div class="form-group">
+        <label>Montant (€) *</label>
+        <input type="number" step="0.01" [(ngModel)]="newSalary.amount" name="amount" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Période *</label>
+          <select [(ngModel)]="newSalary.period" name="period" required>
+            <option value="monthly">Mensuel</option>
+            <option value="yearly">Annuel</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" [(ngModel)]="newSalary.date" name="date">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Description</label>
+        <input type="text" [(ngModel)]="newSalary.description" name="description" placeholder="Ex: Salaire principal">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeSalaryModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <!-- Expense Modal -->
+  <app-modal *ngIf="showExpenseForm" title="Nouvelle dépense" size="md" (closeModal)="closeExpenseModal()">
+    <form (ngSubmit)="addExpense()">
+      <div class="form-group">
+        <label>Description *</label>
+        <input type="text" [(ngModel)]="newExpense.description" name="description" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Montant (€) *</label>
+          <input type="number" step="0.01" [(ngModel)]="newExpense.amount" name="amount" required>
+        </div>
+        <div class="form-group">
+          <label>Catégorie</label>
+          <select [(ngModel)]="newExpense.category" name="category">
+            <option *ngFor="let cat of expenseCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Moyen de paiement</label>
+        <input type="text" [(ngModel)]="newExpense.paymentMethod" name="paymentMethod" placeholder="Ex: Carte bancaire">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeExpenseModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Ajouter</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <!-- Budget Modal -->
+  <app-modal *ngIf="showBudgetForm" title="Nouveau budget" size="sm" (closeModal)="closeBudgetModal()">
+    <form (ngSubmit)="addBudget()">
+      <div class="form-group">
+        <label>Catégorie *</label>
+        <input type="text" [(ngModel)]="newBudget.category" name="category" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Limite (€) *</label>
+          <input type="number" step="0.01" [(ngModel)]="newBudget.limit" name="limit" required>
+        </div>
+        <div class="form-group">
+          <label>Période</label>
+          <select [(ngModel)]="newBudget.period" name="period">
+            <option value="weekly">Hebdomadaire</option>
+            <option value="monthly">Mensuel</option>
+            <option value="yearly">Annuel</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeBudgetModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <!-- Savings Goal Modal -->
+  <app-modal *ngIf="showSavingsForm" title="Nouvel objectif d'épargne" size="sm" (closeModal)="closeSavingsModal()">
+    <form (ngSubmit)="addSavingsGoal()">
+      <div class="form-group">
+        <label>Nom *</label>
+        <input type="text" [(ngModel)]="newSavingsGoal.name" name="name" required>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Montant cible (€) *</label>
+          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.targetAmount" name="targetAmount" required>
+        </div>
+        <div class="form-group">
+          <label>Montant actuel (€)</label>
+          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.currentAmount" name="currentAmount">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Date limite</label>
+        <input type="date" [(ngModel)]="newSavingsGoal.deadline" name="deadline">
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeSavingsModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Créer</button>
+      </div>
+    </form>
+  </app-modal>
 </div>

@@ -5,11 +5,12 @@ import { TaskService } from '../../services/task.service';
 import { SocialService } from '../../services/social.service';
 import { Task, CalendarEvent } from '../../models/task.model';
 import { SocialEvent } from '../../models/social.model';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
@@ -198,6 +199,14 @@ export class CalendarComponent implements OnInit {
 
   toggleEventForm(): void {
     this.showEventForm = !this.showEventForm;
+    if (!this.showEventForm) {
+      this.editingEvent = null;
+      this.resetEventForm();
+    }
+  }
+
+  closeEventModal(): void {
+    this.showEventForm = false;
     this.editingEvent = null;
     this.resetEventForm();
   }

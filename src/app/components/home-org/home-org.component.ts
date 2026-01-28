@@ -4,11 +4,12 @@ import { FormsModule } from '@angular/forms';
 import { HomeService } from '../../services/home.service';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../../models/home.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 @Component({
   selector: 'app-home-org',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, ModalComponent],
   templateUrl: './home-org.component.html',
   styleUrl: './home-org.component.css'
 })
@@ -56,6 +57,16 @@ export class HomeOrgComponent implements OnInit {
       },
       error: (error) => console.error('Error loading household tasks:', error)
     });
+  }
+
+  closeShoppingModal(): void {
+    this.showShoppingForm = false;
+    this.newListName = '';
+  }
+
+  closeTaskModal(): void {
+    this.showTaskForm = false;
+    this.newTask = { frequency: 'weekly' };
   }
 
   // Shopping List methods
