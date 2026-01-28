@@ -105,6 +105,7 @@
     <div 
       *ngFor="let column of statusColumns" 
       class="kanban-column"
+      [attr.data-column-id]="column.id"
       (dragover)="onDragOver($event)"
       (drop)="onDrop($event, column.id)">
       <div class="column-header" [style.border-left-color]="column.color">
@@ -118,7 +119,12 @@
           [attr.draggable]="true"
           (dragstart)="onDragStart(task)"
           (dragend)="onDragEnd()"
-          [class.dragging]="draggedTask?.id === task.id">
+          (touchstart)="onTouchStart($event, task)"
+          (touchmove)="onTouchMove($event)"
+          (touchend)="onTouchEnd($event)"
+          (touchcancel)="onTouchCancel()"
+          [class.dragging]="draggedTask?.id === task.id"
+          [class.touch-dragging]="isTouchDragging && draggedTask?.id === task.id">
           <div class="task-card-header">
             <div class="task-id">{{ task.id.substring(0, 8) }}</div>
             <div class="task-actions">

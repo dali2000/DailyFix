@@ -62,6 +62,16 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   draggedTask: Task | null = null;
 
+  /** Touch / long-press drag (tablette, mobile) */
+  private longPressDelay = 450;
+  private longPressTimer: ReturnType<typeof setTimeout> | null = null;
+  isTouchDragging = false;
+  private lastTouchClientX = 0;
+  private lastTouchClientY = 0;
+  private touchStartTask: Task | null = null;
+  /** Ignorer le prochain clic après un touch-drag pour éviter d’ouvrir l’édition. */
+  private touchDragJustEnded = false;
+
   constructor(
     private taskService: TaskService,
     private router: Router,
@@ -195,6 +205,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   editTask(task: Task): void {
+    if (this.touchDragJustEnded) return;
     this.editingTask = task;
     this.newTask = {
       title: task.title,
@@ -210,6 +221,7 @@ export class TasksComponent implements OnInit, OnDestroy {
   }
 
   deleteTask(task: Task): void {
+    if (this.touchDragJustEnded) return;
     if (confirm('Supprimer cette tâche ?')) {
       this.taskService.deleteTask(task.id).subscribe({
         next: () => {
@@ -230,27 +242,30 @@ export class TasksComponent implements OnInit, OnDestroy {
   onDrop(event: DragEvent, targetStatus: string): void {
     event.preventDefault();
     if (!this.draggedTask || !this.isValidStatus(targetStatus)) return;
+    this.moveTaskToStatus(this.draggedTask, targetStatus);
+    this.draggedTask = null;
+  }
 
-    const taskId = this.draggedTask.id;
-    const previousStatus = this.draggedTask.status;
+  /** Déplace une tâche vers un statut (souris ou tactile). */
+  moveTaskToStatus(task: Task, targetStatus: string): void {
+    if (!this.isValidStatus(targetStatus) || task.status === targetStatus) return;
 
-    // Mise à jour optimiste : déplacer la tâche immédiatement dans l'UI
-    const task = this.tasks.find(t => t.id === taskId);
-    if (task) {
-      task.status = targetStatus as Task['status'];
-      task.completed = targetStatus === 'done';
+    const taskId = task.id;
+    const previousStatus = task.status;
+
+    const t = this.tasks.find(x => x.id === taskId);
+    if (t) {
+      t.status = targetStatus as Task['status'];
+      t.completed = targetStatus === 'done';
       this.applyFilters();
     }
-    this.draggedTask = null;
 
-    // Synchroniser avec le serveur en arrière-plan
     this.taskService.updateTaskStatus(taskId, targetStatus as Task['status']).subscribe({
       error: () => {
-        // En cas d'erreur, revenir à l'état précédent
-        const t = this.tasks.find(x => x.id === taskId);
-        if (t) {
-          t.status = previousStatus;
-          t.completed = previousStatus === 'done';
+        const rollback = this.tasks.find(x => x.id === taskId);
+        if (rollback) {
+          rollback.status = previousStatus;
+          rollback.completed = previousStatus === 'done';
           this.applyFilters();
         }
       }
@@ -263,6 +278,79 @@ export class TasksComponent implements OnInit, OnDestroy {
 
   onDragEnd(): void {
     this.draggedTask = null;
+  }
+
+  /** Long-press sur la carte : après un maintien, la tâche peut être déposée sur une colonne (tactile). */
+  onTouchStart(ev: TouchEvent, task: Task): void {
+    if (ev.touches.length !== 1) return;
+    this.touchStartTask = task;
+    this.lastTouchClientX = ev.touches[0].clientX;
+    this.lastTouchClientY = ev.touches[0].clientY;
+    this.clearLongPressTimer();
+    this.longPressTimer = setTimeout(() => {
+      this.startTouchDrag(task);
+      this.longPressTimer = null;
+    }, this.longPressDelay);
+  }
+
+  onTouchMove(ev: TouchEvent): void {
+    if (ev.touches.length !== 1) return;
+    if (this.isTouchDragging) {
+      ev.preventDefault();
+      this.lastTouchClientX = ev.touches[0].clientX;
+      this.lastTouchClientY = ev.touches[0].clientY;
+      return;
+    }
+    const dx = ev.touches[0].clientX - this.lastTouchClientX;
+    const dy = ev.touches[0].clientY - this.lastTouchClientY;
+    if (Math.abs(dx) > 12 || Math.abs(dy) > 12) {
+      this.clearLongPressTimer();
+      this.touchStartTask = null;
+    }
+  }
+
+  onTouchEnd(ev: TouchEvent): void {
+    this.clearLongPressTimer();
+    if (!this.isTouchDragging || !this.draggedTask) {
+      this.touchStartTask = null;
+      this.isTouchDragging = false;
+      this.draggedTask = null;
+      return;
+    }
+    const touch = ev.changedTouches?.[0];
+    const x = touch?.clientX ?? this.lastTouchClientX;
+    const y = touch?.clientY ?? this.lastTouchClientY;
+    const el = document.elementFromPoint(x, y);
+    const columnEl = el?.closest('.kanban-column');
+    const columnId = columnEl?.getAttribute('data-column-id');
+    if (columnId && this.isValidStatus(columnId)) {
+      this.moveTaskToStatus(this.draggedTask, columnId);
+    }
+    this.isTouchDragging = false;
+    this.draggedTask = null;
+    this.touchStartTask = null;
+    this.touchDragJustEnded = true;
+    setTimeout(() => { this.touchDragJustEnded = false; }, 300);
+  }
+
+  onTouchCancel(): void {
+    this.clearLongPressTimer();
+    this.isTouchDragging = false;
+    this.draggedTask = null;
+    this.touchStartTask = null;
+  }
+
+  private clearLongPressTimer(): void {
+    if (this.longPressTimer) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
+  private startTouchDrag(task: Task): void {
+    this.draggedTask = task;
+    this.isTouchDragging = true;
+    this.touchStartTask = null;
   }
 
   getPriorityClass(priority: string): string {
