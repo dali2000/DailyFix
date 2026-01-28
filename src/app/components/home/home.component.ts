@@ -19,6 +19,7 @@ import { Subscription } from 'rxjs';
 })
 export class HomeComponent implements OnInit, OnDestroy {
   tasksCompleted = 0;
+  tasksCompletedToday = 0;
   totalTasks = 0;
   healthScore = 0;
   monthlyBudget = 0;
@@ -50,6 +51,13 @@ export class HomeComponent implements OnInit, OnDestroy {
   activeSavingsGoals = 0;
   totalHealthRecords = 0;
   totalSocialEvents = 0;
+
+  // Résumé santé du jour (pour la carte Suivi Santé)
+  todayCalories = 0;
+  todayWaterLiters = 0;
+  lastSleepHours: number | null = null;
+  todayActivityMinutes = 0;
+  todayMealsCount = 0;
 
   constructor(
     private taskService: TaskService,
@@ -94,27 +102,32 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.taskService.getTasksObservable().subscribe({
       next: () => {
         this.tasksCompleted = this.taskService.getCompletedTasksCount();
+        this.tasksCompletedToday = this.taskService.getTasksCompletedTodayCount();
         this.totalTasks = this.taskService.getTotalTasksCount();
         this.loadTaskChartData();
         this.loadAppStatistics();
       }
     });
 
-    // Health - les données sont déjà chargées par le service
-    this.healthService.getMealsObservable().subscribe({
-      next: () => {
-        const todayCalories = this.healthService.getTodayCalories();
-        const todayActivity = this.healthService.getTodayActivityMinutes();
-        const todayWater = this.healthService.getTodayWaterIntake();
-        const lastSleep = this.healthService.getLastSleepRecord();
-        let score = 0;
-        if (todayCalories > 0 && todayCalories < 2500) score += 25;
-        if (todayActivity >= 30) score += 25;
-        if (todayWater >= 2) score += 25;
-        if (lastSleep && lastSleep.hours >= 7 && lastSleep.hours <= 9) score += 25;
-        this.healthScore = score;
-      }
-    });
+    // Health - mettre à jour le résumé quand une des données santé change
+    const updateHealthSummary = () => {
+      this.todayCalories = this.healthService.getTodayCalories();
+      this.todayActivityMinutes = this.healthService.getTodayActivityMinutes();
+      this.todayWaterLiters = this.healthService.getTodayWaterIntake();
+      const lastSleep = this.healthService.getLastSleepRecord();
+      this.lastSleepHours = lastSleep ? lastSleep.hours : null;
+      this.todayMealsCount = this.healthService.getMealsForDate(new Date()).length;
+      let score = 0;
+      if (this.todayCalories > 0 && this.todayCalories < 2500) score += 25;
+      if (this.todayActivityMinutes >= 30) score += 25;
+      if (this.todayWaterLiters >= 2) score += 25;
+      if (lastSleep && lastSleep.hours >= 7 && lastSleep.hours <= 9) score += 25;
+      this.healthScore = score;
+    };
+    this.healthService.getMealsObservable().subscribe({ next: updateHealthSummary });
+    this.healthService.getActivitiesObservable().subscribe({ next: updateHealthSummary });
+    this.healthService.getSleepRecordsObservable().subscribe({ next: updateHealthSummary });
+    this.healthService.getWaterIntakesObservable().subscribe({ next: updateHealthSummary });
 
     // Finance - les données sont déjà chargées par le service
     this.financeService.getExpensesObservable().subscribe({

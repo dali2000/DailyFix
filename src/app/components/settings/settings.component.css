@@ -67,6 +67,16 @@
   gap: var(--notion-spacing);
 }
 
+.currency-select {
+  min-width: 200px;
+  padding: var(--notion-spacing-sm) var(--notion-spacing-md);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+  font-size: 14px;
+}
+
 .theme-toggle {
   display: flex;
   gap: var(--notion-spacing-sm);

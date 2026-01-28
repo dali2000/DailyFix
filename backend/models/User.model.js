@@ -43,6 +43,11 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('user', 'admin'),
     defaultValue: 'user',
     allowNull: false
+  },
+  currency: {
+    type: DataTypes.STRING(10),
+    defaultValue: 'EUR',
+    allowNull: false
   }
 }, {
   tableName: 'users',

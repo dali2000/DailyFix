@@ -114,6 +114,15 @@ export class TaskService {
     return this.tasks.filter(t => t.completed).length;
   }
 
+  getTasksCompletedTodayCount(): number {
+    const todayStr = new Date().toDateString();
+    return this.tasks.filter(t => {
+      if (t.status !== 'done' && !t.completed) return false;
+      const updatedAt = t.updatedAt ? new Date(t.updatedAt) : null;
+      return updatedAt && updatedAt.toDateString() === todayStr;
+    }).length;
+  }
+
   getTotalTasksCount(): number {
     return this.tasks.length;
   }

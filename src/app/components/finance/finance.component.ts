@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
 import { AuthService } from '../../services/auth.service';
+import { CurrencyService } from '../../services/currency.service';
 import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
@@ -54,7 +55,8 @@ export class FinanceComponent implements OnInit, OnDestroy {
 
   constructor(
     private financeService: FinanceService,
-    private authService: AuthService
+    private authService: AuthService,
+    public currencyService: CurrencyService
   ) {}
 
   ngOnInit(): void {
@@ -151,6 +153,14 @@ export class FinanceComponent implements OnInit, OnDestroy {
   closeSavingsModal(): void {
     this.showSavingsForm = false;
     this.newSavingsGoal = {};
+  }
+
+  get currencySymbol(): string {
+    return this.currencyService.getSymbol();
+  }
+
+  convertAmount(amount: number | null | undefined): number {
+    return this.currencyService.convertAmount(amount);
   }
 
   addExpense(): void {

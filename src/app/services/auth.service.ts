@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { catchError, finalize, map, shareReplay, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { CurrencyService } from './currency.service';
 import { environment } from '../../environments/environment';
 
 export interface User {
@@ -12,6 +13,7 @@ export interface User {
   email: string;
   provider?: 'local' | 'google';
   role?: 'user' | 'admin';
+  currency?: string;
 }
 
 export interface LoginCredentials {
@@ -33,6 +35,11 @@ interface AuthResponse {
   error?: string;
 }
 
+export interface UpdateProfileResponse {
+  success: boolean;
+  user: User;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -45,7 +52,8 @@ export class AuthService {
   constructor(
     private router: Router,
     private apiService: ApiService,
-    private http: HttpClient
+    private http: HttpClient,
+    private currencyService: CurrencyService
   ) {
     // Vérifier si le token est valide au démarrage
     this.ensureAuthenticated$().subscribe();
@@ -53,8 +61,9 @@ export class AuthService {
 
   private setCurrentUser(user: User | null): void {
     if (!user) {
-      // Supprimer le token quand l'utilisateur est null
       localStorage.removeItem(this.TOKEN_KEY);
+    } else if (user.currency) {
+      this.currencyService.setSelectedCurrency(user.currency);
     }
     this.currentUserSubject.next(user);
   }
@@ -176,19 +185,28 @@ export class AuthService {
     return this.ensureAuthInFlight$;
   }
 
-  // Méthode pour mettre à jour le profil utilisateur
+  // Méthode pour mettre à jour le profil utilisateur (local uniquement)
   updateUser(userData: Partial<User>): void {
     const currentUser = this.getCurrentUser();
-    if (!currentUser) {
-      return;
-    }
+    if (!currentUser) return;
+    this.setCurrentUser({ ...currentUser, ...userData });
+  }
 
-    const updatedUser: User = {
-      ...currentUser,
-      ...userData
-    };
-
-    this.setCurrentUser(updatedUser);
+  /**
+   * Met à jour le profil sur le serveur (ex. devise) et synchronise l'état local.
+   */
+  updateProfile(patch: { currency?: string }): Observable<UpdateProfileResponse> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${this.getToken()}`,
+      'Content-Type': 'application/json'
+    });
+    return this.http.patch<UpdateProfileResponse>(`${environment.apiUrl}/auth/me`, patch, { headers }).pipe(
+      tap(response => {
+        if (response.success && response.user) {
+          this.setCurrentUser(response.user);
+        }
+      })
+    );
   }
 
   // Méthode pour obtenir l'ID de l'utilisateur actuel

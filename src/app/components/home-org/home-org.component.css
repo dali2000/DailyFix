@@ -8,6 +8,32 @@
   box-sizing: border-box;
 }
 
+.alert {
+  padding: 1rem 1.25rem;
+  margin-bottom: 1rem;
+  border-radius: var(--notion-radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.alert-error {
+  background: var(--notion-red-bg);
+  color: var(--notion-red);
+  border: 1px solid var(--notion-red);
+}
+
+.alert-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.8;
+  line-height: 1;
+  padding: 0 0.25rem;
+}
+
 @media (max-width: 1200px) {
   .home-org-page {
     padding: 48px 48px 48px 48px;

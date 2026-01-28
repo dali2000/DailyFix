@@ -63,7 +63,8 @@ router.post('/register', [
         fullName: user.fullName,
         email: user.email,
         provider: user.provider,
-        role: user.role || 'user'
+        role: user.role || 'user',
+        currency: user.currency || 'EUR'
       }
     });
   } catch (error) {
@@ -147,7 +148,8 @@ router.post('/login', [
         fullName: user.fullName,
         email: user.email,
         provider: user.provider,
-        role: user.role || 'user'
+        role: user.role || 'user',
+        currency: user.currency || 'EUR'
       }
     });
   } catch (error) {
@@ -260,7 +262,8 @@ router.post('/google', [
         fullName: user.fullName,
         email: user.email,
         provider: user.provider,
-        role: user.role || 'user'
+        role: user.role || 'user',
+        currency: user.currency || 'EUR'
       }
     });
   } catch (error) {
@@ -316,11 +319,64 @@ router.get('/me', protect, async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         provider: user.provider,
-        role: user.role || 'user'
+        role: user.role || 'user',
+        currency: user.currency || 'EUR'
       }
     });
   } catch (error) {
     console.error('Get user error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
+const ALLOWED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
+
+// @route   PATCH /api/auth/me
+// @desc    Update current user profile (e.g. currency)
+// @access  Private
+router.patch('/me', protect, [
+  body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        errors: errors.array()
+      });
+    }
+
+    const user = await User.findByPk(req.user.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const updates = {};
+    if (req.body.currency !== undefined) {
+      updates.currency = req.body.currency;
+    }
+
+    if (Object.keys(updates).length > 0) {
+      await user.update(updates);
+      await user.reload();
+    }
+
+    res.json({
+      success: true,
+      user: {
+        id: user.id,
+        fullName: user.fullName,
+        email: user.email,
+        provider: user.provider,
+        role: user.role || 'user',
+        currency: user.currency || 'EUR'
+      }
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
     res.status(500).json({
       success: false,
       message: 'Server error'

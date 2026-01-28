@@ -1,6 +1,11 @@
 <div class="home-org-page">
   <h1>Organisation Domestique</h1>
 
+  <div *ngIf="errorMessage" class="alert alert-error">
+    <span>{{ errorMessage }}</span>
+    <button type="button" class="alert-close" (click)="errorMessage = null" aria-label="Fermer">×</button>
+  </div>
+
   <div class="tabs">
     <button [class.active]="activeTab === 'shopping'" (click)="activeTab = 'shopping'">Listes de courses</button>
     <button [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">Tâches ménagères</button>

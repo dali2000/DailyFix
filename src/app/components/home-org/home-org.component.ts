@@ -22,6 +22,7 @@ export class HomeOrgComponent implements OnInit {
   showShoppingForm = false;
   showTaskForm = false;
   selectedList: ShoppingList | null = null;
+  errorMessage: string | null = null;
   
   newListName = '';
   newItem: Partial<ShoppingItem> = {};
@@ -78,15 +79,14 @@ export class HomeOrgComponent implements OnInit {
       completed: false
     }).subscribe({
       next: (list) => {
-        // Les données sont déjà transformées par le service
+        this.errorMessage = null;
         this.selectedList = list;
         this.newListName = '';
         this.showShoppingForm = false;
         this.loadData();
       },
       error: (error) => {
-        console.error('Error creating shopping list:', error);
-        alert('Erreur lors de la création de la liste');
+        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de la création de la liste';
       }
     });
   }
@@ -122,16 +122,13 @@ export class HomeOrgComponent implements OnInit {
       priority: this.newItem.priority || 'medium'
     }).subscribe({
       next: (updatedList) => {
-        console.log('Item added successfully, updated list:', updatedList);
-        // Les données sont déjà transformées par le service
+        this.errorMessage = null;
         this.selectedList = updatedList;
         this.newItem = {};
-        // Recharger pour mettre à jour la liste dans la sidebar
         this.loadData();
       },
       error: (error) => {
-        console.error('Error adding item to list:', error);
-        alert('Erreur lors de l\'ajout de l\'article: ' + (error.message || 'Erreur inconnue'));
+        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de l\'ajout de l\'article';
       }
     });
   }
@@ -139,16 +136,14 @@ export class HomeOrgComponent implements OnInit {
   toggleItemPurchase(listId: string, itemId: string): void {
     this.homeService.toggleItemPurchase(listId, itemId).subscribe({
       next: (updatedList) => {
-        // Les données sont déjà transformées par le service
+        this.errorMessage = null;
         if (this.selectedList && this.selectedList.id === listId) {
           this.selectedList = updatedList;
         }
-        // Recharger pour mettre à jour la liste dans la sidebar
         this.loadData();
       },
       error: (error) => {
-        console.error('Error toggling item purchase:', error);
-        alert('Erreur lors de la mise à jour de l\'article');
+        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de la mise à jour de l\'article';
       }
     });
   }

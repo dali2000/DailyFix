@@ -61,9 +61,9 @@
         </div>
       </div>
       <div>
-        <span>Tâches complétées aujourd'hui {{tasksCompleted}}/{{totalTasks}}</span>
+        <span>Tâches complétées aujourd'hui {{ tasksCompletedToday }}/{{ totalTasks }} (total: {{ tasksCompleted }})</span>
         <div class="progress">
-          <div class="progress-bar" [style.width.%]="(tasksCompleted / totalTasks) * 100"></div>
+          <div class="progress-bar" [style.width.%]="totalTasks ? (tasksCompleted / totalTasks) * 100 : 0"></div>
         </div>
         <button (click)="navigateTo('/tasks')">Gérer les tâches</button>
       </div>
@@ -78,9 +78,10 @@
           <small>Surveillez votre bien-être</small>
         </div>
       </div>
-      <p>Pas aujourd'hui: 0</p>
-      <p>Eau consommée: 0L</p>
-      <p>Sommeil: 0h</p>
+      <p>Repas aujourd'hui: {{ todayMealsCount }} ({{ todayCalories }} kcal)</p>
+      <p>Eau consommée: {{ todayWaterLiters | number:'1.1-1' }} L</p>
+      <p>Activité: {{ todayActivityMinutes }} min</p>
+      <p>Dernier sommeil: {{ lastSleepHours != null ? (lastSleepHours + 'h') : '—' }}</p>
       <button (click)="navigateTo('/health')">Mettre à jour</button>
     </div>
 
