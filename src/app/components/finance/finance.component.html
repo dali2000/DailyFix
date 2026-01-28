@@ -33,7 +33,7 @@
       <div class="card-balance">
         <div class="balance-label">{{ 'finance.availableBalance' | translate }}</div>
         <div class="balance-amount" [class.negative]="remainingBalance < 0">
-          {{ convertAmount(remainingBalance) | number:'1.2-2' }} {{ currencySymbol }}
+          {{ remainingBalance | number:'1.2-2' }} {{ currencySymbol }}
         </div>
       </div>
     </div>
@@ -43,14 +43,14 @@
         <div class="card-icon">💵</div>
         <div class="card-content">
           <h3>{{ 'finance.income' | translate }}</h3>
-          <p class="amount positive">{{ convertAmount(monthlySalary) | number:'1.2-2' }} {{ currencySymbol }}</p>
+          <p class="amount positive">{{ monthlySalary | number:'1.2-2' }} {{ currencySymbol }}</p>
         </div>
       </div>
       <div class="overview-card expenses">
         <div class="card-icon">💸</div>
         <div class="card-content">
           <h3>{{ 'finance.expenses' | translate }}</h3>
-          <p class="amount negative">{{ convertAmount(monthlyExpenses) | number:'1.2-2' }} {{ currencySymbol }}</p>
+          <p class="amount negative">{{ monthlyExpenses | number:'1.2-2' }} {{ currencySymbol }}</p>
         </div>
       </div>
       <div class="overview-card balance" [class.negative]="remainingBalance < 0">
@@ -58,7 +58,7 @@
         <div class="card-content">
           <h3>Reste</h3>
           <p class="amount" [class.positive]="remainingBalance >= 0" [class.negative]="remainingBalance < 0">
-            {{ convertAmount(remainingBalance) | number:'1.2-2' }} {{ currencySymbol }}
+            {{ remainingBalance | number:'1.2-2' }} {{ currencySymbol }}
           </p>
         </div>
       </div>
@@ -72,7 +72,7 @@
             <span class="category-icon">{{ getCategoryIcon(category) }}</span>
             <span class="category-name">{{ getCategoryName(category) }}</span>
           </div>
-          <span class="category-amount">{{ convertAmount(getExpensesByCategory(category)) | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <span class="category-amount">{{ getExpensesByCategory(category) | number:'1.2-2' }} {{ currencySymbol }}</span>
         </div>
       </div>
     </div>
@@ -99,7 +99,7 @@
             <h4>{{ salary.description || ('finance.salaryLabel' | translate) }}</h4>
             <span class="salary-period">{{ salary.period === 'monthly' ? ('common.monthly' | translate) : ('common.yearly' | translate) }}</span>
           </div>
-          <span class="salary-amount positive">{{ convertAmount(salary.amount) | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <span class="salary-amount positive">{{ salary.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
         </div>
         <div class="salary-meta">
           <span class="date">{{ salary.date | date:'short' }}</span>
@@ -126,7 +126,7 @@
             <span class="expense-icon">{{ getCategoryIcon(expense.category) }}</span>
             <h4>{{ expense.description }}</h4>
           </div>
-          <span class="expense-amount negative">{{ convertAmount(expense.amount) | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <span class="expense-amount negative">{{ expense.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
         </div>
         <div class="expense-meta">
           <span class="category-badge">{{ getCategoryName(expense.category) }}</span>
@@ -158,7 +158,7 @@
             <div class="progress-fill" [style.width.%]="getBudgetProgress(budget)" [class.over-budget]="getBudgetProgress(budget) > 100"></div>
           </div>
           <div class="budget-amounts">
-            <span>{{ convertAmount(budget.spent) | number:'1.2-2' }} {{ currencySymbol }} / {{ convertAmount(budget.limit) | number:'1.2-2' }} {{ currencySymbol }}</span>
+            <span>{{ budget.spent | number:'1.2-2' }} {{ currencySymbol }} / {{ budget.limit | number:'1.2-2' }} {{ currencySymbol }}</span>
             <span class="percentage" [class.over-budget]="getBudgetProgress(budget) > 100">{{ getBudgetProgress(budget) | number:'1.0-0' }}%</span>
           </div>
         </div>
@@ -188,7 +188,7 @@
             <div class="progress-fill" [style.width.%]="getSavingsProgress(goal)"></div>
           </div>
           <div class="savings-amounts">
-            <span>{{ convertAmount(goal.currentAmount) | number:'1.2-2' }} {{ currencySymbol }} / {{ convertAmount(goal.targetAmount) | number:'1.2-2' }} {{ currencySymbol }}</span>
+            <span>{{ goal.currentAmount | number:'1.2-2' }} {{ currencySymbol }} / {{ goal.targetAmount | number:'1.2-2' }} {{ currencySymbol }}</span>
             <span class="percentage">{{ getSavingsProgress(goal) | number:'1.0-0' }}%</span>
           </div>
         </div>
@@ -209,7 +209,7 @@
   <app-modal *ngIf="showSalaryForm" [title]="'finance.newSalary' | translate" size="sm" (closeModal)="closeSalaryModal()">
     <form (ngSubmit)="addSalary()">
       <div class="form-group">
-        <label>{{ 'finance.amountEur' | translate }} *</label>
+        <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
         <input type="number" step="0.01" [(ngModel)]="newSalary.amount" name="amount" required>
       </div>
       <div class="form-row">
@@ -245,7 +245,7 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>{{ 'finance.amountEur' | translate }} *</label>
+          <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
           <input type="number" step="0.01" [(ngModel)]="newExpense.amount" name="amount" required>
         </div>
         <div class="form-group">
@@ -275,7 +275,7 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>{{ 'finance.limitEur' | translate }} *</label>
+          <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
           <input type="number" step="0.01" [(ngModel)]="newBudget.limit" name="limit" required>
         </div>
         <div class="form-group">
@@ -303,11 +303,11 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>{{ 'finance.targetAmount' | translate }} *</label>
+          <label>{{ 'finance.targetAmount' | translate }} ({{ currencySymbol }}) *</label>
           <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.targetAmount" name="targetAmount" required>
         </div>
         <div class="form-group">
-          <label>{{ 'finance.currentAmount' | translate }}</label>
+          <label>{{ 'finance.currentAmount' | translate }} ({{ currencySymbol }})</label>
           <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.currentAmount" name="currentAmount">
         </div>
       </div>

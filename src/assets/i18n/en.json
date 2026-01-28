@@ -234,7 +234,12 @@
     "meditationTitle": "Meditation and Relaxation",
     "newSession": "New session",
     "minutesLabel": "minutes",
-    "caloriesBurned": "kcal burned"
+    "caloriesBurned": "kcal burned",
+    "cup": "cup",
+    "cups": "cups",
+    "cupsLabel": "Number of cups",
+    "addOneCup": "Add 1 cup",
+    "customAmount": "Custom amount"
   },
   "homeOrg": {
     "title": "Domestic Organization",

@@ -504,6 +504,11 @@
   z-index: 100;
 }
 
+.water-quick-add .water-icon {
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
 .water-form {
   display: flex;
   align-items: center;

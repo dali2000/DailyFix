@@ -64,6 +64,18 @@ export class CurrencyService {
     return c?.symbol ?? '€';
   }
 
+  /** Rate to convert from base (stored) currency to selected display currency. */
+  getRate(): number {
+    const c = this.getCurrencyByCode(this.selectedCurrencySubject.value);
+    return c?.rate ?? 1;
+  }
+
+  /** Convert amount from user's selected currency to base currency (for saving to API). */
+  amountToBase(amount: number | null | undefined): number {
+    if (amount == null) return 0;
+    return amount / this.getRate();
+  }
+
   convertAmount(amount: number | null | undefined): number {
     if (amount == null) return 0;
     const c = this.getCurrencyByCode(this.selectedCurrencySubject.value);

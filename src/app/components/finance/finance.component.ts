@@ -55,6 +55,29 @@ export class FinanceComponent implements OnInit, OnDestroy {
   cvv = '123';
   private userSubscription?: Subscription;
 
+  /** Play a short money/cha-ching sound using Web Audio API */
+  private playMoneySound(): void {
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const playTone = (freq: number, start: number, duration: number, gainVal: number) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(gainVal, start);
+        gain.gain.exponentialRampToValueAtTime(0.01, start + duration);
+        osc.start(start);
+        osc.stop(start + duration);
+      };
+      playTone(880, ctx.currentTime, 0.08, 0.15);
+      playTone(1320, ctx.currentTime + 0.1, 0.12, 0.12);
+    } catch (_) { /* ignore */ }
+  }
+
   constructor(
     private financeService: FinanceService,
     private authService: AuthService,
@@ -305,6 +328,7 @@ export class FinanceComponent implements OnInit, OnDestroy {
       description: this.newSalary.description
     }).subscribe({
       next: () => {
+        this.playMoneySound();
         this.showSalaryForm = false;
         this.newSalary = { period: 'monthly' };
         this.loadData();

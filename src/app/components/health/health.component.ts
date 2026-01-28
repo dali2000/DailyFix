@@ -38,9 +38,34 @@ export class HealthComponent implements OnInit, OnDestroy {
   showSleepForm = false;
   newSleep: Partial<SleepRecord> = { quality: 'good' };
 
-  // Water
+  // Water (input in cups, stored in liters: 1 cup = 0.25 L)
   showWaterForm = false;
-  waterAmount = 0.5;
+  waterCups = 2;
+  private readonly LITERS_PER_CUP = 0.25;
+
+  get waterCupsToLiters(): number {
+    return this.waterCups * this.LITERS_PER_CUP;
+  }
+
+  /** Play a short water drip/splash sound using Web Audio API */
+  private playWaterSound(): void {
+    try {
+      const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      if (!Ctx) return;
+      const ctx = new Ctx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(180, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.18);
+    } catch (_) { /* ignore */ }
+  }
 
   // Meditation
   meditationSessions: MeditationSession[] = [];
@@ -132,7 +157,7 @@ export class HealthComponent implements OnInit, OnDestroy {
 
   closeWaterModal(): void {
     this.showWaterForm = false;
-    this.waterAmount = 0.5;
+    this.waterCups = 2;
   }
 
   addMeal(): void {
@@ -203,15 +228,28 @@ export class HealthComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Water methods
-  addWaterIntake(): void {
+  // Water methods (input in cups, convert to liters for storage)
+  /** Add 1 cup (0.25 L) immediately when clicking the main button */
+  addOneCup(): void {
+    this.playWaterSound();
     this.healthService.addWaterIntake({
       date: new Date(),
-      amount: this.waterAmount
+      amount: this.LITERS_PER_CUP
+    }).subscribe({
+      next: () => this.loadData()
+    });
+  }
+
+  addWaterIntake(): void {
+    this.playWaterSound();
+    const amountLiters = this.waterCups * this.LITERS_PER_CUP;
+    this.healthService.addWaterIntake({
+      date: new Date(),
+      amount: amountLiters
     }).subscribe({
       next: () => {
         this.showWaterForm = false;
-        this.waterAmount = 0.5;
+        this.waterCups = 2;
         this.loadData();
       }
     });

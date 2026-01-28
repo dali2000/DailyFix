@@ -234,7 +234,12 @@
     "meditationTitle": "Méditation et Relaxation",
     "newSession": "Nouvelle session",
     "minutesLabel": "minutes",
-    "caloriesBurned": "kcal brûlées"
+    "caloriesBurned": "kcal brûlées",
+    "cup": "tasse",
+    "cups": "tasses",
+    "cupsLabel": "Nombre de tasses",
+    "addOneCup": "Ajouter 1 tasse",
+    "customAmount": "Quantité personnalisée"
   },
   "homeOrg": {
     "title": "Organisation Domestique",

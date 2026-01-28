@@ -117,10 +117,17 @@
     </div>
   </div>
 
-  <!-- Water Intake -->
+  <!-- Water Intake: click adds 1 cup automatically -->
   <div class="water-quick-add">
-    <button type="button" class="btn btn-secondary" (click)="showWaterForm = true">
-      💧 {{ 'health.waterConsumed' | translate }}
+    <button type="button" class="btn btn-secondary" (click)="addOneCup()">
+      <svg class="water-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <!-- Water drop -->
+        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0L12 2.69z"/>
+      </svg>
+      {{ 'health.addOneCup' | translate }}
+    </button>
+    <button type="button" class="btn btn-link" (click)="showWaterForm = true">
+      {{ 'health.customAmount' | translate }}
     </button>
   </div>
 
@@ -243,8 +250,9 @@
   <app-modal *ngIf="showWaterForm" [title]="'health.waterConsumed' | translate" size="sm" (closeModal)="closeWaterModal()">
     <form (ngSubmit)="addWaterIntake()">
       <div class="form-group">
-        <label>Quantité (L)</label>
-        <input type="number" [(ngModel)]="waterAmount" name="waterAmount" step="0.25" min="0.25" max="2">
+        <label>{{ 'health.cupsLabel' | translate }}</label>
+        <input type="number" [(ngModel)]="waterCups" name="waterCups" step="1" min="1" max="20" required>
+        <small class="form-hint">({{ waterCupsToLiters | number:'1.2-2' }} L)</small>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeWaterModal()">{{ 'common.cancel' | translate }}</button>
