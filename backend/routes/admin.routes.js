@@ -299,19 +299,26 @@ router.put('/users/:id', async (req, res) => {
   }
 });
 
-// Delete user
+// Delete user (and all related data to avoid foreign key errors)
 router.delete('/users/:id', async (req, res) => {
+  const userId = parseInt(req.params.id, 10);
+  if (Number.isNaN(userId)) {
+    return res.status(400).json({
+      success: false,
+      message: 'Invalid user ID'
+    });
+  }
+
   try {
     // Prevent admin from deleting themselves
-    if (req.user.id === parseInt(req.params.id)) {
+    if (req.user.id === userId) {
       return res.status(403).json({
         success: false,
         message: 'You cannot delete your own account'
       });
     }
 
-    const user = await User.findByPk(req.params.id);
-
+    const user = await User.findByPk(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -319,7 +326,31 @@ router.delete('/users/:id', async (req, res) => {
       });
     }
 
-    await user.destroy();
+    const { sequelize } = require('../config/database');
+    const whereUser = { where: { userId } };
+
+    await sequelize.transaction(async (transaction) => {
+      // Delete in order: tables that reference the user
+      await Task.destroy({ ...whereUser, transaction });
+      await Event.destroy({ ...whereUser, transaction });
+      await Meal.destroy({ ...whereUser, transaction });
+      await PhysicalActivity.destroy({ ...whereUser, transaction });
+      await SleepRecord.destroy({ ...whereUser, transaction });
+      await WaterIntake.destroy({ ...whereUser, transaction });
+      await MeditationSession.destroy({ ...whereUser, transaction });
+      await Expense.destroy({ ...whereUser, transaction });
+      await Budget.destroy({ ...whereUser, transaction });
+      await SavingsGoal.destroy({ ...whereUser, transaction });
+      await Salary.destroy({ ...whereUser, transaction });
+      await ShoppingList.destroy({ ...whereUser, transaction });
+      await HouseholdTask.destroy({ ...whereUser, transaction });
+      await JournalEntry.destroy({ ...whereUser, transaction });
+      await PersonalGoal.destroy({ ...whereUser, transaction });
+      await StressManagement.destroy({ ...whereUser, transaction });
+      await SocialEvent.destroy({ ...whereUser, transaction });
+      await ActivitySuggestion.destroy({ ...whereUser, transaction });
+      await user.destroy({ transaction });
+    });
 
     res.json({
       success: true,
