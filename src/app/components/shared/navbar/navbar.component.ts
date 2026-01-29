@@ -23,6 +23,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
   weather: WeatherData | null = null;
   weatherLoading = false;
   isMobile = false;
+  /** Masquer le bouton plein écran entre 375px et 412px de largeur */
+  hideFullscreen = false;
   currentUser: User | null = null;
   currentTheme: Theme = 'light';
   isFullscreen = false;
@@ -64,7 +66,9 @@ export class NavbarComponent implements OnInit, OnDestroy {
   }
 
   checkMobile() {
-    this.isMobile = window.innerWidth <= 768;
+    const w = window.innerWidth;
+    this.isMobile = w <= 768;
+    this.hideFullscreen = w >= 375 && w <= 412;
   }
 
   ngOnInit(): void {
