@@ -76,20 +76,22 @@
   .navbar-right {
     gap: 2px;
     flex-shrink: 0;
+    min-width: 0;
   }
 
   .profile .name {
     display: none;
   }
 
-  /* Version compacte du widget météo pour mobile */
+  /* Widget météo compact sur mobile */
   .weather-widget {
     display: flex !important;
     align-items: center;
     gap: 4px;
     padding: 4px 8px;
-    min-width: auto;
+    min-width: 0;
     flex-shrink: 0;
+    max-width: 120px;
   }
 
   .weather-widget .weather-info {
@@ -112,6 +114,10 @@
     font-weight: 600;
     line-height: 1;
     color: var(--notion-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
   }
 
   .weather-widget .weather-city {
@@ -121,6 +127,9 @@
   .weather-loading {
     font-size: 10px;
     padding: 4px 6px;
+    max-width: 80px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .icon-btn {
@@ -145,10 +154,11 @@
     padding: 4px;
   }
 
-  /* Version encore plus compacte pour très petit mobile */
+  /* Version encore plus compacte pour petit mobile */
   .weather-widget {
     padding: 3px 6px;
     gap: 3px;
+    max-width: 90px;
   }
 
   .weather-widget .weather-icon {
@@ -162,6 +172,7 @@
   .weather-loading {
     font-size: 9px;
     padding: 3px 5px;
+    max-width: 60px;
   }
 
   .icon-btn {
@@ -235,6 +246,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
+  flex-shrink: 0;
 }
 
 .weather-widget {
@@ -247,6 +260,9 @@
   border: 1px solid var(--notion-border);
   transition: background 20ms ease-in 0s;
   cursor: default;
+  min-width: 0;
+  flex-shrink: 1;
+  max-width: 100%;
 }
 
 .weather-widget:hover {
@@ -256,12 +272,15 @@
 .weather-icon {
   font-size: 18px;
   line-height: 1;
+  flex-shrink: 0;
 }
 
 .weather-info {
   display: flex;
   flex-direction: column;
   gap: 1px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .weather-temp {
@@ -269,22 +288,64 @@
   font-weight: 600;
   color: var(--notion-text-primary);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .weather-temp-mobile {
   display: none;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .weather-city {
   font-size: 10px;
   color: var(--notion-text-tertiary);
   line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .weather-loading {
   font-size: 11px;
   color: var(--notion-text-secondary);
   padding: 4px 8px;
+  min-width: 0;
+  flex-shrink: 0;
+}
+
+/* Tablette : version compacte (icône + temp) dès 992px pour éviter débordement */
+@media (max-width: 992px) {
+  .weather-widget {
+    padding: 4px 8px;
+    gap: 6px;
+  }
+
+  .weather-widget .weather-info {
+    display: none;
+  }
+
+  .weather-widget .weather-temp {
+    display: none;
+  }
+
+  .weather-widget .weather-temp-mobile {
+    display: inline !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--notion-text-primary);
+  }
+
+  .weather-widget .weather-city {
+    display: none;
+  }
+
+  .weather-icon {
+    font-size: 16px;
+  }
 }
 
 /* Le widget météo est maintenant visible sur mobile avec une version compacte */

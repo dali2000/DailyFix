@@ -190,7 +190,14 @@
     "leisure": "ترفيه",
     "transport": "نقل",
     "bills": "فواتير",
-    "other": "أخرى"
+    "other": "أخرى",
+    "thisMonth": "هذا الشهر",
+    "forMonth": "لشهر",
+    "dateLabel": "التاريخ",
+    "addAmount": "إضافة",
+    "decreaseAmount": "تقليل",
+    "amountToAdd": "المبلغ للإضافة",
+    "amountToDecrease": "المبلغ للخصم"
   },
   "calendar": {
     "title": "التقويم",

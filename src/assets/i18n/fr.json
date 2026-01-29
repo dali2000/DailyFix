@@ -190,7 +190,14 @@
     "leisure": "Loisirs",
     "transport": "Transport",
     "bills": "Factures",
-    "other": "Autre"
+    "other": "Autre",
+    "thisMonth": "Ce mois",
+    "forMonth": "Pour le mois",
+    "dateLabel": "Date",
+    "addAmount": "Ajouter",
+    "decreaseAmount": "Diminuer",
+    "amountToAdd": "Montant à ajouter",
+    "amountToDecrease": "Montant à retirer"
   },
   "calendar": {
     "title": "Calendrier",

@@ -20,6 +20,15 @@ export class FinanceService {
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
 
+  /** Parse API amount (string or number) to number for calculations. */
+  private parseAmount(value: unknown): number {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === 'number' && !Number.isNaN(value)) return value;
+    const s = String(value).trim().replace(',', '.');
+    const n = parseFloat(s);
+    return Number.isNaN(n) ? 0 : n;
+  }
+
   constructor(
     private authService: AuthService,
     private apiService: ApiService
@@ -49,7 +58,12 @@ export class FinanceService {
   getExpensesObservable(): Observable<Expense[]> {
     return this.apiService.get<ApiResponse<Expense[]>>('/finance/expenses').pipe(
       map(response => response.data || []),
-      tap(expenses => this.expenses = expenses.map(e => ({ ...e, id: e.id.toString(), date: new Date(e.date) })))
+      tap(expenses => this.expenses = expenses.map(e => ({
+        ...e,
+        id: e.id.toString(),
+        date: new Date(e.date),
+        amount: this.parseAmount((e as any).amount)
+      })))
     );
   }
 
@@ -87,7 +101,7 @@ export class FinanceService {
   }
 
   getTotalExpenses(): number {
-    return this.expenses.reduce((sum, e) => sum + e.amount, 0);
+    return this.expenses.reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
   }
 
   getExpensesByCategory(category: Expense['category']): Expense[] {
@@ -102,7 +116,12 @@ export class FinanceService {
   getBudgetsObservable(): Observable<Budget[]> {
     return this.apiService.get<ApiResponse<Budget[]>>('/finance/budgets').pipe(
       map(response => response.data || []),
-      tap(budgets => this.budgets = budgets.map(b => ({ ...b, id: b.id.toString() })))
+      tap(budgets => this.budgets = budgets.map(b => ({
+        ...b,
+        id: b.id.toString(),
+        limit: this.parseAmount((b as any).limit),
+        spent: this.parseAmount((b as any).spent)
+      })))
     );
   }
 
@@ -150,7 +169,9 @@ export class FinanceService {
       tap(goals => this.savingsGoals = goals.map(g => ({
         ...g,
         id: g.id.toString(),
-        deadline: g.deadline ? new Date(g.deadline) : undefined
+        deadline: g.deadline ? new Date(g.deadline) : undefined,
+        targetAmount: this.parseAmount((g as any).targetAmount),
+        currentAmount: this.parseAmount((g as any).currentAmount)
       })))
     );
   }
@@ -191,7 +212,12 @@ export class FinanceService {
   getSalariesObservable(): Observable<Salary[]> {
     return this.apiService.get<ApiResponse<Salary[]>>('/finance/salaries').pipe(
       map(response => response.data || []),
-      tap(salaries => this.salaries = salaries.map(s => ({ ...s, id: s.id.toString(), date: new Date(s.date) })))
+      tap(salaries => this.salaries = salaries.map(s => ({
+        ...s,
+        id: s.id.toString(),
+        date: new Date(s.date),
+        amount: this.parseAmount((s as any).amount)
+      })))
     );
   }
 
@@ -238,66 +264,92 @@ export class FinanceService {
         const expenseDate = new Date(e.date);
         return expenseDate.getFullYear() === year && expenseDate.getMonth() === month;
       })
-      .reduce((sum, e) => sum + e.amount, 0);
+      .reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
   }
 
   getMonthlySalary(): number {
     const now = new Date();
+    return this.getSalaryForMonth(now.getFullYear(), now.getMonth());
+  }
+
+  /** Salaire total pour un mois donné : salaires mensuels du mois + 1/12 des salaires annuels de l'année. */
+  getSalaryForMonth(year: number, month: number): number {
     const monthlySalaries = this.salaries.filter(s => {
       const salaryDate = new Date(s.date);
-      return s.period === 'monthly' && 
-             salaryDate.getFullYear() === now.getFullYear() && 
-             salaryDate.getMonth() === now.getMonth();
+      return s.period === 'monthly' &&
+             salaryDate.getFullYear() === year &&
+             salaryDate.getMonth() === month;
     });
-    const totalMonthly = monthlySalaries.reduce((sum, s) => sum + s.amount, 0);
-    
-    // Also include yearly salaries converted to monthly
+    const totalMonthly = monthlySalaries.reduce((sum, s) => sum + this.parseAmount(s.amount), 0);
+
     const yearlySalaries = this.salaries.filter(s => {
       const salaryDate = new Date(s.date);
-      return s.period === 'yearly' && 
-             salaryDate.getFullYear() === now.getFullYear();
+      return s.period === 'yearly' && salaryDate.getFullYear() === year;
     });
-    const totalYearly = yearlySalaries.reduce((sum, s) => sum + (s.amount / 12), 0);
-    
+    const totalYearly = yearlySalaries.reduce((sum, s) => sum + (this.parseAmount(s.amount) / 12), 0);
+
     return totalMonthly + totalYearly;
+  }
+
+  /** Salaires affichés pour un mois : mensuels du mois + annuels de l'année (pour la liste). */
+  getSalariesForMonth(year: number, month: number): Salary[] {
+    return this.salaries.filter(s => {
+      const salaryDate = new Date(s.date);
+      if (s.period === 'monthly') {
+        return salaryDate.getFullYear() === year && salaryDate.getMonth() === month;
+      }
+      return s.period === 'yearly' && salaryDate.getFullYear() === year;
+    });
   }
 
   getMonthlyBudget(): number {
     const monthlyBudgets = this.budgets.filter(b => b.period === 'monthly');
-    return monthlyBudgets.reduce((sum, b) => sum + b.limit, 0);
+    return monthlyBudgets.reduce((sum, b) => sum + this.parseAmount(b.limit), 0);
   }
 
-  getRemainingBudget(): number {
-    const now = new Date();
-    const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
+  getRemainingBudget(year?: number, month?: number): number {
+    const d = year !== undefined && month !== undefined ? { year, month } : { year: new Date().getFullYear(), month: new Date().getMonth() };
+    const monthlyExpenses = this.getTotalExpensesForMonth(d.year, d.month);
     return this.getMonthlyBudget() - monthlyExpenses;
   }
 
-  getRemainingBalance(): number {
-    const monthlySalary = this.getMonthlySalary();
-    const now = new Date();
-    const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
+  getRemainingBalance(year?: number, month?: number): number {
+    const d = year !== undefined && month !== undefined ? { year, month } : { year: new Date().getFullYear(), month: new Date().getMonth() };
+    const monthlySalary = this.getSalaryForMonth(d.year, d.month);
+    const monthlyExpenses = this.getTotalExpensesForMonth(d.year, d.month);
     return monthlySalary - monthlyExpenses;
   }
 
-  getSavingsSuggestions(): string[] {
+  getSavingsSuggestions(year?: number, month?: number): string[] {
     const suggestions: string[] = [];
-    const now = new Date();
-    const monthlyExpenses = this.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
-    
+    const d = year !== undefined && month !== undefined ? { year, month } : { year: new Date().getFullYear(), month: new Date().getMonth() };
+    const monthlyExpenses = this.getTotalExpensesForMonth(d.year, d.month);
+    const expensesThisMonth = this.expenses.filter(e => {
+      const ed = new Date(e.date);
+      return ed.getFullYear() === d.year && ed.getMonth() === d.month;
+    });
+
     if (monthlyExpenses > 0) {
-      const foodExpenses = this.getExpensesByCategory('food').reduce((sum, e) => sum + e.amount, 0);
+      const foodExpenses = expensesThisMonth.filter(e => e.category === 'food').reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
       if (foodExpenses > monthlyExpenses * 0.3) {
         suggestions.push('Considérez réduire les dépenses alimentaires en cuisinant plus à la maison');
       }
-      
-      const leisureExpenses = this.getExpensesByCategory('leisure').reduce((sum, e) => sum + e.amount, 0);
+
+      const leisureExpenses = expensesThisMonth.filter(e => e.category === 'leisure').reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
       if (leisureExpenses > monthlyExpenses * 0.2) {
         suggestions.push('Réduisez les dépenses de loisirs en cherchant des activités gratuites');
       }
     }
-    
+
     return suggestions;
+  }
+
+  /** Dépenses d'un mois donné (pour affichage). */
+  getExpensesForMonth(year: number, month: number): Expense[] {
+    return this.expenses.filter(e => {
+      const ed = new Date(e.date);
+      return ed.getFullYear() === year && ed.getMonth() === month;
+    });
   }
 
   addSavingsGoal(goal: Omit<SavingsGoal, 'id'> | Omit<SavingsGoal, 'id' | 'currentAmount'>): Observable<SavingsGoal> {

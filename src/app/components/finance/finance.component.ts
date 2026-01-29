@@ -30,7 +30,11 @@ export class FinanceComponent implements OnInit, OnDestroy {
   showBudgetForm = false;
   showSavingsForm = false;
   showSalaryForm = false;
-  
+  showSavingsAdjustModal = false;
+  savingsAdjustGoal: SavingsGoal | null = null;
+  savingsAdjustOperation: 'add' | 'decrease' = 'add';
+  savingsAdjustAmount = 0;
+
   newExpense: Partial<Expense> = { category: 'other' };
   newBudget: Partial<Budget> = { period: 'monthly' };
   newSavingsGoal: Partial<SavingsGoal> = {};
@@ -113,11 +117,25 @@ export class FinanceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Parse API amount (string or number) to number for DecimalPipe and calculations. */
+  private parseAmount(value: unknown): number {
+    if (value === null || value === undefined) return 0;
+    if (typeof value === 'number' && !Number.isNaN(value)) return value;
+    const s = String(value).trim().replace(',', '.');
+    const n = parseFloat(s);
+    return Number.isNaN(n) ? 0 : n;
+  }
+
   loadData(): void {
-    // Charger toutes les données depuis l'API
+    // Charger toutes les données depuis l'API (normaliser les montants en nombres)
     this.financeService.getExpensesObservable().subscribe({
       next: (expenses) => {
-        this.expenses = expenses.map((e: any) => ({ ...e, id: e.id.toString(), date: new Date(e.date) }));
+        this.expenses = expenses.map((e: any) => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date),
+          amount: this.parseAmount(e.amount)
+        }));
         this.updateOverview();
       },
       error: (error) => console.error('Error loading expenses:', error)
@@ -125,7 +143,12 @@ export class FinanceComponent implements OnInit, OnDestroy {
 
     this.financeService.getBudgetsObservable().subscribe({
       next: (budgets) => {
-        this.budgets = budgets.map((b: any) => ({ ...b, id: b.id.toString() }));
+        this.budgets = budgets.map((b: any) => ({
+          ...b,
+          id: b.id.toString(),
+          limit: this.parseAmount(b.limit),
+          spent: this.parseAmount(b.spent)
+        }));
         this.updateOverview();
       },
       error: (error) => console.error('Error loading budgets:', error)
@@ -136,7 +159,9 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.savingsGoals = goals.map((g: any) => ({
           ...g,
           id: g.id.toString(),
-          deadline: g.deadline ? new Date(g.deadline) : undefined
+          deadline: g.deadline ? new Date(g.deadline) : undefined,
+          targetAmount: this.parseAmount(g.targetAmount),
+          currentAmount: this.parseAmount(g.currentAmount)
         }));
         this.updateOverview();
       },
@@ -145,7 +170,12 @@ export class FinanceComponent implements OnInit, OnDestroy {
 
     this.financeService.getSalariesObservable().subscribe({
       next: (salaries) => {
-        this.salaries = salaries.map((s: any) => ({ ...s, id: s.id.toString(), date: new Date(s.date) }));
+        this.salaries = salaries.map((s: any) => ({
+          ...s,
+          id: s.id.toString(),
+          date: new Date(s.date),
+          amount: this.parseAmount(s.amount)
+        }));
         this.updateOverview();
       },
       error: (error) => console.error('Error loading salaries:', error)
@@ -154,11 +184,74 @@ export class FinanceComponent implements OnInit, OnDestroy {
 
   updateOverview(): void {
     this.monthlyExpenses = this.financeService.getTotalExpensesForMonth(this.currentYear, this.currentMonth);
-    this.monthlySalary = this.financeService.getMonthlySalary();
-    this.remainingBalance = this.financeService.getRemainingBalance();
+    this.monthlySalary = this.financeService.getSalaryForMonth(this.currentYear, this.currentMonth);
+    this.remainingBalance = this.financeService.getRemainingBalance(this.currentYear, this.currentMonth);
     this.monthlyBudget = this.financeService.getMonthlyBudget();
-    this.remainingBudget = this.financeService.getRemainingBudget();
-    this.savingsSuggestions = this.financeService.getSavingsSuggestions();
+    this.remainingBudget = this.financeService.getRemainingBudget(this.currentYear, this.currentMonth);
+    this.savingsSuggestions = this.financeService.getSavingsSuggestions(this.currentYear, this.currentMonth);
+  }
+
+  /** Dépenses du mois sélectionné (pour affichage onglet Dépenses). */
+  get expensesForMonth(): Expense[] {
+    return this.expenses.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonth;
+    });
+  }
+
+  /** Salaires du mois sélectionné : mensuels du mois + annuels de l'année. */
+  get salariesForMonth(): Salary[] {
+    return this.salaries.filter(s => {
+      const d = new Date(s.date);
+      if (s.period === 'monthly') {
+        return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonth;
+      }
+      return s.period === 'yearly' && d.getFullYear() === this.currentYear;
+    });
+  }
+
+  /** Libellé du mois sélectionné (ex. "Janvier 2025"). */
+  get selectedMonthLabel(): string {
+    const date = new Date(this.currentYear, this.currentMonth, 1);
+    const localeMap: { [key: string]: string } = { fr: 'fr-FR', en: 'en-US', ar: 'ar-EG' };
+    const locale = localeMap[this.i18n.currentLang] || 'fr-FR';
+    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  }
+
+  goToPrevMonth(): void {
+    if (this.currentMonth === 0) {
+      this.currentMonth = 11;
+      this.currentYear--;
+    } else {
+      this.currentMonth--;
+    }
+    this.updateOverview();
+  }
+
+  goToNextMonth(): void {
+    if (this.currentMonth === 11) {
+      this.currentMonth = 0;
+      this.currentYear++;
+    } else {
+      this.currentMonth++;
+    }
+    this.updateOverview();
+  }
+
+  /** Réinitialiser sur le mois courant. */
+  goToCurrentMonth(): void {
+    const now = new Date();
+    this.currentYear = now.getFullYear();
+    this.currentMonth = now.getMonth();
+    this.updateOverview();
+  }
+
+  /** Premier jour du mois sélectionné (pour date par défaut des formulaires). */
+  get firstDayOfSelectedMonth(): string {
+    const y = this.currentYear;
+    const m = String(this.currentMonth + 1).padStart(2, '0');
+    const d = '01';
+    return `${y}-${m}-${d}`;
   }
 
   closeSalaryModal(): void {
@@ -166,9 +259,19 @@ export class FinanceComponent implements OnInit, OnDestroy {
     this.newSalary = { period: 'monthly' };
   }
 
+  openSalaryForm(): void {
+    this.newSalary = { period: 'monthly', date: this.firstDayOfSelectedMonth as unknown as Date };
+    this.showSalaryForm = true;
+  }
+
   closeExpenseModal(): void {
     this.showExpenseForm = false;
     this.newExpense = { category: 'other' };
+  }
+
+  openExpenseForm(): void {
+    this.newExpense = { category: 'other', date: this.firstDayOfSelectedMonth as unknown as Date };
+    this.showExpenseForm = true;
   }
 
   closeBudgetModal(): void {
@@ -191,11 +294,12 @@ export class FinanceComponent implements OnInit, OnDestroy {
 
   addExpense(): void {
     if (!this.newExpense.amount || !this.newExpense.description) return;
+    const date = this.newExpense.date ? new Date(this.newExpense.date) : new Date(this.currentYear, this.currentMonth, 1);
     this.financeService.addExpense({
       amount: this.newExpense.amount!,
       category: this.newExpense.category || 'other',
       description: this.newExpense.description!,
-      date: new Date(),
+      date,
       paymentMethod: this.newExpense.paymentMethod
     }).subscribe({
       next: () => {
@@ -268,6 +372,40 @@ export class FinanceComponent implements OnInit, OnDestroy {
     }
   }
 
+  openSavingsAdjust(goal: SavingsGoal, operation: 'add' | 'decrease'): void {
+    this.savingsAdjustGoal = goal;
+    this.savingsAdjustOperation = operation;
+    this.savingsAdjustAmount = 0;
+    this.showSavingsAdjustModal = true;
+  }
+
+  closeSavingsAdjustModal(): void {
+    this.showSavingsAdjustModal = false;
+    this.savingsAdjustGoal = null;
+    this.savingsAdjustAmount = 0;
+  }
+
+  get savingsAdjustModalTitle(): string {
+    if (!this.savingsAdjustGoal) return '';
+    const op = this.savingsAdjustOperation === 'add'
+      ? this.i18n.instant('finance.addAmount')
+      : this.i18n.instant('finance.decreaseAmount');
+    return `${op} - ${this.savingsAdjustGoal.name}`;
+  }
+
+  submitSavingsAdjust(): void {
+    if (!this.savingsAdjustGoal || this.savingsAdjustAmount <= 0) return;
+    const current = this.parseAmount(this.savingsAdjustGoal.currentAmount);
+    const delta = this.savingsAdjustOperation === 'add' ? this.savingsAdjustAmount : -this.savingsAdjustAmount;
+    const newAmount = Math.max(0, current + delta);
+    this.financeService.updateSavingsGoal(this.savingsAdjustGoal.id, { currentAmount: newAmount }).subscribe({
+      next: () => {
+        this.closeSavingsAdjustModal();
+        this.loadData();
+      }
+    });
+  }
+
   deleteSavingsGoal(id: string): void {
     if (confirm('Supprimer cet objectif d\'épargne ?')) {
       this.financeService.deleteSavingsGoal(id).subscribe({
@@ -278,10 +416,14 @@ export class FinanceComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Total des dépenses par catégorie pour le mois sélectionné. */
   getExpensesByCategory(category: string): number {
     return this.expenses
-      .filter(e => e.category === category)
-      .reduce((sum, e) => sum + e.amount, 0);
+      .filter(e => {
+        const d = new Date(e.date);
+        return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonth && e.category === category;
+      })
+      .reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
   }
 
   getCategoryName(category: string): string {
@@ -312,19 +454,24 @@ export class FinanceComponent implements OnInit, OnDestroy {
   }
 
   getBudgetProgress(budget: Budget): number {
-    return Math.min((budget.spent / budget.limit) * 100, 100);
+    const limit = this.parseAmount(budget.limit);
+    if (limit <= 0) return 0;
+    return Math.min((this.parseAmount(budget.spent) / limit) * 100, 100);
   }
 
   getSavingsProgress(goal: SavingsGoal): number {
-    return Math.min((goal.currentAmount / goal.targetAmount) * 100, 100);
+    const target = this.parseAmount(goal.targetAmount);
+    if (target <= 0) return 0;
+    return Math.min((this.parseAmount(goal.currentAmount) / target) * 100, 100);
   }
 
   addSalary(): void {
     if (!this.newSalary.amount) return;
+    const date = this.newSalary.date ? new Date(this.newSalary.date) : new Date(this.currentYear, this.currentMonth, 1);
     this.financeService.addSalary({
       amount: this.newSalary.amount!,
       period: this.newSalary.period || 'monthly',
-      date: this.newSalary.date ? new Date(this.newSalary.date) : new Date(),
+      date,
       description: this.newSalary.description
     }).subscribe({
       next: () => {

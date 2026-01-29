@@ -1,6 +1,14 @@
 <div class="finance-page">
   <h1>💰 {{ 'finance.title' | translate }}</h1>
 
+  <!-- Sélecteur de mois : gestion distincte par mois -->
+  <div class="month-selector">
+    <button type="button" class="btn btn-icon" (click)="goToPrevMonth()" [attr.aria-label]="'Mois précédent'">‹</button>
+    <span class="month-label">{{ selectedMonthLabel }}</span>
+    <button type="button" class="btn btn-icon" (click)="goToNextMonth()" [attr.aria-label]="'Mois suivant'">›</button>
+    <button type="button" class="btn btn-secondary btn-today" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
+  </div>
+
   <div class="tabs">
     <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">{{ 'finance.overview' | translate }}</button>
     <button [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">{{ 'finance.salary' | translate }}</button>
@@ -9,8 +17,9 @@
     <button [class.active]="activeTab === 'savings'" (click)="activeTab = 'savings'">{{ 'finance.savings' | translate }}</button>
   </div>
 
-  <!-- Overview Tab -->
+  <!-- Overview Tab : synthèse du mois sélectionné -->
   <div *ngIf="activeTab === 'overview'" class="tab-content">
+    <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <!-- Bank Card -->
     <div class="bank-card" [class.negative-balance]="remainingBalance < 0">
       <div class="card-chip"></div>
@@ -85,15 +94,16 @@
     </div>
   </div>
 
-  <!-- Salary Tab -->
+  <!-- Salary Tab : salaires du mois sélectionné -->
   <div *ngIf="activeTab === 'salary'" class="tab-content">
+    <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <div class="section-header">
       <h2>💵 Salaires</h2>
-      <button type="button" class="btn btn-primary" (click)="showSalaryForm = true">+ Ajouter un salaire</button>
+      <button type="button" class="btn btn-primary" (click)="openSalaryForm()">+ Ajouter un salaire</button>
     </div>
 
     <div class="salaries-list">
-      <div *ngFor="let salary of salaries.slice().reverse()" class="salary-card">
+      <div *ngFor="let salary of salariesForMonth.slice().reverse()" class="salary-card">
         <div class="salary-header">
           <div class="salary-info">
             <h4>{{ salary.description || ('finance.salaryLabel' | translate) }}</h4>
@@ -106,21 +116,22 @@
         </div>
         <button class="btn btn-small btn-danger" (click)="deleteSalary(salary.id)">Supprimer</button>
       </div>
-      <div *ngIf="salaries.length === 0" class="empty-state">
-        <p>Aucun salaire enregistré</p>
+      <div *ngIf="salariesForMonth.length === 0" class="empty-state">
+        <p>Aucun salaire pour ce mois</p>
       </div>
     </div>
   </div>
 
-  <!-- Expenses Tab -->
+  <!-- Expenses Tab : dépenses du mois sélectionné -->
   <div *ngIf="activeTab === 'expenses'" class="tab-content">
+    <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <div class="section-header">
       <h2>💸 {{ 'finance.expenses' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showExpenseForm = true">+ {{ 'finance.addExpense' | translate }}</button>
+      <button type="button" class="btn btn-primary" (click)="openExpenseForm()">+ {{ 'finance.addExpense' | translate }}</button>
     </div>
 
     <div class="expenses-list">
-      <div *ngFor="let expense of expenses.slice().reverse()" class="expense-card">
+      <div *ngFor="let expense of expensesForMonth.slice().reverse()" class="expense-card">
         <div class="expense-header">
           <div class="expense-info">
             <span class="expense-icon">{{ getCategoryIcon(expense.category) }}</span>
@@ -134,7 +145,7 @@
         </div>
         <button class="btn btn-small btn-danger" (click)="deleteExpense(expense.id)">{{ 'common.delete' | translate }}</button>
       </div>
-      <div *ngIf="expenses.length === 0" class="empty-state">
+      <div *ngIf="expensesForMonth.length === 0" class="empty-state">
         <p>{{ 'finance.noExpense' | translate }}</p>
       </div>
     </div>
@@ -193,9 +204,12 @@
           </div>
         </div>
         <div class="savings-actions">
-          <input type="number" step="0.01" [value]="goal.currentAmount" 
-                 (change)="updateSavingsGoal(goal.id, +$any($event.target).value)" 
-                 [placeholder]="'finance.updatePlaceholder' | translate">
+          <button type="button" class="btn btn-small btn-primary" (click)="openSavingsAdjust(goal, 'add')">
+            + {{ 'finance.addAmount' | translate }}
+          </button>
+          <button type="button" class="btn btn-small btn-secondary" (click)="openSavingsAdjust(goal, 'decrease')">
+            − {{ 'finance.decreaseAmount' | translate }}
+          </button>
           <button class="btn btn-small btn-danger" (click)="deleteSavingsGoal(goal.id)">{{ 'common.delete' | translate }}</button>
         </div>
       </div>
@@ -221,7 +235,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Date</label>
+          <label>{{ 'finance.dateLabel' | translate }}</label>
           <input type="date" [(ngModel)]="newSalary.date" name="date">
         </div>
       </div>
@@ -254,6 +268,10 @@
             <option *ngFor="let cat of expenseCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
         </div>
+      </div>
+      <div class="form-group">
+        <label>{{ 'finance.dateLabel' | translate }}</label>
+        <input type="date" [(ngModel)]="newExpense.date" name="date">
       </div>
       <div class="form-group">
         <label>{{ 'finance.paymentMethod' | translate }}</label>
@@ -318,6 +336,23 @@
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeSavingsModal()">{{ 'common.cancel' | translate }}</button>
         <button type="submit" class="btn btn-primary">{{ 'common.create' | translate }}</button>
+      </div>
+    </form>
+  </app-modal>
+
+  <!-- Modal Ajouter / Retirer montant épargne -->
+  <app-modal *ngIf="showSavingsAdjustModal && savingsAdjustGoal" [title]="savingsAdjustModalTitle" size="sm" (closeModal)="closeSavingsAdjustModal()">
+    <form (ngSubmit)="submitSavingsAdjust()">
+      <div class="form-group">
+        <label>{{ (savingsAdjustOperation === 'add' ? 'finance.amountToAdd' : 'finance.amountToDecrease') | translate }} ({{ currencySymbol }}) *</label>
+        <input type="number" step="0.01" min="0" [(ngModel)]="savingsAdjustAmount" name="savingsAdjustAmount" required>
+      </div>
+      <p class="savings-adjust-hint" *ngIf="savingsAdjustGoal">
+        {{ 'finance.currentAmount' | translate }}: {{ savingsAdjustGoal.currentAmount | number:'1.2-2' }} {{ currencySymbol }}
+      </p>
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="closeSavingsAdjustModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary" [disabled]="savingsAdjustAmount <= 0">{{ 'common.save' | translate }}</button>
       </div>
     </form>
   </app-modal>

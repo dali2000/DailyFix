@@ -79,6 +79,7 @@
 
 .theme-toggle {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--notion-spacing-sm);
   background: var(--notion-bg-secondary);
   border-radius: var(--notion-radius);
@@ -98,6 +99,7 @@
   color: var(--notion-text-secondary);
   font-size: 14px;
   font-weight: 500;
+  min-width: 0;
 }
 
 .theme-option:hover {
@@ -139,13 +141,31 @@
     font-size: 24px;
   }
 
+  .settings-section {
+    padding: var(--notion-spacing-md);
+  }
+
+  .settings-section h2 {
+    font-size: 18px;
+    margin-bottom: var(--notion-spacing-md);
+  }
+
   .setting-item {
     flex-direction: column;
     gap: var(--notion-spacing);
+    align-items: stretch;
   }
 
   .setting-info {
     margin-right: 0;
+  }
+
+  .setting-info h3 {
+    font-size: 15px;
+  }
+
+  .setting-info p {
+    font-size: 13px;
   }
 
   .setting-control {
@@ -155,11 +175,92 @@
 
   .theme-toggle {
     width: 100%;
+    justify-content: flex-start;
   }
 
   .theme-option {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 80px;
     justify-content: center;
+    padding: var(--notion-spacing-sm) var(--notion-spacing-sm);
+    font-size: 13px;
+  }
+
+  .theme-option svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .theme-option span[style*="width: 12px"] {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .currency-select {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .settings-page {
+    padding: 12px 16px;
+  }
+
+  .settings-page h1 {
+    font-size: 22px;
+    margin-bottom: var(--notion-spacing-lg);
+  }
+
+  .settings-section {
+    padding: 14px;
+  }
+
+  .settings-section h2 {
+    font-size: 17px;
+  }
+
+  .setting-item {
+    padding: var(--notion-spacing-sm) 0;
+  }
+
+  .theme-toggle {
+    gap: 8px;
+    padding: 6px;
+  }
+
+  .theme-option {
+    flex: 1 1 calc(50% - 4px);
+    min-width: 0;
+    padding: 10px 8px;
+    font-size: 12px;
+    justify-content: center;
+  }
+
+  .theme-option span:not([style*="width"]) {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  .theme-option svg {
+    width: 14px;
+    height: 14px;
+    flex-shrink: 0;
+  }
+
+  .theme-option span[style*="width: 12px"] {
+    width: 8px !important;
+    height: 8px !important;
+    flex-shrink: 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .theme-option {
+    flex: 1 1 100%;
   }
 }
 
