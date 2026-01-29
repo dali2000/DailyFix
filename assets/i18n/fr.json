@@ -288,7 +288,13 @@
     "noItems": "Aucun article. Ajoutez-en !",
     "newHouseholdTask": "Nouvelle tâche ménagère",
     "taskNamePlaceholder": "Nom de la tâche",
-    "noHouseholdTasks": "Aucune tâche ménagère"
+    "noHouseholdTasks": "Aucune tâche ménagère",
+    "assistant": "Assistant IA",
+    "assistantTitle": "Idées repas et astuces maison",
+    "assistantDesc": "Dites-moi quels ingrédients vous avez (ex. poulet, tomates, riz) et je vous propose des idées de repas ou recettes. Vous pouvez aussi demander des astuces ménage ou des listes de courses.",
+    "assistantPlaceholder": "Ex. J'ai des œufs, du lait, des pommes de terre — qu'est-ce que je peux préparer pour le dîner ?",
+    "assistantUnavailable": "L'assistant IA n'est pas configuré.",
+    "assistantUnavailableHint": "Ajoutez une clé API Gemini (Google AI Studio) dans environment (geminiApiKey) pour activer cette fonctionnalité."
   },
   "social": {
     "title": "Événements Sociaux et Activités",

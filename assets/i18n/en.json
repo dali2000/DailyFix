@@ -288,7 +288,13 @@
     "noItems": "No items. Add some!",
     "newHouseholdTask": "New household task",
     "taskNamePlaceholder": "Task name",
-    "noHouseholdTasks": "No household tasks"
+    "noHouseholdTasks": "No household tasks",
+    "assistant": "AI Assistant",
+    "assistantTitle": "Meal ideas and household tips",
+    "assistantDesc": "Tell me what ingredients you have (e.g. chicken, tomatoes, rice) and I'll suggest meal ideas or recipes. You can also ask for cleaning tips or shopping lists.",
+    "assistantPlaceholder": "E.g. I have eggs, milk, potatoes — what can I make for dinner?",
+    "assistantUnavailable": "AI assistant is not configured.",
+    "assistantUnavailableHint": "Add a Gemini API key (Google AI Studio) in environment (geminiApiKey) to enable this feature."
   },
   "social": {
     "title": "Social Events and Activities",
