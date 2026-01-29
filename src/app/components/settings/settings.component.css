@@ -31,6 +31,126 @@
   color: var(--notion-text-primary);
 }
 
+.section-desc {
+  font-size: 14px;
+  color: var(--notion-text-secondary);
+  margin: 0 0 var(--notion-spacing-lg) 0;
+}
+
+/* Section Profil */
+.profile-section .profile-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--notion-spacing-xl);
+  align-items: flex-start;
+}
+
+.profile-avatar-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--notion-spacing-md);
+}
+
+.profile-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--notion-bg-tertiary);
+  border: 2px solid var(--notion-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.profile-avatar.has-photo {
+  padding: 0;
+}
+
+.profile-avatar .avatar-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.profile-avatar .avatar-initials {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  line-height: 1;
+}
+
+.profile-photo-input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.profile-card .btn-change-photo {
+  margin-top: 0;
+}
+
+.profile-fields {
+  flex: 1;
+  min-width: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--notion-spacing-md);
+}
+
+.profile-fields .form-group {
+  margin: 0;
+}
+
+.profile-fields .form-group label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin-bottom: 6px;
+}
+
+.profile-fields .form-input {
+  width: 100%;
+  max-width: 320px;
+  padding: var(--notion-spacing-sm) var(--notion-spacing-md);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+  font-size: 14px;
+}
+
+.profile-fields .form-input:focus {
+  outline: none;
+  border-color: var(--notion-text-secondary);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.profile-email-readonly {
+  font-size: 14px;
+  color: var(--notion-text-primary);
+  margin: 4px 0 0 0;
+  font-weight: 500;
+}
+
+.profile-email-hint {
+  font-size: 12px;
+  color: var(--notion-text-tertiary);
+  margin-top: 4px;
+  display: block;
+}
+
+.profile-section .btn-primary {
+  margin-top: var(--notion-spacing-md);
+}
+
 .setting-item {
   display: flex;
   justify-content: space-between;

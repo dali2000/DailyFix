@@ -2,6 +2,52 @@
   <div class="settings-container">
     <h1>{{ 'settings.title' | translate }}</h1>
 
+    <!-- Section Profil -->
+    <section class="settings-section profile-section">
+      <h2>{{ 'settings.profile' | translate }}</h2>
+      <p class="section-desc">{{ 'settings.profileDesc' | translate }}</p>
+
+      <div class="profile-card">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar" [class.has-photo]="currentUser?.profilePhoto">
+            <img *ngIf="currentUser?.profilePhoto" [src]="currentUser.profilePhoto" alt="" class="avatar-img">
+            <span *ngIf="!currentUser?.profilePhoto" class="avatar-initials">{{ userInitials }}</span>
+          </div>
+          <input
+            type="file"
+            #photoInput
+            accept="image/*"
+            (change)="onPhotoSelected($event)"
+            class="profile-photo-input"
+            [attr.aria-label]="'settings.changePhoto' | translate">
+          <button type="button" class="btn btn-secondary btn-change-photo" (click)="photoInput.click()">
+            {{ 'settings.changePhoto' | translate }}
+          </button>
+        </div>
+
+        <div class="profile-fields">
+          <div class="form-group">
+            <label for="profile-fullName">{{ 'settings.fullNameLabel' | translate }}</label>
+            <input
+              id="profile-fullName"
+              type="text"
+              class="form-input"
+              [(ngModel)]="profileFullName"
+              [placeholder]="'settings.fullNameLabel' | translate"
+              minlength="2">
+          </div>
+          <div class="form-group">
+            <label>{{ 'common.email' | translate }}</label>
+            <p class="profile-email-readonly">{{ currentUser?.email || '—' }}</p>
+            <span class="profile-email-hint">{{ 'settings.emailNotEditable' | translate }}</span>
+          </div>
+          <button type="button" class="btn btn-primary" (click)="saveProfile()" [disabled]="profileSaving">
+            {{ profileSaving ? ('common.loading' | translate) : ('settings.saveProfile' | translate) }}
+          </button>
+        </div>
+      </div>
+    </section>
+
     <!-- Section Apparence -->
     <section class="settings-section">
       <h2>{{ 'settings.appearance' | translate }}</h2>
@@ -120,7 +166,7 @@
       <div class="setting-item">
         <div class="setting-info">
           <h3>{{ 'settings.userInfo' | translate }}</h3>
-          <p *ngIf="currentUser">{{ currentUser.fullName }} - {{ currentUser.email }}</p>
+          <p *ngIf="currentUser">{{ currentUser.fullName }} – {{ currentUser.email }}</p>
           <p *ngIf="!currentUser">{{ 'common.loading' | translate }}</p>
         </div>
       </div>

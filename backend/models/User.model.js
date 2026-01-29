@@ -58,6 +58,11 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(10),
     defaultValue: 'fr',
     allowNull: false
+  },
+  profilePhoto: {
+    type: DataTypes.TEXT,
+    allowNull: true,
+    field: 'profile_photo'
   }
 }, {
   tableName: 'users',

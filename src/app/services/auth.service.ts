@@ -18,6 +18,7 @@ export interface User {
   currency?: string;
   theme?: string;
   locale?: string;
+  profilePhoto?: string | null;
 }
 
 export interface LoginCredentials {
@@ -201,9 +202,9 @@ export class AuthService {
   }
 
   /**
-   * Met à jour le profil sur le serveur (devise, thème) et synchronise l'état local.
+   * Met à jour le profil sur le serveur (nom, photo, devise, thème, langue). L'email n'est pas modifiable.
    */
-  updateProfile(patch: { currency?: string; theme?: string; locale?: string }): Observable<UpdateProfileResponse> {
+  updateProfile(patch: { fullName?: string; profilePhoto?: string | null; currency?: string; theme?: string; locale?: string }): Observable<UpdateProfileResponse> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
       'Content-Type': 'application/json'

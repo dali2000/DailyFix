@@ -77,7 +77,10 @@
            tabindex="0" 
            [attr.aria-label]="'navbar.userAccount' | translate"
            (click)="toggleProfileDropdown()">
-        <div class="avatar">{{ userInitials }}</div>
+        <div class="avatar" [class.has-photo]="currentUser?.profilePhoto">
+          <img *ngIf="currentUser?.profilePhoto" [src]="currentUser?.profilePhoto" alt="" class="avatar-img">
+          <span *ngIf="!currentUser?.profilePhoto">{{ userInitials }}</span>
+        </div>
         <span class="name">{{ userName }}</span>
         <svg class="dropdown-arrow" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 4.5L6 7.5L9 4.5"/>

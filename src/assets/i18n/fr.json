@@ -20,6 +20,7 @@
     "title": "Titre",
     "date": "Date",
     "name": "Nom",
+    "email": "Email",
     "category": "Catégorie",
     "amount": "Montant",
     "period": "Période",
@@ -61,7 +62,7 @@
     "userAccount": "Compte utilisateur",
     "adminDashboard": "Dashboard Admin"
   },
-  "settings": { "title": "Paramètres", "appearance": "Apparence", "theme": "Thème", "themeDesc": "Choisissez le style visuel de l'interface", "themeLight": "Clair", "themeDark": "Sombre", "themeBlue": "Bleu", "themeForest": "Forêt", "themePurple": "Violet", "language": "Langue", "languageDesc": "Langue d'affichage de l'application", "wallet": "Portefeuille", "currency": "Devise du portefeuille", "currencyDesc": "Devise d'affichage pour les montants (Finance)", "account": "Compte", "userInfo": "Informations utilisateur", "logoutDesc": "Déconnectez-vous de votre compte", "logoutBtn": "Se déconnecter", "about": "À propos", "version": "Version" },
+  "settings": { "title": "Paramètres", "profile": "Profil", "profileDesc": "Gérez votre photo et vos informations", "profilePhoto": "Photo de profil", "changePhoto": "Changer la photo", "fullNameLabel": "Nom complet", "emailNotEditable": "L'email ne peut pas être modifié", "saveProfile": "Enregistrer le profil", "appearance": "Apparence", "theme": "Thème", "themeDesc": "Choisissez le style visuel de l'interface", "themeLight": "Clair", "themeDark": "Sombre", "themeBlue": "Bleu", "themeForest": "Forêt", "themePurple": "Violet", "language": "Langue", "languageDesc": "Langue d'affichage de l'application", "wallet": "Portefeuille", "currency": "Devise du portefeuille", "currencyDesc": "Devise d'affichage pour les montants (Finance)", "account": "Compte", "userInfo": "Informations utilisateur", "logoutDesc": "Déconnectez-vous de votre compte", "logoutBtn": "Se déconnecter", "about": "À propos", "version": "Version" },
   "login": { "brand": "DailyFix", "subtitle": "Votre assistant personnel pour une vie organisée", "welcome": "Bienvenue", "welcomeDesc": "Connectez-vous pour accéder à votre tableau de bord", "login": "Connexion", "signup": "Inscription", "fullName": "Nom complet", "fullNamePlaceholder": "Votre nom", "fullNameError": "Nom requis (2+ caractères)", "email": "Email", "emailPlaceholder": "votre@email.com", "emailError": "Entrez un email valide", "password": "Mot de passe", "passwordError": "Mot de passe requis (6+ caractères)", "submitLogin": "Se connecter", "submitSignup": "Créer un compte", "googleLogin": "Se connecter avec Google", "googleSignup": "Continuer avec Google", "facebookSignup": "Continuer avec Facebook" },
   "home": {
     "greeting": "Bonjour",

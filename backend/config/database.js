@@ -118,6 +118,7 @@ const connectDB = async () => {
     await addCurrencyColumnIfNeeded();
     await addThemeColumnIfNeeded();
     await addLocaleColumnIfNeeded();
+    await addProfilePhotoColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -368,6 +369,62 @@ const addLocaleColumnIfNeeded = async () => {
       console.log('✅ Column "locale" already exists (or similar column)');
     } else {
       console.warn('⚠️ Warning: Could not add locale column:', error.message);
+    }
+  }
+};
+
+// Fonction pour ajouter la colonne profilePhoto si elle n'existe pas
+const addProfilePhotoColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+
+    if (dialect === 'postgres') {
+      const [results] = await sequelize.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' 
+        AND column_name = 'profile_photo'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "profile_photo" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN profile_photo TEXT
+      `);
+      console.log('✅ Column "profile_photo" added successfully to users table');
+    } else if (dialect === 'mysql') {
+      const [results] = await sequelize.query(`
+        SELECT COLUMN_NAME 
+        FROM INFORMATION_SCHEMA.COLUMNS 
+        WHERE TABLE_SCHEMA = DATABASE() 
+        AND TABLE_NAME = 'users' 
+        AND COLUMN_NAME = 'profile_photo'
+      `);
+
+      if (results.length > 0) {
+        console.log('✅ Column "profile_photo" already exists');
+        return;
+      }
+
+      await sequelize.query(`
+        ALTER TABLE users 
+        ADD COLUMN profile_photo TEXT
+      `);
+      console.log('✅ Column "profile_photo" added successfully to users table');
+    }
+  } catch (error) {
+    if (error.message && (
+      error.message.includes('already exists') ||
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Column "profile_photo" already exists (or similar column)');
+    } else {
+      console.warn('⚠️ Warning: Could not add profile_photo column:', error.message);
     }
   }
 };

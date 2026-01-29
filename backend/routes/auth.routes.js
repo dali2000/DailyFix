@@ -66,7 +66,8 @@ router.post('/register', [
         role: user.role || 'user',
         currency: user.currency || 'EUR',
         theme: user.theme || 'light',
-        locale: user.locale || 'fr'
+        locale: user.locale || 'fr',
+        profilePhoto: user.profilePhoto || null
       }
     });
   } catch (error) {
@@ -153,7 +154,8 @@ router.post('/login', [
         role: user.role || 'user',
         currency: user.currency || 'EUR',
         theme: user.theme || 'light',
-        locale: user.locale || 'fr'
+        locale: user.locale || 'fr',
+        profilePhoto: user.profilePhoto || null
       }
     });
   } catch (error) {
@@ -269,7 +271,8 @@ router.post('/google', [
         role: user.role || 'user',
         currency: user.currency || 'EUR',
         theme: user.theme || 'light',
-        locale: user.locale || 'fr'
+        locale: user.locale || 'fr',
+        profilePhoto: user.profilePhoto || null
       }
     });
   } catch (error) {
@@ -328,7 +331,8 @@ router.get('/me', protect, async (req, res) => {
         role: user.role || 'user',
         currency: user.currency || 'EUR',
         theme: user.theme || 'light',
-        locale: user.locale || 'fr'
+        locale: user.locale || 'fr',
+        profilePhoto: user.profilePhoto || null
       }
     });
   } catch (error) {
@@ -344,13 +348,29 @@ const ALLOWED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
 const ALLOWED_THEMES = ['light', 'dark', 'blue', 'forest', 'purple'];
 const ALLOWED_LOCALES = ['fr', 'en', 'ar'];
 
+function toUserJson(user) {
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    provider: user.provider,
+    role: user.role || 'user',
+    currency: user.currency || 'EUR',
+    theme: user.theme || 'light',
+    locale: user.locale || 'fr',
+    profilePhoto: user.profilePhoto || null
+  };
+}
+
 // @route   PATCH /api/auth/me
-// @desc    Update current user profile (e.g. currency, theme, locale)
+// @desc    Update current user profile (fullName, profilePhoto, currency, theme, locale). Email non modifiable.
 // @access  Private
 router.patch('/me', protect, [
+  body('fullName').optional().trim().isLength({ min: 2 }).withMessage('Le nom doit contenir au moins 2 caractères'),
   body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée'),
   body('theme').optional().isIn(ALLOWED_THEMES).withMessage('Thème non supporté'),
-  body('locale').optional().isIn(ALLOWED_LOCALES).withMessage('Langue non supportée')
+  body('locale').optional().isIn(ALLOWED_LOCALES).withMessage('Langue non supportée'),
+  body('profilePhoto').optional()
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -367,6 +387,9 @@ router.patch('/me', protect, [
     }
 
     const updates = {};
+    if (req.body.fullName !== undefined) {
+      updates.fullName = req.body.fullName.trim();
+    }
     if (req.body.currency !== undefined) {
       updates.currency = req.body.currency;
     }
@@ -376,6 +399,9 @@ router.patch('/me', protect, [
     if (req.body.locale !== undefined) {
       updates.locale = req.body.locale;
     }
+    if (req.body.profilePhoto !== undefined) {
+      updates.profilePhoto = req.body.profilePhoto || null;
+    }
 
     if (Object.keys(updates).length > 0) {
       await user.update(updates);
@@ -384,16 +410,7 @@ router.patch('/me', protect, [
 
     res.json({
       success: true,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        provider: user.provider,
-        role: user.role || 'user',
-        currency: user.currency || 'EUR',
-        theme: user.theme || 'light',
-        locale: user.locale || 'fr'
-      }
+      user: toUserJson(user)
     });
   } catch (error) {
     console.error('Update profile error:', error);

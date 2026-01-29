@@ -25,6 +25,8 @@ export const LANGUAGES = [
 export class SettingsComponent implements OnInit, OnDestroy {
   currentTheme: Theme = 'light';
   currentUser: any = null;
+  profileFullName = '';
+  profileSaving = false;
   selectedCurrencyCode = 'EUR';
   selectedLocale = 'fr';
   readonly languages = LANGUAGES;
@@ -44,16 +46,58 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return this.currencyService.currencies;
   }
 
+  get userInitials(): string {
+    if (!this.currentUser?.fullName) return '?';
+    const parts = String(this.currentUser.fullName).trim().split(/\s+/);
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return (this.currentUser.fullName as string).slice(0, 2).toUpperCase();
+  }
+
+  onPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const dataUrl = reader.result as string;
+      this.authService.updateProfile({ profilePhoto: dataUrl }).subscribe({
+        next: () => {
+          input.value = '';
+        },
+        error: (err) => console.error('Erreur lors de la mise à jour de la photo', err)
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  saveProfile(): void {
+    const name = (this.profileFullName || '').trim();
+    if (name.length < 2) return;
+    this.profileSaving = true;
+    this.authService.updateProfile({ fullName: name }).subscribe({
+      next: () => {
+        this.profileSaving = false;
+      },
+      error: (err) => {
+        console.error('Erreur lors de la sauvegarde du profil', err);
+        this.profileSaving = false;
+      }
+    });
+  }
+
   ngOnInit(): void {
-    // S'abonner au thème actuel
     this.themeSubscription = this.themeService.theme$.subscribe(theme => {
       this.currentTheme = theme;
     });
 
-    // S'abonner à l'utilisateur actuel
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
-      if (user?.locale) this.selectedLocale = user.locale;
+      if (user) {
+        this.profileFullName = user.fullName || '';
+        if (user.locale) this.selectedLocale = user.locale;
+      }
     });
 
     this.selectedCurrencyCode = this.currencyService.getSelectedCurrencyCode();
