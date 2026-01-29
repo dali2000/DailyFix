@@ -86,9 +86,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Les admins peuvent accéder à /home s'ils le souhaitent (via le lien "Application" dans la sidebar admin)
-    // On ne redirige plus automatiquement les admins vers /admin
-    
     // Charger le nom de l'utilisateur et les conseils du jour (si profil santé renseigné)
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       if (user && user.fullName) {
@@ -98,7 +95,8 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.userName = '';
       }
       const hasProfile = user && (user.height != null || user.weight != null || user.gender);
-      this.showDailyAdviceCard = this.geminiService.isAvailable();
+      // Show "Today's advice" for every logged-in user so they see the hint to fill profile in Settings
+      this.showDailyAdviceCard = !!user;
       if (hasProfile && this.geminiService.isAvailable()) {
         this.loadDailyAdvice(user!);
       } else {
@@ -107,6 +105,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.dailyAdviceLoading = false;
       }
     });
+
+    // Recharger le profil depuis le serveur pour avoir height, weight, gender à jour (conseils du jour)
+    if (this.authService.getToken()) {
+      this.authService.refreshCurrentUser().subscribe();
+    }
 
     this.loadDashboardData();
   }

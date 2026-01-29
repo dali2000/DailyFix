@@ -137,6 +137,35 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
+  /**
+   * Recharge le profil utilisateur depuis le serveur (GET /auth/me).
+   * Utile pour afficher height, weight, gender à l'ouverture des Paramètres.
+   */
+  refreshCurrentUser(): Observable<User | null> {
+    const token = this.getToken();
+    if (!token) {
+      this.setCurrentUser(null);
+      return of(null);
+    }
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<AuthResponse>(`${environment.apiUrl}/auth/me`, { headers }).pipe(
+      map((response: AuthResponse) => {
+        if (response.success && response.user) {
+          const u = response.user;
+          if (u.height != null && typeof u.height === 'string') u.height = Number(u.height);
+          if (u.weight != null && typeof u.weight === 'string') u.weight = Number(u.weight);
+          this.setCurrentUser(u);
+          return u;
+        }
+        return this.getCurrentUser();
+      }),
+      catchError(() => of(this.getCurrentUser()))
+    );
+  }
+
   isAuthenticated(): boolean {
     return this.getToken() !== null && this.getCurrentUser() !== null;
   }

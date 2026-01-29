@@ -60,17 +60,7 @@ router.post('/register', [
     res.status(201).json({
       success: true,
       token,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        provider: user.provider,
-        role: user.role || 'user',
-        currency: user.currency || 'EUR',
-        theme: user.theme || 'light',
-        locale: user.locale || 'fr',
-        profilePhoto: user.profilePhoto || null
-      }
+      user: toUserJson(user)
     });
   } catch (error) {
     console.error('Register error:', error);
@@ -148,17 +138,7 @@ router.post('/login', [
     res.json({
       success: true,
       token,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        provider: user.provider,
-        role: user.role || 'user',
-        currency: user.currency || 'EUR',
-        theme: user.theme || 'light',
-        locale: user.locale || 'fr',
-        profilePhoto: user.profilePhoto || null
-      }
+      user: toUserJson(user)
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -265,17 +245,7 @@ router.post('/google', [
     res.json({
       success: true,
       token,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        provider: user.provider,
-        role: user.role || 'user',
-        currency: user.currency || 'EUR',
-        theme: user.theme || 'light',
-        locale: user.locale || 'fr',
-        profilePhoto: user.profilePhoto || null
-      }
+      user: toUserJson(user)
     });
   } catch (error) {
     console.error('Google auth error:', error);
@@ -317,25 +287,17 @@ router.post('/google', [
 });
 
 // @route   GET /api/auth/me
-// @desc    Get current user
+// @desc    Get current user (inclut height, weight, gender pour conseils personnalisés)
 // @access  Private
 router.get('/me', protect, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.id);
-    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
     res.json({
       success: true,
-      user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        provider: user.provider,
-        role: user.role || 'user',
-        currency: user.currency || 'EUR',
-        theme: user.theme || 'light',
-        locale: user.locale || 'fr',
-        profilePhoto: user.profilePhoto || null
-      }
+      user: toUserJson(user)
     });
   } catch (error) {
     console.error('Get user error:', error);

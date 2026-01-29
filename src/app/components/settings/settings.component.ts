@@ -155,12 +155,17 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.currentUser = user;
       if (user) {
         this.profileFullName = user.fullName || '';
-        this.profileHeight = user.height ?? null;
-        this.profileWeight = user.weight ?? null;
+        this.profileHeight = user.height != null ? Number(user.height) : null;
+        this.profileWeight = user.weight != null ? Number(user.weight) : null;
         this.profileGender = user.gender || '';
         if (user.locale) this.selectedLocale = user.locale;
       }
     });
+
+    // Recharger le profil depuis le serveur pour remplir height, weight, gender
+    if (this.authService.getToken()) {
+      this.authService.refreshCurrentUser().subscribe();
+    }
 
     this.selectedCurrencyCode = this.currencyService.getSelectedCurrencyCode();
     this.currencySubscription = this.currencyService.selectedCurrency$.subscribe(code => {
