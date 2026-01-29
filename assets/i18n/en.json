@@ -20,6 +20,7 @@
     "title": "Title",
     "date": "Date",
     "name": "Name",
+    "email": "Email",
     "category": "Category",
     "amount": "Amount",
     "period": "Period",
@@ -61,7 +62,7 @@
     "userAccount": "User account",
     "adminDashboard": "Admin Dashboard"
   },
-  "settings": { "title": "Settings", "appearance": "Appearance", "theme": "Theme", "themeDesc": "Choose the visual style of the interface", "themeLight": "Light", "themeDark": "Dark", "themeBlue": "Blue", "themeForest": "Forest", "themePurple": "Purple", "language": "Language", "languageDesc": "Display language of the application", "wallet": "Wallet", "currency": "Wallet currency", "currencyDesc": "Display currency for amounts (Finance)", "account": "Account", "userInfo": "User information", "logoutDesc": "Log out of your account", "logoutBtn": "Log out", "about": "About", "version": "Version" },
+  "settings": { "title": "Settings", "profile": "Profile", "profileDesc": "Manage your photo and information", "profilePhoto": "Profile photo", "changePhoto": "Change photo", "fullNameLabel": "Full name", "emailNotEditable": "Email cannot be changed", "saveProfile": "Save profile", "appearance": "Appearance", "theme": "Theme", "themeDesc": "Choose the visual style of the interface", "themeLight": "Light", "themeDark": "Dark", "themeBlue": "Blue", "themeForest": "Forest", "themePurple": "Purple", "language": "Language", "languageDesc": "Display language of the application", "wallet": "Wallet", "currency": "Wallet currency", "currencyDesc": "Display currency for amounts (Finance)", "account": "Account", "userInfo": "User information", "logoutDesc": "Log out of your account", "logoutBtn": "Log out", "about": "About", "version": "Version" },
   "login": { "brand": "DailyFix", "subtitle": "Your personal assistant for an organized life", "welcome": "Welcome", "welcomeDesc": "Sign in to access your dashboard", "login": "Log in", "signup": "Sign up", "fullName": "Full name", "fullNamePlaceholder": "Your name", "fullNameError": "Name required (2+ characters)", "email": "Email", "emailPlaceholder": "your@email.com", "emailError": "Enter a valid email", "password": "Password", "passwordError": "Password required (6+ characters)", "submitLogin": "Log in", "submitSignup": "Create account", "googleLogin": "Log in with Google", "googleSignup": "Continue with Google", "facebookSignup": "Continue with Facebook" },
   "home": {
     "greeting": "Hello",

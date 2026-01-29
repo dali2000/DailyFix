@@ -20,6 +20,7 @@
     "title": "العنوان",
     "date": "التاريخ",
     "name": "الاسم",
+    "email": "البريد الإلكتروني",
     "category": "النوع",
     "amount": "المبلغ",
     "period": "المدة",
@@ -61,7 +62,7 @@
     "userAccount": "الحساب",
     "adminDashboard": "لوحة الإدارة"
   },
-  "settings": { "title": "الإعدادات", "appearance": "المظهر", "theme": "المظهر", "themeDesc": "اختر ستايل الواجهة", "themeLight": "فاتح", "themeDark": "داكن", "themeBlue": "أزرق", "themeForest": "غابة", "themePurple": "بنفسجي", "language": "اللغة", "languageDesc": "لغة التطبيق", "wallet": "المحفظة", "currency": "عملة المحفظة", "currencyDesc": "عملة عرض الفلوس", "account": "الحساب", "userInfo": "معلومات المستخدم", "logoutDesc": "اخرج من حسابك", "logoutBtn": "اخرج", "about": "حول", "version": "الإصدار" },
+  "settings": { "title": "الإعدادات", "profile": "الملف الشخصي", "profileDesc": "إدارة صورتك ومعلوماتك", "profilePhoto": "صورة الملف الشخصي", "changePhoto": "تغيير الصورة", "fullNameLabel": "الاسم الكامل", "emailNotEditable": "البريد الإلكتروني لا يمكن تغييره", "saveProfile": "حفظ الملف", "appearance": "المظهر", "theme": "المظهر", "themeDesc": "اختر ستايل الواجهة", "themeLight": "فاتح", "themeDark": "داكن", "themeBlue": "أزرق", "themeForest": "غابة", "themePurple": "بنفسجي", "language": "اللغة", "languageDesc": "لغة التطبيق", "wallet": "المحفظة", "currency": "عملة المحفظة", "currencyDesc": "عملة عرض الفلوس", "account": "الحساب", "userInfo": "معلومات المستخدم", "logoutDesc": "اخرج من حسابك", "logoutBtn": "اخرج", "about": "حول", "version": "الإصدار" },
   "login": { "brand": "DailyFix", "subtitle": "المساعد الشخصي لحياة منظمة", "welcome": "أهلا", "welcomeDesc": "ادخل باش توصل للوحة التحكم", "login": "ادخل", "signup": "أنشئ حساب", "fullName": "الاسم الكامل", "fullNamePlaceholder": "اسمك", "fullNameError": "الاسم مطلوب (حرفين وأكثر)", "email": "الإيميل", "emailPlaceholder": "your@email.com", "emailError": "كتب إيميل صحيح", "password": "الموت دو پاس", "passwordError": "الموت دو پاس مطلوب (6 أحرف وأكثر)", "submitLogin": "ادخل", "submitSignup": "أنشئ الحساب", "googleLogin": "ادخل بـ Google", "googleSignup": "كمل بـ Google", "facebookSignup": "كمل بـ Facebook" },
   "home": {
     "greeting": "أهلا",
