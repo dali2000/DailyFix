@@ -63,13 +63,16 @@
     "userAccount": "الحساب",
     "adminDashboard": "لوحة الإدارة"
   },
-  "settings": { "title": "الإعدادات", "profile": "الملف الشخصي", "profileDesc": "إدارة صورتك ومعلوماتك", "profilePhoto": "صورة الملف الشخصي", "changePhoto": "تغيير الصورة", "fullNameLabel": "الاسم الكامل", "emailNotEditable": "البريد الإلكتروني لا يمكن تغييره", "saveProfile": "حفظ الملف", "appearance": "المظهر", "theme": "المظهر", "themeDesc": "اختر ستايل الواجهة", "themeLight": "فاتح", "themeDark": "داكن", "themeBlue": "أزرق", "themeForest": "غابة", "themePurple": "بنفسجي", "language": "اللغة", "languageDesc": "لغة التطبيق", "wallet": "المحفظة", "currency": "عملة المحفظة", "currencyDesc": "عملة عرض الفلوس", "account": "الحساب", "userInfo": "معلومات المستخدم", "logoutDesc": "اخرج من حسابك", "logoutBtn": "اخرج", "about": "حول", "version": "الإصدار" },
+  "settings": { "title": "الإعدادات", "profile": "الملف الشخصي", "profileDesc": "إدارة صورتك ومعلوماتك", "profilePhoto": "صورة الملف الشخصي", "changePhoto": "تغيير الصورة", "fullNameLabel": "الاسم الكامل", "emailNotEditable": "البريد الإلكتروني لا يمكن تغييره", "heightLabel": "الطول (سم)", "heightHint": "50–250 سم", "weightLabel": "الوزن (كغ)", "weightHint": "20–300 كغ", "genderLabel": "الجنس", "genderPlaceholder": "غير محدد", "genderMale": "ذكر", "genderFemale": "أنثى", "genderOther": "آخر", "healthProfileHint": "يُستخدم لنصائح صحية شخصية عند فتح التطبيق.", "saveProfile": "حفظ الملف", "appearance": "المظهر", "theme": "المظهر", "themeDesc": "اختر ستايل الواجهة", "themeLight": "فاتح", "themeDark": "داكن", "themeBlue": "أزرق", "themeForest": "غابة", "themePurple": "بنفسجي", "language": "اللغة", "languageDesc": "لغة التطبيق", "wallet": "المحفظة", "currency": "عملة المحفظة", "currencyDesc": "عملة عرض الفلوس", "account": "الحساب", "userInfo": "معلومات المستخدم", "logoutDesc": "اخرج من حسابك", "logoutBtn": "اخرج", "about": "حول", "version": "الإصدار" },
   "login": { "brand": "DailyFix", "subtitle": "المساعد الشخصي لحياة منظمة", "welcome": "أهلا", "welcomeDesc": "ادخل باش توصل للوحة التحكم", "login": "ادخل", "signup": "أنشئ حساب", "fullName": "الاسم الكامل", "fullNamePlaceholder": "اسمك", "fullNameError": "الاسم مطلوب (حرفين وأكثر)", "email": "الإيميل", "emailPlaceholder": "your@email.com", "emailError": "كتب إيميل صحيح", "password": "الموت دو پاس", "passwordError": "الموت دو پاس مطلوب (6 أحرف وأكثر)", "forgotPassword": "نسيت الموت دو پاس؟", "submitLogin": "ادخل", "submitSignup": "أنشئ الحساب", "googleLogin": "ادخل بـ Google", "googleSignup": "كمل بـ Google", "facebookSignup": "كمل بـ Facebook" },
   "forgotPassword": { "title": "نسيت الموت دو پاس", "subtitle": "إعادة تعيين الموت دو پاس", "desc": "دخل الإيميل باش تستلم الرابط.", "send": "أرسل الرابط", "backToLogin": "رجوع للدخول", "success": "واش كان حساب بهذا الإيميل، غادي تستلم الرابط." },
   "resetPassword": { "title": "موت دو پاس جديد", "subtitle": "حدد موت دو پاس جديد", "desc": "اختر موت دو پاس جديد (6 أحرف على الأقل).", "newPassword": "الموت دو پاس الجديد", "confirmPassword": "أكد الموت دو پاس", "passwordMismatch": "الموت دو پاس ما يطابقش.", "submit": "إعادة التعيين" },
   "home": {
     "greeting": "أهلا",
     "ready": "واش مستعد تنظم نهارك؟ هاني أدوات DailyFix.",
+    "dailyAdviceTitle": "نصائح النّهار",
+    "dailyAdviceLoading": "تحميل النصائح الشخصية...",
+    "dailyAdviceHint": "أدخل الطول، الوزن والجنس في الإعدادات لاستلام نصائح صحية شخصية عند كل فتح للتطبيق.",
     "todayTasks": "مهام النّهار",
     "householdTasks": "مهمة/مهام منزلية",
     "shoppingLists": "قائمة/قوائم تسوق",
