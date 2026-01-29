@@ -399,7 +399,7 @@ function toUserJson(user) {
   };
 }
 
-const ALLOWED_GENDERS = ['male', 'female', 'other'];
+const ALLOWED_GENDERS = ['male', 'female'];
 
 // @route   PATCH /api/auth/me
 // @desc    Update current user profile (fullName, profilePhoto, currency, theme, locale, height, weight, gender). Email non modifiable.

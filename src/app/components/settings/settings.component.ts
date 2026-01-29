@@ -134,7 +134,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const patch: { fullName: string; height?: number | null; weight?: number | null; gender?: string | null } = { fullName: name };
     patch.height = this.profileHeight != null && this.profileHeight > 0 ? this.profileHeight : null;
     patch.weight = this.profileWeight != null && this.profileWeight > 0 ? this.profileWeight : null;
-    patch.gender = this.profileGender && ['male', 'female', 'other'].includes(this.profileGender) ? this.profileGender : null;
+    patch.gender = this.profileGender && ['male', 'female'].includes(this.profileGender) ? this.profileGender : null;
     this.authService.updateProfile(patch).subscribe({
       next: () => {
         this.profileSaving = false;

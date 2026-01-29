@@ -23,7 +23,7 @@ export interface User {
   height?: number | null;
   /** Poids en kg */
   weight?: number | null;
-  /** male | female | other */
+  /** male | female */
   gender?: string | null;
 }
 

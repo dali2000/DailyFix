@@ -77,7 +77,7 @@ const User = sequelize.define('User', {
   gender: {
     type: DataTypes.STRING(20),
     allowNull: true,
-    comment: 'male, female, other'
+    comment: 'male, female'
   },
   resetPasswordToken: {
     type: DataTypes.STRING(64),
