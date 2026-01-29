@@ -100,13 +100,20 @@ export class GeminiService {
     return this.sendWithInstruction(userMessage, history, HOUSEHOLD_SYSTEM_INSTRUCTION);
   }
 
+  private dailyAdviceCache: { dateKey: string; profileKey: string; text: string } | null = null;
+
   /**
    * Génère 2–3 conseils santé personnalisés selon le profil (taille, poids, genre) et la langue.
-   * Utilisé à chaque entrée dans l'application pour afficher des conseils sur la page d'accueil.
+   * Mis en cache pour la même journée et le même profil pour éviter des appels répétés à l'ouverture de l'app.
    */
   async getDailyAdvice(profile: UserHealthProfile, locale: string): Promise<string> {
     if (!this.isAvailable()) {
       throw new Error('GEMINI_API_KEY is not configured.');
+    }
+    const dateKey = new Date().toDateString();
+    const profileKey = `${profile.height ?? ''}_${profile.weight ?? ''}_${profile.gender ?? ''}_${locale}`;
+    if (this.dailyAdviceCache && this.dailyAdviceCache.dateKey === dateKey && this.dailyAdviceCache.profileKey === profileKey) {
+      return this.dailyAdviceCache.text;
     }
     const parts: string[] = [];
     if (profile.height != null) parts.push(`taille ${profile.height} cm`);
@@ -120,8 +127,9 @@ export class GeminiService {
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
       const result = await model.generateContent(prompt);
       const resp = result.response;
-      const text = resp ? resp.text() : '';
-      return (text || '').trim() || 'Pas de conseil disponible.';
+      const text = (resp ? resp.text() : '').trim() || 'Pas de conseil disponible.';
+      this.dailyAdviceCache = { dateKey, profileKey, text };
+      return text;
     } catch (err: unknown) {
       const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
       if (message.includes('429') || message.includes('quota') || message.includes('Quota exceeded')) {

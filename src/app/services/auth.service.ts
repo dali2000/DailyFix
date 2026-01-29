@@ -51,6 +51,8 @@ export interface UpdateProfileResponse {
   user: User;
 }
 
+const REFRESH_USER_TTL_MS = 45_000; // Skip GET /auth/me if we refreshed in last 45s
+
 @Injectable({
   providedIn: 'root'
 })
@@ -59,6 +61,7 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$: Observable<User | null> = this.currentUserSubject.asObservable();
   private ensureAuthInFlight$?: Observable<boolean>;
+  private lastRefreshAt = 0;
 
   constructor(
     private router: Router,
@@ -139,13 +142,18 @@ export class AuthService {
 
   /**
    * Recharge le profil utilisateur depuis le serveur (GET /auth/me).
-   * Utile pour afficher height, weight, gender à l'ouverture des Paramètres.
+   * Retourne immédiatement le user en cache si un refresh a eu lieu dans les 45 dernières secondes (évite requêtes en double).
    */
   refreshCurrentUser(): Observable<User | null> {
     const token = this.getToken();
     if (!token) {
       this.setCurrentUser(null);
       return of(null);
+    }
+    const now = Date.now();
+    const cached = this.getCurrentUser();
+    if (cached && (now - this.lastRefreshAt) < REFRESH_USER_TTL_MS) {
+      return of(cached);
     }
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`,
@@ -158,6 +166,7 @@ export class AuthService {
           if (u.height != null && typeof u.height === 'string') u.height = Number(u.height);
           if (u.weight != null && typeof u.weight === 'string') u.weight = Number(u.weight);
           this.setCurrentUser(u);
+          this.lastRefreshAt = Date.now();
           return u;
         }
         return this.getCurrentUser();
@@ -201,7 +210,11 @@ export class AuthService {
     this.ensureAuthInFlight$ = this.http.get<AuthResponse>(`${environment.apiUrl}/auth/me`, { headers }).pipe(
       map((response: AuthResponse) => {
         if (response.success && response.user) {
-          this.setCurrentUser(response.user);
+          const u = response.user;
+          if (u.height != null && typeof u.height === 'string') u.height = Number(u.height);
+          if (u.weight != null && typeof u.weight === 'string') u.weight = Number(u.weight);
+          this.setCurrentUser(u);
+          this.lastRefreshAt = Date.now();
           return true;
         }
         // Réponse invalide: on déconnecte (comportement strict)
@@ -256,7 +269,11 @@ export class AuthService {
     return this.http.patch<UpdateProfileResponse>(`${environment.apiUrl}/auth/me`, patch, { headers }).pipe(
       tap(response => {
         if (response.success && response.user) {
-          this.setCurrentUser(response.user);
+          const u = response.user;
+          if (u.height != null && typeof u.height === 'string') u.height = Number(u.height);
+          if (u.weight != null && typeof u.weight === 'string') u.weight = Number(u.weight);
+          this.setCurrentUser(u);
+          this.lastRefreshAt = Date.now();
         }
       })
     );

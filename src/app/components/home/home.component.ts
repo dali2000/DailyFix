@@ -106,11 +106,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       }
     });
 
-    // Recharger le profil depuis le serveur pour avoir height, weight, gender à jour (conseils du jour)
-    if (this.authService.getToken()) {
-      this.authService.refreshCurrentUser().subscribe();
-    }
-
     this.loadDashboardData();
   }
 

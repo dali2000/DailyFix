@@ -9,13 +9,13 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   private apiUrl = environment.apiUrl;
+  private readonly logRequests = !environment.production;
 
   constructor(private http: HttpClient) {}
 
   get<T>(endpoint: string, params?: any): Observable<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    console.log('GET Request:', url, params);
-    
+    if (this.logRequests) console.log('GET', url);
     let httpParams = new HttpParams();
     if (params) {
       Object.keys(params).forEach(key => {
@@ -34,8 +34,7 @@ export class ApiService {
 
   post<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    console.log('POST Request:', url, data);
-    
+    if (this.logRequests) console.log('POST', url);
     return this.http.post<T>(url, data)
       .pipe(
         catchError((error) => {
@@ -47,8 +46,7 @@ export class ApiService {
 
   put<T>(endpoint: string, data: any): Observable<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    console.log('PUT Request:', url, data);
-    
+    if (this.logRequests) console.log('PUT', url);
     return this.http.put<T>(url, data)
       .pipe(
         catchError((error) => {
@@ -60,8 +58,7 @@ export class ApiService {
 
   delete<T>(endpoint: string): Observable<T> {
     const url = `${this.apiUrl}${endpoint}`;
-    console.log('DELETE Request:', url);
-    
+    if (this.logRequests) console.log('DELETE', url);
     return this.http.delete<T>(url)
       .pipe(
         catchError((error) => {

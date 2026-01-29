@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, of } from 'rxjs';
-import { catchError, map, tap } from 'rxjs/operators';
+import { catchError, map, shareReplay, tap } from 'rxjs/operators';
 
 const LOCALE_KEY = 'dailyfix_locale';
 const SUPPORTED = ['fr', 'en', 'ar'] as const;
@@ -59,13 +59,22 @@ export class I18nService {
     );
   }
 
+  private loadCache: Partial<Record<Locale, Observable<Record<string, unknown>>>> = {};
+
   private load(lang: Locale): Observable<Record<string, unknown>> {
-    return this.http.get<Record<string, unknown>>(`${this.prefix}${lang}.json`).pipe(
-      tap((data) => {
-        this.translations[lang] = this.flatten(data);
-      }),
-      catchError(() => of({}))
-    );
+    if (this.translations[lang]) {
+      return of(this.translations[lang] as unknown as Record<string, unknown>);
+    }
+    if (!this.loadCache[lang]) {
+      this.loadCache[lang] = this.http.get<Record<string, unknown>>(`${this.prefix}${lang}.json`).pipe(
+        tap((data) => {
+          this.translations[lang] = this.flatten(data);
+        }),
+        catchError(() => of({})),
+        shareReplay(1)
+      );
+    }
+    return this.loadCache[lang]!;
   }
 
   private flatten(obj: Record<string, unknown>, prefix = ''): Record<string, string> {

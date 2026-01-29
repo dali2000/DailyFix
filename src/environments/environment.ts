@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://dailyfix-backend.onrender.com/api',
-  /** Clé API Gemini (Google AI Studio). À définir pour activer la discussion IA dans Santé. */
-  geminiApiKey: 'AIzaSyDy19aVM8phlyjuVAYD_gFS6eptp-kEtrI'
+  // Paste your Gemini API key here (get one at https://aistudio.google.com/apikey). Do not commit.
+  geminiApiKey: 'AIzaSyBT7MC5XT5xgJ4aNu6pR6UYjB0taX7GTn8'
 };
 
