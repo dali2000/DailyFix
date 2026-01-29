@@ -189,6 +189,12 @@ export class NavbarComponent implements OnInit, OnDestroy {
 
   toggleTheme(): void {
     this.themeService.toggleTheme();
+    const newTheme = this.themeService.getCurrentTheme();
+    if (this.authService.getCurrentUser()) {
+      this.authService.updateProfile({ theme: newTheme }).subscribe({
+        error: (err) => console.error('Erreur sauvegarde thème', err)
+      });
+    }
   }
 
   loadWeather(): void {
