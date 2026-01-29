@@ -288,7 +288,13 @@
     "noItems": "مافاش عناصر. زود!",
     "newHouseholdTask": "مهمة منزلية جديدة",
     "taskNamePlaceholder": "اسم المهمة",
-    "noHouseholdTasks": "مافاش مهام منزلية"
+    "noHouseholdTasks": "مافاش مهام منزلية",
+    "assistant": "مساعد IA",
+    "assistantTitle": "أفكار وجبات ونصائح منزلية",
+    "assistantDesc": "قل لي ما المكونات اللي عندك (مثلاً دجاج، طماطم، أرز) ونقترح عليك أفكار أكل أو وصفات. تقدر تسأل على نصائح تنظيف أو قوائم تسوق.",
+    "assistantPlaceholder": "مثلاً عندي بيض، حليب، بطاطا — واش نقدر نعملو للعشاء؟",
+    "assistantUnavailable": "مساعد IA غير مُفعّل.",
+    "assistantUnavailableHint": "أضف مفتاح API Gemini (Google AI Studio) في environment (geminiApiKey) لتفعيل هذه الميزة."
   },
   "social": {
     "title": "الفعاليات والأنشطة الاجتماعية",

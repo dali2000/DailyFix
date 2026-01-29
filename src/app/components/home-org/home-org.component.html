@@ -135,6 +135,49 @@
     </div>
   </div>
 
+  <!-- Bouton idées repas / dîner + fenêtre chat (même affichage que Santé) -->
+  <div class="quick-actions">
+    <button type="button" class="quick-action-btn quick-action-meal" (click)="houseChatOpen = !houseChatOpen" [class.is-open]="houseChatOpen" [title]="'homeOrg.assistant' | translate" aria-label="Idées repas">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8h2.5V14H21V6h-5z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div *ngIf="houseChatOpen" class="chatbot-panel chatbot-panel-floating">
+    <div class="chatbot-panel-header">
+      <h3>{{ 'homeOrg.assistantTitle' | translate }}</h3>
+      <button type="button" class="chatbot-close" (click)="houseChatOpen = false" aria-label="Fermer">×</button>
+    </div>
+    <div *ngIf="!geminiAvailable" class="chatbot-unavailable">
+      <p>{{ 'homeOrg.assistantUnavailable' | translate }}</p>
+      <small>{{ 'homeOrg.assistantUnavailableHint' | translate }}</small>
+    </div>
+    <div *ngIf="geminiAvailable" class="chatbot-body">
+      <div class="chatbot-messages">
+        <div *ngFor="let msg of houseChatMessages" class="chat-row" [class.chat-row-user]="msg.role === 'user'" [class.chat-row-bot]="msg.role === 'model'">
+          <div class="chat-bubble" [class.chat-bubble-user]="msg.role === 'user'" [class.chat-bubble-bot]="msg.role === 'model'">
+            <span class="chat-bubble-label">{{ msg.role === 'user' ? ('health.you' | translate) : 'Gemini' }}</span>
+            <div class="chat-bubble-text" [innerText]="msg.text"></div>
+          </div>
+        </div>
+        <div *ngIf="houseChatLoading" class="chat-row chat-row-bot">
+          <div class="chat-bubble chat-bubble-bot chat-bubble-loading">
+            <span class="chat-bubble-label">Gemini</span>
+            <div class="chat-bubble-text">{{ 'common.loading' | translate }}...</div>
+          </div>
+        </div>
+      </div>
+      <p *ngIf="houseChatError" class="chat-error">{{ houseChatError | translate }}</p>
+      <form class="chatbot-form" (ngSubmit)="sendHouseholdChatMessage()">
+        <input type="text" [(ngModel)]="houseChatInput" name="houseChatInput" [placeholder]="'homeOrg.assistantPlaceholder' | translate" [disabled]="houseChatLoading" class="chat-input">
+        <button type="submit" class="btn btn-primary chat-send" [disabled]="houseChatLoading || !houseChatInput.trim()">
+          {{ 'health.send' | translate }}
+        </button>
+      </form>
+    </div>
+  </div>
+
   <app-modal *ngIf="showShoppingForm" [title]="'homeOrg.newList' | translate" size="sm" (closeModal)="closeShoppingModal()">
     <form (ngSubmit)="createShoppingList()">
       <div class="form-group">

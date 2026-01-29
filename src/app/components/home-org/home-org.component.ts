@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HomeService } from '../../services/home.service';
+import { GeminiService, ChatMessage } from '../../services/gemini.service';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../../models/home.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
@@ -29,7 +30,21 @@ export class HomeOrgComponent implements OnInit {
   newItem: Partial<ShoppingItem> = {};
   newTask: Partial<HouseholdTask> = { frequency: 'weekly' };
 
-  constructor(private homeService: HomeService) {}
+  // Assistant IA (maison / cuisine) : bouton flottant + panneau chat comme Santé
+  houseChatOpen = false;
+  houseChatMessages: ChatMessage[] = [];
+  houseChatInput = '';
+  houseChatLoading = false;
+  houseChatError: string | null = null;
+
+  constructor(
+    private homeService: HomeService,
+    private geminiService: GeminiService
+  ) {}
+
+  get geminiAvailable(): boolean {
+    return this.geminiService.isAvailable();
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -217,6 +232,23 @@ export class HomeOrgComponent implements OnInit {
       'other': 'Autre'
     };
     return labels[category] || category;
+  }
+
+  async sendHouseholdChatMessage(): Promise<void> {
+    const text = (this.houseChatInput || '').trim();
+    if (!text || this.houseChatLoading || !this.geminiAvailable) return;
+    this.houseChatError = null;
+    this.houseChatMessages.push({ role: 'user', text });
+    this.houseChatInput = '';
+    this.houseChatLoading = true;
+    try {
+      const response = await this.geminiService.sendHouseholdMessage(text, this.houseChatMessages.slice(0, -1));
+      this.houseChatMessages.push({ role: 'model', text: response });
+    } catch (err) {
+      this.houseChatError = err instanceof Error ? err.message : 'common.error';
+    } finally {
+      this.houseChatLoading = false;
+    }
   }
 }
 
