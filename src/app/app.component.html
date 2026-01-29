@@ -1,7 +1,14 @@
-<app-navbar *ngIf="showNavbar"></app-navbar>
-<app-sidebar *ngIf="showSidebar"></app-sidebar>
-<!-- Sidebar admin : affichée uniquement pour les admins sur la page admin -->
-<app-admin-sidebar *ngIf="showAdminSidebar"></app-admin-sidebar>
-<main class="main-content" [class.no-sidebar]="!showSidebar && !showAdminSidebar">
-  <router-outlet />
-</main>
+<!-- Loader global : affiché jusqu’à la fin du chargement initial (auth + données) -->
+<div *ngIf="!appReady" class="app-loader" aria-hidden="false" role="status">
+  <div class="app-loader-spinner"></div>
+  <span class="app-loader-text">{{ 'common.loading' | translate }}</span>
+</div>
+
+<ng-container *ngIf="appReady">
+  <app-navbar *ngIf="showNavbar"></app-navbar>
+  <app-sidebar *ngIf="showSidebar"></app-sidebar>
+  <app-admin-sidebar *ngIf="showAdminSidebar"></app-admin-sidebar>
+  <main class="main-content" [class.no-sidebar]="!showSidebar && !showAdminSidebar">
+    <router-outlet />
+  </main>
+</ng-container>

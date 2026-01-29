@@ -9,12 +9,13 @@ import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
 import { ThemeService } from './services/theme.service';
 import { I18nService } from './services/i18n.service';
+import { TranslatePipe } from './pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule],
+  imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule, TranslatePipe],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
@@ -23,8 +24,11 @@ export class AppComponent implements OnInit, OnDestroy {
   showNavbar = false;
   showSidebar = false;
   showAdminSidebar = false;
+  /** Loader global : masqué quand l’auth initiale est terminée. */
+  appReady = false;
   private userSubscription?: Subscription;
   private routerSubscription?: Subscription;
+  private initSubscription?: Subscription;
 
   constructor(
     private router: Router,
@@ -44,6 +48,12 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Loader : attendre la fin de la vérification auth (GET /auth/me ou réponse immédiate si pas de token)
+    this.initSubscription = this.authService.ensureAuthenticated$().subscribe(() => {
+      this.appReady = true;
+      this.cdr.detectChanges();
+    });
+
     // Langue : appliquer la préférence sauvegardée (avant /me)
     const savedLocale = localStorage.getItem('dailyfix_locale');
     if (savedLocale === 'en' || savedLocale === 'ar') {
@@ -69,12 +79,9 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.userSubscription) {
-      this.userSubscription.unsubscribe();
-    }
-    if (this.routerSubscription) {
-      this.routerSubscription.unsubscribe();
-    }
+    this.initSubscription?.unsubscribe();
+    this.userSubscription?.unsubscribe();
+    this.routerSubscription?.unsubscribe();
   }
 
   private updateVisibility(url: string): void {
