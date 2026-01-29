@@ -117,20 +117,20 @@
     </div>
   </div>
 
-  <!-- Water + Chat : petits carrés icônes uniquement -->
-  <div class="water-quick-add">
-    <button type="button" class="btn btn-icon-square" (click)="addOneCup()" [title]="'health.addOneCup' | translate" aria-label="Add 1 cup">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+  <!-- Water + Chat : trois boutons séparés, chacun avec son propre style -->
+  <div class="quick-actions">
+    <button type="button" class="quick-action-btn quick-action-water" (click)="addOneCup()" [title]="'health.addOneCup' | translate" aria-label="Add 1 cup">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0L12 2.69z"/>
       </svg>
     </button>
-    <button type="button" class="btn btn-icon-square" (click)="showWaterForm = true" [title]="'health.customAmount' | translate" aria-label="Custom amount">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <button type="button" class="quick-action-btn quick-action-edit" (click)="showWaterForm = true" [title]="'health.customAmount' | translate" aria-label="Custom amount">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
       </svg>
     </button>
-    <button type="button" class="btn btn-icon-square" (click)="chatOpen = !chatOpen" [class.is-open]="chatOpen" [title]="'health.discussion' | translate" aria-label="Chat">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <button type="button" class="quick-action-btn quick-action-chat" (click)="chatOpen = !chatOpen" [class.is-open]="chatOpen" [title]="'health.discussion' | translate" aria-label="Chat">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
       </svg>
     </button>

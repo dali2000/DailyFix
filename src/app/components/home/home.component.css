@@ -36,6 +36,42 @@
   margin-bottom: var(--notion-spacing-xl);
 }
 
+.daily-advice-card {
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  max-width: 640px;
+}
+
+.daily-advice-card h3 {
+  margin: 0 0 12px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+}
+
+.daily-advice-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--notion-text-primary);
+  white-space: pre-wrap;
+}
+
+.daily-advice-loading,
+.daily-advice-hint {
+  font-size: 14px;
+  color: var(--notion-text-tertiary);
+  margin: 0;
+}
+
+.daily-advice-error {
+  font-size: 13px;
+  color: var(--notion-red, #c0392b);
+  margin: 0;
+}
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));

@@ -42,6 +42,28 @@
             <p class="profile-email-readonly">{{ currentUser?.email || '—' }}</p>
             <span class="profile-email-hint">{{ 'settings.emailNotEditable' | translate }}</span>
           </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="profile-height">{{ 'settings.heightLabel' | translate }}</label>
+              <input id="profile-height" type="number" class="form-input" [(ngModel)]="profileHeight" min="50" max="250" step="0.1" placeholder="170">
+              <small class="form-hint">{{ 'settings.heightHint' | translate }}</small>
+            </div>
+            <div class="form-group">
+              <label for="profile-weight">{{ 'settings.weightLabel' | translate }}</label>
+              <input id="profile-weight" type="number" class="form-input" [(ngModel)]="profileWeight" min="20" max="300" step="0.1" placeholder="70">
+              <small class="form-hint">{{ 'settings.weightHint' | translate }}</small>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="profile-gender">{{ 'settings.genderLabel' | translate }}</label>
+            <select id="profile-gender" class="form-input" [(ngModel)]="profileGender">
+              <option value="">{{ 'settings.genderPlaceholder' | translate }}</option>
+              <option value="male">{{ 'settings.genderMale' | translate }}</option>
+              <option value="female">{{ 'settings.genderFemale' | translate }}</option>
+              <option value="other">{{ 'settings.genderOther' | translate }}</option>
+            </select>
+            <small class="form-hint">{{ 'settings.healthProfileHint' | translate }}</small>
+          </div>
           <button type="button" class="btn btn-primary" (click)="saveProfile()" [disabled]="profileSaving">
             {{ profileSaving ? ('common.loading' | translate) : ('settings.saveProfile' | translate) }}
           </button>

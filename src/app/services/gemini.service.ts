@@ -8,6 +8,12 @@ export interface ChatMessage {
 
 const HEALTH_SYSTEM_INSTRUCTION = `Tu es un assistant santé intégré à l'application DailyFix. Tu réponds de façon bienveillante et factuelle sur la nutrition, le sommeil, l'activité physique, l'hydratation et la méditation. Donne des conseils courts et pratiques. Ne pose pas de diagnostic médical ; en cas de doute, recommande de consulter un professionnel de santé. Réponds dans la même langue que l'utilisateur.`;
 
+export interface UserHealthProfile {
+  height?: number | null;
+  weight?: number | null;
+  gender?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -83,6 +89,37 @@ export class GeminiService {
         }
         throw retryErr;
       }
+    }
+  }
+
+  /**
+   * Génère 2–3 conseils santé personnalisés selon le profil (taille, poids, genre) et la langue.
+   * Utilisé à chaque entrée dans l'application pour afficher des conseils sur la page d'accueil.
+   */
+  async getDailyAdvice(profile: UserHealthProfile, locale: string): Promise<string> {
+    if (!this.isAvailable()) {
+      throw new Error('GEMINI_API_KEY is not configured.');
+    }
+    const parts: string[] = [];
+    if (profile.height != null) parts.push(`taille ${profile.height} cm`);
+    if (profile.weight != null) parts.push(`poids ${profile.weight} kg`);
+    if (profile.gender) parts.push(`genre ${profile.gender}`);
+    const lang = locale === 'ar' ? 'arabe' : locale === 'en' ? 'anglais' : 'français';
+    const prompt = `Profil utilisateur : ${parts.join(', ') || 'non renseigné'}. Donne exactement 2 ou 3 conseils santé très courts et personnalisés pour la journée (nutrition, eau, sommeil, activité). Réponds UNIQUEMENT dans la langue : ${lang}. Pas de titre, pas de numérotation, juste des phrases courtes séparées par des retours à la ligne.`;
+    try {
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(this.apiKey);
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+      const result = await model.generateContent(prompt);
+      const resp = result.response;
+      const text = resp ? resp.text() : '';
+      return (text || '').trim() || 'Pas de conseil disponible.';
+    } catch (err: unknown) {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+      if (message.includes('429') || message.includes('quota') || message.includes('Quota exceeded')) {
+        throw new Error(GeminiService.QUOTA_ERROR_KEY);
+      }
+      throw err;
     }
   }
 }

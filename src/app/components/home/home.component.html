@@ -2,6 +2,14 @@
   <h1>{{ 'home.greeting' | translate }} {{ userName || ('common.user' | translate) }} ! 👋</h1>
   <p>{{ 'home.ready' | translate }}</p>
 
+  <!-- Conseils du jour (si profil taille/poids/genre renseigné) -->
+  <div *ngIf="showDailyAdviceCard" class="daily-advice-card">
+    <h3>{{ 'home.dailyAdviceTitle' | translate }}</h3>
+    <p *ngIf="dailyAdviceLoading" class="daily-advice-loading">{{ 'home.dailyAdviceLoading' | translate }}</p>
+    <p *ngIf="dailyAdviceError" class="daily-advice-error">{{ dailyAdviceError | translate }}</p>
+    <div *ngIf="dailyAdvice && !dailyAdviceLoading" class="daily-advice-text" [innerText]="dailyAdvice"></div>
+    <p *ngIf="!dailyAdvice && !dailyAdviceLoading && !dailyAdviceError" class="daily-advice-hint">{{ 'home.dailyAdviceHint' | translate }}</p>
+  </div>
 
   <div class="cards-container">
     <!-- Task Card -->

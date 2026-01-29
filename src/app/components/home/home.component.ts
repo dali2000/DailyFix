@@ -10,6 +10,7 @@ import { WellnessService } from '../../services/wellness.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { I18nService } from '../../services/i18n.service';
+import { GeminiService } from '../../services/gemini.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 
@@ -34,6 +35,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   todayHouseholdTasksCount = 0;
   shoppingListsCount = 0;
   userName: string = '';
+  dailyAdvice: string | null = null;
+  dailyAdviceLoading = false;
+  dailyAdviceError: string | null = null;
+  showDailyAdviceCard = false;
   private userSubscription?: Subscription;
 
   upcomingHouseTasks: Array<{ name: string; date: string }> = [];
@@ -72,7 +77,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private i18n: I18nService,
-    public currencyService: CurrencyService
+    public currencyService: CurrencyService,
+    private geminiService: GeminiService
   ) {}
 
   get currencySymbol(): string {
@@ -83,18 +89,43 @@ export class HomeComponent implements OnInit, OnDestroy {
     // Les admins peuvent accéder à /home s'ils le souhaitent (via le lien "Application" dans la sidebar admin)
     // On ne redirige plus automatiquement les admins vers /admin
     
-    // Charger le nom de l'utilisateur
+    // Charger le nom de l'utilisateur et les conseils du jour (si profil santé renseigné)
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       if (user && user.fullName) {
-        // Extraire le prénom (premier mot du nom complet)
         const firstName = user.fullName.split(' ')[0];
         this.userName = firstName;
       } else {
         this.userName = '';
       }
+      const hasProfile = user && (user.height != null || user.weight != null || user.gender);
+      this.showDailyAdviceCard = this.geminiService.isAvailable();
+      if (hasProfile && this.geminiService.isAvailable()) {
+        this.loadDailyAdvice(user!);
+      } else {
+        this.dailyAdvice = null;
+        this.dailyAdviceError = null;
+        this.dailyAdviceLoading = false;
+      }
     });
-    
+
     this.loadDashboardData();
+  }
+
+  private loadDailyAdvice(user: { height?: number | null; weight?: number | null; gender?: string | null; locale?: string }): void {
+    this.dailyAdviceLoading = true;
+    this.dailyAdviceError = null;
+    this.dailyAdvice = null;
+    const locale = user.locale || this.i18n.currentLang || 'fr';
+    this.geminiService.getDailyAdvice(
+      { height: user.height, weight: user.weight, gender: user.gender },
+      locale
+    ).then((text) => {
+      this.dailyAdvice = text;
+      this.dailyAdviceLoading = false;
+    }).catch((err) => {
+      this.dailyAdviceError = err instanceof Error ? err.message : 'common.error';
+      this.dailyAdviceLoading = false;
+    });
   }
 
   ngOnDestroy(): void {

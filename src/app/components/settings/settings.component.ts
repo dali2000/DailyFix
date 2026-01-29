@@ -26,6 +26,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
   currentTheme: Theme = 'light';
   currentUser: any = null;
   profileFullName = '';
+  profileHeight: number | null = null;
+  profileWeight: number | null = null;
+  profileGender: string = '';
   profileSaving = false;
   profilePhotoSaving = false;
   profilePhotoError: string | null = null;
@@ -128,7 +131,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
     const name = (this.profileFullName || '').trim();
     if (name.length < 2) return;
     this.profileSaving = true;
-    this.authService.updateProfile({ fullName: name }).subscribe({
+    const patch: { fullName: string; height?: number | null; weight?: number | null; gender?: string | null } = { fullName: name };
+    patch.height = this.profileHeight != null && this.profileHeight > 0 ? this.profileHeight : null;
+    patch.weight = this.profileWeight != null && this.profileWeight > 0 ? this.profileWeight : null;
+    patch.gender = this.profileGender && ['male', 'female', 'other'].includes(this.profileGender) ? this.profileGender : null;
+    this.authService.updateProfile(patch).subscribe({
       next: () => {
         this.profileSaving = false;
       },
@@ -148,6 +155,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.currentUser = user;
       if (user) {
         this.profileFullName = user.fullName || '';
+        this.profileHeight = user.height ?? null;
+        this.profileWeight = user.weight ?? null;
+        this.profileGender = user.gender || '';
         if (user.locale) this.selectedLocale = user.locale;
       }
     });

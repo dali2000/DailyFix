@@ -430,19 +430,27 @@ function toUserJson(user) {
     currency: user.currency || 'EUR',
     theme: user.theme || 'light',
     locale: user.locale || 'fr',
-    profilePhoto: user.profilePhoto || null
+    profilePhoto: user.profilePhoto || null,
+    height: user.height != null ? Number(user.height) : null,
+    weight: user.weight != null ? Number(user.weight) : null,
+    gender: user.gender || null
   };
 }
 
+const ALLOWED_GENDERS = ['male', 'female', 'other'];
+
 // @route   PATCH /api/auth/me
-// @desc    Update current user profile (fullName, profilePhoto, currency, theme, locale). Email non modifiable.
+// @desc    Update current user profile (fullName, profilePhoto, currency, theme, locale, height, weight, gender). Email non modifiable.
 // @access  Private
 router.patch('/me', protect, [
   body('fullName').optional().trim().isLength({ min: 2 }).withMessage('Le nom doit contenir au moins 2 caractères'),
   body('currency').optional().isIn(ALLOWED_CURRENCIES).withMessage('Devise non supportée'),
   body('theme').optional().isIn(ALLOWED_THEMES).withMessage('Thème non supporté'),
   body('locale').optional().isIn(ALLOWED_LOCALES).withMessage('Langue non supportée'),
-  body('profilePhoto').optional()
+  body('profilePhoto').optional(),
+  body('height').optional().isFloat({ min: 50, max: 250 }).withMessage('Taille invalide (50–250 cm)'),
+  body('weight').optional().isFloat({ min: 20, max: 300 }).withMessage('Poids invalide (20–300 kg)'),
+  body('gender').optional().isIn(ALLOWED_GENDERS).withMessage('Genre non supporté')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
@@ -473,6 +481,15 @@ router.patch('/me', protect, [
     }
     if (req.body.profilePhoto !== undefined) {
       updates.profilePhoto = req.body.profilePhoto || null;
+    }
+    if (req.body.height !== undefined) {
+      updates.height = req.body.height == null || req.body.height === '' ? null : req.body.height;
+    }
+    if (req.body.weight !== undefined) {
+      updates.weight = req.body.weight == null || req.body.weight === '' ? null : req.body.weight;
+    }
+    if (req.body.gender !== undefined) {
+      updates.gender = req.body.gender == null || req.body.gender === '' ? null : req.body.gender;
     }
 
     if (Object.keys(updates).length > 0) {

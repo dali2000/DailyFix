@@ -119,6 +119,7 @@ const connectDB = async () => {
     await addThemeColumnIfNeeded();
     await addLocaleColumnIfNeeded();
     await addProfilePhotoColumnIfNeeded();
+    await addHealthProfileColumnsIfNeeded();
     await addResetPasswordColumnsIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
@@ -426,6 +427,43 @@ const addProfilePhotoColumnIfNeeded = async () => {
       console.log('✅ Column "profile_photo" already exists (or similar column)');
     } else {
       console.warn('⚠️ Warning: Could not add profile_photo column:', error.message);
+    }
+  }
+};
+
+// Colonnes profil santé (taille, poids, genre) pour conseils personnalisés
+const addHealthProfileColumnsIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+    const columns = [
+      { name: 'height', type: 'DECIMAL(5,2)', pgType: 'DECIMAL(5,2)' },
+      { name: 'weight', type: 'DECIMAL(5,2)', pgType: 'DECIMAL(5,2)' },
+      { name: 'gender', type: 'VARCHAR(20)', pgType: 'VARCHAR(20)' }
+    ];
+    for (const col of columns) {
+      if (dialect === 'postgres') {
+        const [results] = await sequelize.query(`
+          SELECT column_name FROM information_schema.columns
+          WHERE table_name = 'users' AND column_name = '${col.name}'
+        `);
+        if (results.length > 0) continue;
+        await sequelize.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.pgType}`);
+        console.log(`✅ Column "${col.name}" added to users table`);
+      } else if (dialect === 'mysql') {
+        const [results] = await sequelize.query(`
+          SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+          WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = '${col.name}'
+        `);
+        if (results.length > 0) continue;
+        await sequelize.query(`ALTER TABLE users ADD COLUMN ${col.name} ${col.type}`);
+        console.log(`✅ Column "${col.name}" added to users table`);
+      }
+    }
+  } catch (error) {
+    if (error.message && (error.message.includes('already exists') || error.message.includes('duplicate column') || error.message.includes('Duplicate column name'))) {
+      console.log('✅ Health profile columns already exist');
+    } else {
+      console.warn('⚠️ Warning: Could not add health profile columns:', error.message);
     }
   }
 };

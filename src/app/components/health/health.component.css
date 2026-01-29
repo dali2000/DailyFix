@@ -185,43 +185,86 @@
   margin-top: 24px;
 }
 
-/* Petits carrés icônes uniquement (water-quick-add) */
-.water-quick-add .btn-icon-square {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  min-height: 44px;
+/* Trois boutons séparés : chacun avec son propre style */
+.quick-actions {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  z-index: 100;
+}
+
+.quick-action-btn {
+  width: 48px;
+  height: 48px;
   padding: 0;
-  border-radius: 10px;
+  border: none;
+  border-radius: 14px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--notion-border);
-  background: var(--notion-bg);
-  color: var(--notion-text-primary);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
-.water-quick-add .btn-icon-square:hover {
-  background: var(--notion-bg-hover);
-  border-color: var(--notion-border);
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
 }
 
-.water-quick-add .btn-icon-square svg {
+.quick-action-btn svg {
   flex-shrink: 0;
 }
 
-.water-quick-add .btn-icon-square.is-open {
-  background: var(--notion-blue, #2563eb);
+.quick-action-water {
+  background: linear-gradient(145deg, #0ea5e9 0%, #0284c7 100%);
   color: #fff;
-  border-color: var(--notion-blue, #2563eb);
 }
 
-.dark-theme .water-quick-add .btn-icon-square.is-open {
-  background: #3b82f6;
-  border-color: #3b82f6;
+.quick-action-edit {
+  background: linear-gradient(145deg, #f8fafc 0%, #e2e8f0 100%);
+  color: #475569;
+}
+
+.quick-action-chat {
+  background: linear-gradient(145deg, #f1f5f9 0%, #cbd5e1 100%);
+  color: #475569;
+}
+
+.quick-action-chat.is-open {
+  background: linear-gradient(145deg, #2563eb 0%, #1d4ed8 100%);
   color: #fff;
+}
+
+.dark-theme .quick-action-edit {
+  background: linear-gradient(145deg, #334155 0%, #1e293b 100%);
+  color: #e2e8f0;
+}
+
+.dark-theme .quick-action-chat {
+  background: linear-gradient(145deg, #334155 0%, #1e293b 100%);
+  color: #e2e8f0;
+}
+
+.dark-theme .quick-action-chat.is-open {
+  background: linear-gradient(145deg, #3b82f6 0%, #2563eb 100%);
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .quick-actions {
+    bottom: 16px;
+    right: 16px;
+    gap: 10px;
+  }
+  .quick-action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
 }
 
 /* Fenêtre chat flottante (s’ouvre au clic sur le bouton Chat) */
@@ -751,6 +794,19 @@
 .water-quick-add .water-icon {
   vertical-align: middle;
   margin-right: 6px;
+}
+
+@media (max-width: 768px) {
+  .quick-actions {
+    bottom: 16px;
+    right: 16px;
+    gap: 10px;
+  }
+  .quick-action-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
 }
 
 .water-form {

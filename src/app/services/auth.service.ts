@@ -19,6 +19,12 @@ export interface User {
   theme?: string;
   locale?: string;
   profilePhoto?: string | null;
+  /** Taille en cm */
+  height?: number | null;
+  /** Poids en kg */
+  weight?: number | null;
+  /** male | female | other */
+  gender?: string | null;
 }
 
 export interface LoginCredentials {
@@ -202,9 +208,18 @@ export class AuthService {
   }
 
   /**
-   * Met à jour le profil sur le serveur (nom, photo, devise, thème, langue). L'email n'est pas modifiable.
+   * Met à jour le profil sur le serveur (nom, photo, devise, thème, langue, taille, poids, genre). L'email n'est pas modifiable.
    */
-  updateProfile(patch: { fullName?: string; profilePhoto?: string | null; currency?: string; theme?: string; locale?: string }): Observable<UpdateProfileResponse> {
+  updateProfile(patch: {
+    fullName?: string;
+    profilePhoto?: string | null;
+    currency?: string;
+    theme?: string;
+    locale?: string;
+    height?: number | null;
+    weight?: number | null;
+    gender?: string | null;
+  }): Observable<UpdateProfileResponse> {
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${this.getToken()}`,
       'Content-Type': 'application/json'

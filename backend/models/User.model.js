@@ -64,6 +64,21 @@ const User = sequelize.define('User', {
     allowNull: true,
     field: 'profile_photo'
   },
+  height: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    comment: 'Height in cm'
+  },
+  weight: {
+    type: DataTypes.DECIMAL(5, 2),
+    allowNull: true,
+    comment: 'Weight in kg'
+  },
+  gender: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    comment: 'male, female, other'
+  },
   resetPasswordToken: {
     type: DataTypes.STRING(64),
     allowNull: true,
