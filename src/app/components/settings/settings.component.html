@@ -20,9 +20,10 @@
             (change)="onPhotoSelected($event)"
             class="profile-photo-input"
             [attr.aria-label]="'settings.changePhoto' | translate">
-          <button type="button" class="btn btn-secondary btn-change-photo" (click)="photoInput.click()">
-            {{ 'settings.changePhoto' | translate }}
+          <button type="button" class="btn btn-secondary btn-change-photo" (click)="photoInput.click()" [disabled]="profilePhotoSaving">
+            {{ profilePhotoSaving ? ('common.loading' | translate) : ('settings.changePhoto' | translate) }}
           </button>
+          <p *ngIf="profilePhotoError" class="profile-photo-error">{{ profilePhotoError }}</p>
         </div>
 
         <div class="profile-fields">

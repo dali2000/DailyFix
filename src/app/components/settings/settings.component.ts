@@ -27,6 +27,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
   currentUser: any = null;
   profileFullName = '';
   profileSaving = false;
+  profilePhotoSaving = false;
+  profilePhotoError: string | null = null;
   selectedCurrencyCode = 'EUR';
   selectedLocale = 'fr';
   readonly languages = LANGUAGES;
@@ -55,19 +57,69 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return (this.currentUser.fullName as string).slice(0, 2).toUpperCase();
   }
 
+  /** Compresse l'image (max 400px, JPEG 0.85) pour réduire la taille envoyée au serveur. */
+  private compressImageAsDataUrl(dataUrl: string, maxSize = 400, quality = 0.85): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const w = img.naturalWidth;
+        const h = img.naturalHeight;
+        const scale = Math.min(1, maxSize / Math.max(w, h));
+        const cw = Math.round(w * scale);
+        const ch = Math.round(h * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = cw;
+        canvas.height = ch;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(dataUrl);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, cw, ch);
+        try {
+          const out = canvas.toDataURL('image/jpeg', quality);
+          resolve(out);
+        } catch {
+          resolve(dataUrl);
+        }
+      };
+      img.onerror = () => reject(new Error('Invalid image'));
+      img.src = dataUrl;
+    });
+  }
+
   onPhotoSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     const file = input?.files?.[0];
     if (!file || !file.type.startsWith('image/')) return;
+    this.profilePhotoError = null;
+    this.profilePhotoSaving = true;
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
-      this.authService.updateProfile({ profilePhoto: dataUrl }).subscribe({
-        next: () => {
-          input.value = '';
-        },
-        error: (err) => console.error('Erreur lors de la mise à jour de la photo', err)
-      });
+      this.compressImageAsDataUrl(dataUrl)
+        .then((compressed) => {
+          this.authService.updateProfile({ profilePhoto: compressed }).subscribe({
+            next: () => {
+              input.value = '';
+              this.profilePhotoSaving = false;
+            },
+            error: (err) => {
+              console.error('Erreur lors de la mise à jour de la photo', err);
+              this.profilePhotoError = err?.error?.message || 'Erreur lors de l\'envoi de la photo.';
+              this.profilePhotoSaving = false;
+            }
+          });
+        })
+        .catch(() => {
+          this.profilePhotoError = 'Image invalide.';
+          this.profilePhotoSaving = false;
+        });
+    };
+    reader.onerror = () => {
+      this.profilePhotoError = 'Impossible de lire le fichier.';
+      this.profilePhotoSaving = false;
     };
     reader.readAsDataURL(file);
   }

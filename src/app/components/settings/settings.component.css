@@ -52,6 +52,12 @@
   gap: var(--notion-spacing-md);
 }
 
+.profile-photo-error {
+  margin: 0;
+  font-size: 13px;
+  color: var(--notion-error, #c0392b);
+}
+
 .profile-avatar {
   width: 100px;
   height: 100px;
