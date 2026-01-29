@@ -223,4 +223,22 @@ export class AuthService {
     const currentUser = this.getCurrentUser();
     return currentUser ? currentUser.id : null;
   }
+
+  /** Demande d'envoi d'un email de réinitialisation du mot de passe */
+  requestPasswordReset(email: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${environment.apiUrl}/auth/forgot-password`,
+      { email: email.trim().toLowerCase() },
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    );
+  }
+
+  /** Réinitialise le mot de passe avec le token reçu par email */
+  resetPassword(token: string, newPassword: string): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<{ success: boolean; message?: string }>(
+      `${environment.apiUrl}/auth/reset-password`,
+      { token, newPassword },
+      { headers: new HttpHeaders({ 'Content-Type': 'application/json' }) }
+    );
+  }
 }

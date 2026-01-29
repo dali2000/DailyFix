@@ -119,6 +119,7 @@ const connectDB = async () => {
     await addThemeColumnIfNeeded();
     await addLocaleColumnIfNeeded();
     await addProfilePhotoColumnIfNeeded();
+    await addResetPasswordColumnsIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -425,6 +426,55 @@ const addProfilePhotoColumnIfNeeded = async () => {
       console.log('✅ Column "profile_photo" already exists (or similar column)');
     } else {
       console.warn('⚠️ Warning: Could not add profile_photo column:', error.message);
+    }
+  }
+};
+
+// Colonnes pour réinitialisation mot de passe
+const addResetPasswordColumnsIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+
+    if (dialect === 'postgres') {
+      const [tokenExists] = await sequelize.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_name = 'users' AND column_name = 'reset_password_token'
+      `);
+      if (tokenExists.length > 0) {
+        console.log('✅ Column "reset_password_token" already exists');
+        return;
+      }
+      await sequelize.query(`
+        ALTER TABLE users
+        ADD COLUMN reset_password_token VARCHAR(64),
+        ADD COLUMN reset_password_expires TIMESTAMP
+      `);
+      console.log('✅ Reset password columns added to users table');
+    } else if (dialect === 'mysql') {
+      const [tokenExists] = await sequelize.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'users' AND COLUMN_NAME = 'reset_password_token'
+      `);
+      if (tokenExists.length > 0) {
+        console.log('✅ Column "reset_password_token" already exists');
+        return;
+      }
+      await sequelize.query(`
+        ALTER TABLE users
+        ADD COLUMN reset_password_token VARCHAR(64) NULL,
+        ADD COLUMN reset_password_expires DATETIME NULL
+      `);
+      console.log('✅ Reset password columns added to users table');
+    }
+  } catch (error) {
+    if (error.message && (
+      error.message.includes('already exists') ||
+      error.message.includes('duplicate column') ||
+      error.message.includes('Duplicate column name')
+    )) {
+      console.log('✅ Reset password columns already exist');
+    } else {
+      console.warn('⚠️ Warning: Could not add reset password columns:', error.message);
     }
   }
 };

@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { body, validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const User = require('../models/User.model');
 const { protect } = require('../middleware/auth.middleware');
+const { sendPasswordResetEmail } = require('../utils/mailer');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -347,6 +349,76 @@ router.get('/me', protect, async (req, res) => {
 const ALLOWED_CURRENCIES = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
 const ALLOWED_THEMES = ['light', 'dark', 'blue', 'forest', 'purple'];
 const ALLOWED_LOCALES = ['fr', 'en', 'ar'];
+
+// @route   POST /api/auth/forgot-password
+// @desc    Envoie un email avec le lien de réinitialisation du mot de passe
+// @access  Public
+router.post('/forgot-password', [
+  body('email').isEmail().withMessage('Email invalide')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+    const email = (req.body.email || '').toLowerCase().trim();
+    const user = await User.findOne({ where: { email, provider: 'local' } });
+    // Toujours renvoyer succès pour ne pas révéler si l'email existe
+    const message = 'Si un compte existe avec cet email, vous recevrez un lien pour réinitialiser votre mot de passe.';
+    if (!user) {
+      return res.json({ success: true, message });
+    }
+    const token = crypto.randomBytes(32).toString('hex');
+    const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 heure
+    await user.update({
+      resetPasswordToken: token,
+      resetPasswordExpires: expires
+    });
+    const frontendUrl = (process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:4200').replace(/\/$/, '');
+    const resetUrl = `${frontendUrl}/reset-password?token=${token}`;
+    await sendPasswordResetEmail(user.email, resetUrl, user.fullName);
+    return res.json({ success: true, message });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+  }
+});
+
+// @route   POST /api/auth/reset-password
+// @desc    Réinitialise le mot de passe avec le token reçu par email
+// @access  Public
+router.post('/reset-password', [
+  body('token').notEmpty().withMessage('Token requis'),
+  body('newPassword').isLength({ min: 6 }).withMessage('Le mot de passe doit contenir au moins 6 caractères')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ success: false, errors: errors.array() });
+    }
+    const { token, newPassword } = req.body;
+    const user = await User.findOne({
+      where: {
+        resetPasswordToken: token,
+        resetPasswordExpires: { [Op.gt]: new Date() }
+      }
+    });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Lien invalide ou expiré. Veuillez redemander une réinitialisation.'
+      });
+    }
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save(); // beforeUpdate hook hash le password
+    return res.json({ success: true, message: 'Mot de passe mis à jour. Vous pouvez vous connecter.' });
+  } catch (err) {
+    console.error('Reset password error:', err);
+    return res.status(500).json({ success: false, message: 'Erreur serveur.' });
+  }
+});
 
 function toUserJson(user) {
   return {

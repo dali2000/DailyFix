@@ -37,6 +37,9 @@
         *ngIf="form.controls['password'].touched && form.controls['password'].invalid">
         {{ 'login.passwordError' | translate }}
       </div>
+      <p *ngIf="!isSignup" class="forgot-link">
+        <a routerLink="/forgot-password">{{ 'login.forgotPassword' | translate }}</a>
+      </p>
 
       <div class="error-message" *ngIf="errorMessage">{{ errorMessage }}</div>
       <button class="submit" type="submit" class="btn btn-primary" [disabled]="isLoading">
