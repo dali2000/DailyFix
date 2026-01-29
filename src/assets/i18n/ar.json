@@ -1,5 +1,6 @@
 {
   "common": {
+    "error": "وقع خطأ.",
     "loading": "كاين يحمّل...",
     "cancel": "سقاط",
     "save": "سجّل",
@@ -252,7 +253,17 @@
     "cups": "أكواب",
     "cupsLabel": "عدد الأكواب",
     "addOneCup": "زود كوب واحد",
-    "customAmount": "كمية مخصصة"
+    "customAmount": "كمية مخصصة",
+    "discussion": "نقاش IA",
+    "discussionTitle": "محادثة مع مساعد الصحة",
+    "discussionDesc": "اطرح أسئلتك حول التغذية، النوم، النشاط البدني أو التأمل. المساعد Gemini يرد عليك.",
+    "discussionUnavailable": "نقاش IA غير مُفعّل.",
+    "discussionUnavailableHint": "أضف مفتاح API Gemini (Google AI Studio) في environment (geminiApiKey) لتفعيل هذه الميزة.",
+    "discussionPlaceholder": "سؤالك حول الصحة...",
+    "you": "أنت",
+    "send": "إرسال",
+    "discussionQuotaExceeded": "تم تجاوز حصة API. حاول مرة أخرى بعد دقائق أو راجع خطة ودفع Google AI.",
+    "discussionQuotaExceededHint": "انظر حدود الاستخدام: ai.google.dev/gemini-api/docs/rate-limits"
   },
   "homeOrg": {
     "title": "تنظيم الدار",

@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthService } from '../../services/health.service';
+import { GeminiService, ChatMessage } from '../../services/gemini.service';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../../models/health.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -73,7 +74,21 @@ export class HealthComponent implements OnInit, OnDestroy {
   newMeditation: Partial<MeditationSession> = { duration: 10, type: 'guided' };
   private dataSubscription?: Subscription;
 
-  constructor(private healthService: HealthService) {}
+  // Discussion IA (Gemini) : cercle cliquable → ouvre le chat
+  chatOpen = false;
+  chatMessages: ChatMessage[] = [];
+  chatInput = '';
+  chatLoading = false;
+  chatError: string | null = null;
+
+  constructor(
+    private healthService: HealthService,
+    private geminiService: GeminiService
+  ) {}
+
+  get geminiAvailable(): boolean {
+    return this.geminiService.isAvailable();
+  }
 
   ngOnInit(): void {
     this.loadData();
@@ -286,6 +301,23 @@ export class HealthComponent implements OnInit, OnDestroy {
     if (this.todayWaterIntake >= 2) score += 25;
     if (this.lastSleepHours >= 7 && this.lastSleepHours <= 9) score += 25;
     return score;
+  }
+
+  async sendChatMessage(): Promise<void> {
+    const text = (this.chatInput || '').trim();
+    if (!text || this.chatLoading || !this.geminiAvailable) return;
+    this.chatError = null;
+    this.chatMessages.push({ role: 'user', text });
+    this.chatInput = '';
+    this.chatLoading = true;
+    try {
+      const response = await this.geminiService.sendMessage(text, this.chatMessages.slice(0, -1));
+      this.chatMessages.push({ role: 'model', text: response });
+    } catch (err) {
+      this.chatError = err instanceof Error ? err.message : 'common.error';
+    } finally {
+      this.chatLoading = false;
+    }
   }
 }
 

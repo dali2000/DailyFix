@@ -117,18 +117,58 @@
     </div>
   </div>
 
-  <!-- Water Intake: click adds 1 cup automatically -->
+  <!-- Water + Chat : petits carrés icônes uniquement -->
   <div class="water-quick-add">
-    <button type="button" class="btn btn-secondary" (click)="addOneCup()">
-      <svg class="water-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <!-- Water drop -->
+    <button type="button" class="btn btn-icon-square" (click)="addOneCup()" [title]="'health.addOneCup' | translate" aria-label="Add 1 cup">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
         <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.32 0L12 2.69z"/>
       </svg>
-      {{ 'health.addOneCup' | translate }}
     </button>
-    <button type="button" class="btn btn-link" (click)="showWaterForm = true">
-      {{ 'health.customAmount' | translate }}
+    <button type="button" class="btn btn-icon-square" (click)="showWaterForm = true" [title]="'health.customAmount' | translate" aria-label="Custom amount">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+      </svg>
     </button>
+    <button type="button" class="btn btn-icon-square" (click)="chatOpen = !chatOpen" [class.is-open]="chatOpen" [title]="'health.discussion' | translate" aria-label="Chat">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 14H5.17L4 17.17V4h16v12z"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Fenêtre chat (s’ouvre au clic sur le bouton Chat) -->
+  <div *ngIf="chatOpen" class="chatbot-panel chatbot-panel-floating">
+    <div class="chatbot-panel-header">
+      <h3>{{ 'health.discussionTitle' | translate }}</h3>
+      <button type="button" class="chatbot-close" (click)="chatOpen = false" aria-label="Fermer">×</button>
+    </div>
+    <div *ngIf="!geminiAvailable" class="chatbot-unavailable">
+      <p>{{ 'health.discussionUnavailable' | translate }}</p>
+      <small>{{ 'health.discussionUnavailableHint' | translate }}</small>
+    </div>
+    <div *ngIf="geminiAvailable" class="chatbot-body">
+      <div class="chatbot-messages">
+        <div *ngFor="let msg of chatMessages" class="chat-row" [class.chat-row-user]="msg.role === 'user'" [class.chat-row-bot]="msg.role === 'model'">
+          <div class="chat-bubble" [class.chat-bubble-user]="msg.role === 'user'" [class.chat-bubble-bot]="msg.role === 'model'">
+            <span class="chat-bubble-label">{{ msg.role === 'user' ? ('health.you' | translate) : 'Gemini' }}</span>
+            <div class="chat-bubble-text" [innerText]="msg.text"></div>
+          </div>
+        </div>
+        <div *ngIf="chatLoading" class="chat-row chat-row-bot">
+          <div class="chat-bubble chat-bubble-bot chat-bubble-loading">
+            <span class="chat-bubble-label">Gemini</span>
+            <div class="chat-bubble-text">{{ 'common.loading' | translate }}...</div>
+          </div>
+        </div>
+      </div>
+      <p *ngIf="chatError" class="chat-error">{{ chatError | translate }}</p>
+      <form class="chatbot-form" (ngSubmit)="sendChatMessage()">
+        <input type="text" [(ngModel)]="chatInput" name="chatInput" [placeholder]="'health.discussionPlaceholder' | translate" [disabled]="chatLoading" class="chat-input">
+        <button type="submit" class="btn btn-primary chat-send" [disabled]="chatLoading || !chatInput.trim()">
+          {{ 'health.send' | translate }}
+        </button>
+      </form>
+    </div>
   </div>
 
   <!-- Health Modals -->

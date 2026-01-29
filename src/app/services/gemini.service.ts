@@ -1,0 +1,88 @@
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
+
+export interface ChatMessage {
+  role: 'user' | 'model';
+  text: string;
+}
+
+const HEALTH_SYSTEM_INSTRUCTION = `Tu es un assistant santé intégré à l'application DailyFix. Tu réponds de façon bienveillante et factuelle sur la nutrition, le sommeil, l'activité physique, l'hydratation et la méditation. Donne des conseils courts et pratiques. Ne pose pas de diagnostic médical ; en cas de doute, recommande de consulter un professionnel de santé. Réponds dans la même langue que l'utilisateur.`;
+
+@Injectable({
+  providedIn: 'root'
+})
+export class GeminiService {
+  private apiKey = environment.geminiApiKey;
+
+  isAvailable(): boolean {
+    return !!this.apiKey && this.apiKey.length > 0;
+  }
+
+  /** Clé i18n pour afficher le message de quota dépassé (health.discussionQuotaExceeded). */
+  static readonly QUOTA_ERROR_KEY = 'health.discussionQuotaExceeded';
+
+  /**
+   * Envoie un message utilisateur avec l'historique de la conversation et retourne la réponse du modèle.
+   * En cas de 429 (quota), tente une seule fois après le délai indiqué par l'API (ou 6 s).
+   */
+  async sendMessage(userMessage: string, history: ChatMessage[]): Promise<string> {
+    if (!this.isAvailable()) {
+      throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey).');
+    }
+
+    const run = async (): Promise<string> => {
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const genAI = new GoogleGenerativeAI(this.apiKey);
+      // Modèle stable pris en charge par l'API (gemini-1.5-flash-8b n'existe plus en v1beta)
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
+      const chatHistory = history.map(m => ({
+        role: m.role === 'user' ? ('user' as const) : ('model' as const),
+        parts: [{ text: m.text }]
+      }));
+
+      const chat = model.startChat({
+        history: chatHistory,
+        systemInstruction: { role: 'user', parts: [{ text: HEALTH_SYSTEM_INSTRUCTION }] }
+      });
+      const result = await chat.sendMessage(userMessage);
+      const response = result.response;
+      const text = response.text();
+      if (text == null || text === '') {
+        return 'Désolé, je n\'ai pas pu générer une réponse. Réessaie.';
+      }
+      return text;
+    };
+
+    const isQuotaError = (err: unknown): boolean => {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+      return message.includes('429') || message.includes('quota') || message.includes('Quota exceeded');
+    };
+
+    const parseRetryDelayMs = (err: unknown): number => {
+      const message = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+      const match = message.match(/[Pp]lease retry in ([\d.]+)s/);
+      if (match) {
+        const sec = parseFloat(match[1]);
+        return Number.isFinite(sec) ? Math.ceil(sec * 1000) : 6000;
+      }
+      return 6000;
+    };
+
+    try {
+      return await run();
+    } catch (err: unknown) {
+      if (!isQuotaError(err)) throw err;
+      const delayMs = parseRetryDelayMs(err);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      try {
+        return await run();
+      } catch (retryErr: unknown) {
+        if (isQuotaError(retryErr)) {
+          throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        }
+        throw retryErr;
+      }
+    }
+  }
+}

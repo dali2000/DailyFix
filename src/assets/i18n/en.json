@@ -1,5 +1,6 @@
 {
   "common": {
+    "error": "An error occurred.",
     "loading": "Loading...",
     "cancel": "Cancel",
     "save": "Save",
@@ -252,7 +253,17 @@
     "cups": "cups",
     "cupsLabel": "Number of cups",
     "addOneCup": "Add 1 cup",
-    "customAmount": "Custom amount"
+    "customAmount": "Custom amount",
+    "discussion": "AI Discussion",
+    "discussionTitle": "Chat with the health assistant",
+    "discussionDesc": "Ask questions about nutrition, sleep, physical activity or meditation. Gemini assistant will reply.",
+    "discussionUnavailable": "AI discussion is not configured.",
+    "discussionUnavailableHint": "Add a Gemini API key (Google AI Studio) in environment (geminiApiKey) to enable this feature.",
+    "discussionPlaceholder": "Your health question...",
+    "you": "You",
+    "send": "Send",
+    "discussionQuotaExceeded": "API quota exceeded. Please try again in a few minutes or check your Google AI plan and billing.",
+    "discussionQuotaExceededHint": "See rate limits: ai.google.dev/gemini-api/docs/rate-limits"
   },
   "homeOrg": {
     "title": "Domestic Organization",

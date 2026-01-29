@@ -1,5 +1,6 @@
 {
   "common": {
+    "error": "Une erreur s'est produite.",
     "loading": "Chargement...",
     "cancel": "Annuler",
     "save": "Enregistrer",
@@ -252,7 +253,17 @@
     "cups": "tasses",
     "cupsLabel": "Nombre de tasses",
     "addOneCup": "Ajouter 1 tasse",
-    "customAmount": "Quantité personnalisée"
+    "customAmount": "Quantité personnalisée",
+    "discussion": "Discussion IA",
+    "discussionTitle": "Discussion avec l'assistant santé",
+    "discussionDesc": "Posez vos questions sur la nutrition, le sommeil, l'activité physique ou la méditation. L'assistant Gemini vous répond.",
+    "discussionUnavailable": "La discussion IA n'est pas configurée.",
+    "discussionUnavailableHint": "Ajoutez une clé API Gemini (Google AI Studio) dans environment (geminiApiKey) pour activer cette fonctionnalité.",
+    "discussionPlaceholder": "Votre question sur la santé...",
+    "you": "Vous",
+    "send": "Envoyer",
+    "discussionQuotaExceeded": "Quota de l'API dépassé. Réessayez dans quelques minutes ou consultez votre plan et facturation Google AI.",
+    "discussionQuotaExceededHint": "Voir les limites : ai.google.dev/gemini-api/docs/rate-limits"
   },
   "homeOrg": {
     "title": "Organisation Domestique",
