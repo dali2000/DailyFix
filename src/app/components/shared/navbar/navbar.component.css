@@ -570,12 +570,16 @@
 }
 
 /* ---------- RTL (langue arabe) : inversion complète de la navbar ---------- */
-/* Classe .navbar-rtl et attr dir="rtl" sur <nav> quand isRtl */
+/* Quand html a lang="ar" ou dir="rtl" → forcer l’inversion (logo/météo à droite, profil à gauche) */
+:host-context(html[lang="ar"]) .navbar,
+:host-context(html[dir="rtl"]) .navbar,
 .navbar.navbar-rtl,
 .navbar[dir="rtl"] {
   flex-direction: row-reverse !important;
 }
 
+:host-context(html[lang="ar"]) .navbar-left,
+:host-context(html[dir="rtl"]) .navbar-left,
 .navbar.navbar-rtl .navbar-left,
 .navbar[dir="rtl"] .navbar-left {
   flex-direction: row-reverse !important;
@@ -583,62 +587,96 @@
   transition: margin-right 100ms ease-in 0s;
 }
 
+:host-context(html[lang="ar"]) .navbar-right,
+:host-context(html[dir="rtl"]) .navbar-right,
 .navbar.navbar-rtl .navbar-right,
 .navbar[dir="rtl"] .navbar-right {
   flex-direction: row-reverse !important;
 }
 
+:host-context(html[lang="ar"]) .weather-widget,
+:host-context(html[dir="rtl"]) .weather-widget,
 .navbar.navbar-rtl .weather-widget,
 .navbar[dir="rtl"] .weather-widget {
   flex-direction: row-reverse !important;
 }
 
+:host-context(html[lang="ar"]) .weather-info,
+:host-context(html[dir="rtl"]) .weather-info,
 .navbar.navbar-rtl .weather-info,
 .navbar[dir="rtl"] .weather-info {
   flex-direction: column;
   text-align: right;
 }
 
+/* Profil : en RTL l’ordre va vers la gauche (avatar à droite → nom → flèche à gauche) */
+:host-context(html[lang="ar"]) .profile,
+:host-context(html[dir="rtl"]) .profile,
 .navbar.navbar-rtl .profile,
 .navbar[dir="rtl"] .profile {
   flex-direction: row-reverse !important;
+  direction: rtl !important;
+  text-align: right !important;
 }
 
+:host-context(html[lang="ar"]) .profile .name,
+:host-context(html[dir="rtl"]) .profile .name,
+.navbar.navbar-rtl .profile .name,
+.navbar[dir="rtl"] .profile .name {
+  text-align: right;
+}
+
+:host-context(html[lang="ar"]) .lang-dropdown,
+:host-context(html[dir="rtl"]) .lang-dropdown,
 .navbar.navbar-rtl .lang-dropdown,
 .navbar[dir="rtl"] .lang-dropdown {
   right: auto !important;
   left: 0 !important;
+  direction: rtl !important;
   text-align: right;
 }
 
+:host-context(html[lang="ar"]) .lang-dropdown .lang-item,
+:host-context(html[dir="rtl"]) .lang-dropdown .lang-item,
 .navbar.navbar-rtl .lang-dropdown .lang-item,
 .navbar[dir="rtl"] .lang-dropdown .lang-item {
   flex-direction: row-reverse !important;
+  direction: rtl !important;
   text-align: right;
 }
 
+:host-context(html[lang="ar"]) .profile-dropdown,
+:host-context(html[dir="rtl"]) .profile-dropdown,
 .navbar.navbar-rtl .profile-dropdown,
 .navbar[dir="rtl"] .profile-dropdown {
   right: auto !important;
   left: 0 !important;
+  direction: rtl !important;
   text-align: right;
 }
 
+:host-context(html[lang="ar"]) .profile-dropdown .dropdown-item,
+:host-context(html[dir="rtl"]) .profile-dropdown .dropdown-item,
 .navbar.navbar-rtl .profile-dropdown .dropdown-item,
 .navbar.navbar-rtl .dropdown-item,
 .navbar[dir="rtl"] .profile-dropdown .dropdown-item,
 .navbar[dir="rtl"] .dropdown-item {
   flex-direction: row-reverse !important;
+  direction: rtl !important;
   text-align: right;
 }
 
 @media (max-width: 768px) {
+  :host-context(html[lang="ar"]) .navbar-left,
+  :host-context(html[dir="rtl"]) .navbar-left,
   .navbar.navbar-rtl .navbar-left,
   .navbar[dir="rtl"] .navbar-left {
     margin-left: 0 !important;
     margin-right: 48px !important;
   }
 
+  :host-context(html[lang="ar"]) .profile-dropdown,
+  :host-context(html[dir="rtl"]) .profile-dropdown,
   .navbar.navbar-rtl .profile-dropdown,
   .navbar[dir="rtl"] .profile-dropdown {
     right: auto !important;
@@ -647,6 +685,8 @@
 }
 
 @media (max-width: 480px) {
+  :host-context(html[lang="ar"]) .navbar-left,
+  :host-context(html[dir="rtl"]) .navbar-left,
   .navbar.navbar-rtl .navbar-left,
   .navbar[dir="rtl"] .navbar-left {
     margin-right: 40px !important;

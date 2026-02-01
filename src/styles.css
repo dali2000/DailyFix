@@ -952,35 +952,42 @@ img, video, iframe, svg {
   --notion-border-hover: #c4b5fd;
 }
 
-/* ---------- RTL (arabe) : écriture droite → gauche ---------- */
-html[dir="rtl"] {
+/* ---------- RTL (arabe) : si langue ar sélectionnée → appliquer le CSS gauche (droite → gauche) ---------- */
+html[dir="rtl"],
+html[lang="ar"] {
+  direction: rtl;
   text-align: right;
 }
 
-html[dir="rtl"] .main-content {
+html[dir="rtl"] .main-content,
+html[lang="ar"] .main-content {
   margin-left: 0;
   margin-right: 240px;
   transition: margin-right 100ms ease-in 0s;
 }
 
-html[dir="rtl"] .main-content.no-sidebar {
+html[dir="rtl"] .main-content.no-sidebar,
+html[lang="ar"] .main-content.no-sidebar {
   margin-right: 0;
 }
 
 @media (max-width: 1024px) {
-  html[dir="rtl"] .main-content {
+  html[dir="rtl"] .main-content,
+  html[lang="ar"] .main-content {
     margin-right: 48px;
   }
 }
 
 @media (max-width: 768px) {
-  html[dir="rtl"] .main-content {
+  html[dir="rtl"] .main-content,
+  html[lang="ar"] .main-content {
     margin-right: 0;
   }
 }
 
-/* Sidebar à droite en RTL */
-html[dir="rtl"] app-sidebar .sidebar {
+/* Sidebar à droite quand langue ar */
+html[dir="rtl"] app-sidebar .sidebar,
+html[lang="ar"] app-sidebar .sidebar {
   left: auto;
   right: 0;
   border-right: none;
@@ -988,95 +995,151 @@ html[dir="rtl"] app-sidebar .sidebar {
   transform: translateX(0);
 }
 
-html[dir="rtl"] app-sidebar .sidebar.collapsed {
+html[dir="rtl"] app-sidebar .sidebar.collapsed,
+html[lang="ar"] app-sidebar .sidebar.collapsed {
   transform: translateX(0);
 }
 
 @media (max-width: 768px) {
-  html[dir="rtl"] app-sidebar .sidebar {
+  html[dir="rtl"] app-sidebar .sidebar,
+  html[lang="ar"] app-sidebar .sidebar {
     transform: translateX(100%);
   }
 
-  html[dir="rtl"] app-sidebar .sidebar:not(.collapsed) {
+  html[dir="rtl"] app-sidebar .sidebar:not(.collapsed),
+  html[lang="ar"] app-sidebar .sidebar:not(.collapsed) {
     transform: translateX(0);
   }
 
-  html[dir="rtl"] app-sidebar .sidebar.collapsed {
+  html[dir="rtl"] app-sidebar .sidebar.collapsed,
+  html[lang="ar"] app-sidebar .sidebar.collapsed {
     transform: translateX(100%);
   }
 }
 
-html[dir="rtl"] app-sidebar .sidebar-overlay {
+html[dir="rtl"] app-sidebar .sidebar-overlay,
+html[lang="ar"] app-sidebar .sidebar-overlay {
   left: 0;
   right: 0;
 }
 
-/* Navbar : ordre inversé (droite → gauche) */
-html[dir="rtl"] app-navbar .navbar {
+/* Sidebar RTL : icône à droite du texte, barre active à droite */
+html[dir="rtl"] app-sidebar .sidebar-header,
+html[lang="ar"] app-sidebar .sidebar-header {
   flex-direction: row-reverse;
+}
+
+html[dir="rtl"] app-sidebar .sidebar-brand,
+html[lang="ar"] app-sidebar .sidebar-brand {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] app-sidebar .nav-item,
+html[lang="ar"] app-sidebar .nav-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+  padding: 4px 12px 4px 8px !important;
+}
+
+html[dir="rtl"] app-sidebar .nav-item.active::before,
+html[lang="ar"] app-sidebar .nav-item.active::before {
+  left: auto !important;
+  right: 0 !important;
+}
+
+html[dir="rtl"] app-sidebar .nav-section-title,
+html[lang="ar"] app-sidebar .nav-section-title {
+  text-align: right;
+}
+
+html[dir="rtl"] app-sidebar .logout-item,
+html[lang="ar"] app-sidebar .logout-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+  padding: 4px 12px 4px 8px !important;
+}
+
+/* Navbar : ordre inversé (droite → gauche) quand langue ar */
+html[dir="rtl"] app-navbar .navbar,
+html[lang="ar"] app-navbar .navbar {
+  flex-direction: row-reverse !important;
   left: 0;
   right: 0;
 }
 
-html[dir="rtl"] app-navbar .navbar-left {
-  flex-direction: row-reverse;
-  margin-left: 0;
+html[dir="rtl"] app-navbar .navbar-left,
+html[lang="ar"] app-navbar .navbar-left {
+  flex-direction: row-reverse !important;
+  margin-left: 0 !important;
   transition: margin-right 100ms ease-in 0s;
 }
 
-html[dir="rtl"] app-navbar .navbar-right {
+html[dir="rtl"] app-navbar .navbar-right,
+html[lang="ar"] app-navbar .navbar-right {
+  flex-direction: row-reverse !important;
+}
+
+html[dir="rtl"] app-navbar .weather-widget,
+html[lang="ar"] app-navbar .weather-widget {
   flex-direction: row-reverse;
 }
 
-html[dir="rtl"] app-navbar .weather-widget {
-  flex-direction: row-reverse;
-}
-
-html[dir="rtl"] app-navbar .weather-info {
+html[dir="rtl"] app-navbar .weather-info,
+html[lang="ar"] app-navbar .weather-info {
   flex-direction: column;
   text-align: right;
 }
 
-/* Dropdowns navbar : s'ouvrent depuis la droite en RTL */
-html[dir="rtl"] app-navbar .lang-dropdown {
+/* Dropdowns navbar : s'ouvrent vers la gauche quand langue ar */
+html[dir="rtl"] app-navbar .lang-dropdown,
+html[lang="ar"] app-navbar .lang-dropdown {
   right: auto;
   left: 0;
   text-align: right;
 }
 
-html[dir="rtl"] app-navbar .lang-dropdown .lang-item {
+html[dir="rtl"] app-navbar .lang-dropdown .lang-item,
+html[lang="ar"] app-navbar .lang-dropdown .lang-item {
   flex-direction: row-reverse;
   text-align: right;
 }
 
-html[dir="rtl"] app-navbar .profile-dropdown {
+html[dir="rtl"] app-navbar .profile-dropdown,
+html[lang="ar"] app-navbar .profile-dropdown {
   right: auto;
   left: 0;
   text-align: right;
 }
 
-html[dir="rtl"] app-navbar .profile-dropdown .dropdown-item {
+html[dir="rtl"] app-navbar .profile-dropdown .dropdown-item,
+html[lang="ar"] app-navbar .profile-dropdown .dropdown-item {
   flex-direction: row-reverse;
   text-align: right;
 }
 
-html[dir="rtl"] app-navbar .profile {
+html[dir="rtl"] app-navbar .profile,
+html[lang="ar"] app-navbar .profile {
   flex-direction: row-reverse;
+  direction: rtl;
+  text-align: right;
 }
 
 @media (max-width: 768px) {
-  html[dir="rtl"] app-navbar .navbar-left {
+  html[dir="rtl"] app-navbar .navbar-left,
+  html[lang="ar"] app-navbar .navbar-left {
     margin-right: 48px;
   }
 
-  html[dir="rtl"] app-navbar .profile-dropdown {
+  html[dir="rtl"] app-navbar .profile-dropdown,
+  html[lang="ar"] app-navbar .profile-dropdown {
     left: -8px;
     right: auto;
   }
 }
 
 @media (max-width: 480px) {
-  html[dir="rtl"] app-navbar .navbar-left {
+  html[dir="rtl"] app-navbar .navbar-left,
+  html[lang="ar"] app-navbar .navbar-left {
     margin-right: 40px;
   }
 }
@@ -1115,6 +1178,8 @@ app-navbar .navbar[dir="rtl"] .weather-info {
 app-navbar .navbar.navbar-rtl .profile,
 app-navbar .navbar[dir="rtl"] .profile {
   flex-direction: row-reverse !important;
+  direction: rtl !important;
+  text-align: right !important;
 }
 
 app-navbar .navbar.navbar-rtl .lang-dropdown,

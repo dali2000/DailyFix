@@ -279,3 +279,39 @@
   background: var(--notion-border);
 }
 
+/* ---------- RTL (langue arabe) : icône à droite du texte, barre active à droite ---------- */
+:host-context(html[lang="ar"]) .sidebar-header,
+:host-context(html[dir="rtl"]) .sidebar-header {
+  flex-direction: row-reverse;
+}
+
+:host-context(html[lang="ar"]) .sidebar-brand,
+:host-context(html[dir="rtl"]) .sidebar-brand {
+  flex-direction: row-reverse;
+}
+
+:host-context(html[lang="ar"]) .nav-item,
+:host-context(html[dir="rtl"]) .nav-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+  padding: 4px 12px 4px 8px !important;
+}
+
+:host-context(html[lang="ar"]) .nav-item.active::before,
+:host-context(html[dir="rtl"]) .nav-item.active::before {
+  left: auto !important;
+  right: 0 !important;
+}
+
+:host-context(html[lang="ar"]) .nav-section-title,
+:host-context(html[dir="rtl"]) .nav-section-title {
+  text-align: right;
+}
+
+:host-context(html[lang="ar"]) .logout-item,
+:host-context(html[dir="rtl"]) .logout-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+  padding: 4px 12px 4px 8px !important;
+}
+
