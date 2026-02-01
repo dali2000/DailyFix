@@ -568,3 +568,63 @@
     min-width: 140px;
   }
 }
+
+/* ---------- RTL (langue arabe) : navbar inversée ---------- */
+:host-context(html[dir="rtl"]) .navbar {
+  flex-direction: row-reverse;
+}
+
+:host-context(html[dir="rtl"]) .navbar-left {
+  flex-direction: row-reverse;
+  margin-left: 0;
+  transition: margin-right 100ms ease-in 0s;
+}
+
+:host-context(html[dir="rtl"]) .navbar-right {
+  flex-direction: row-reverse;
+}
+
+:host-context(html[dir="rtl"]) .profile {
+  flex-direction: row-reverse;
+}
+
+:host-context(html[dir="rtl"]) .lang-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+:host-context(html[dir="rtl"]) .lang-dropdown .lang-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+:host-context(html[dir="rtl"]) .profile-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+:host-context(html[dir="rtl"]) .profile-dropdown .dropdown-item,
+:host-context(html[dir="rtl"]) .dropdown-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  :host-context(html[dir="rtl"]) .navbar-left {
+    margin-left: 0;
+    margin-right: 48px;
+  }
+
+  :host-context(html[dir="rtl"]) .profile-dropdown {
+    right: auto;
+    left: -8px;
+  }
+}
+
+@media (max-width: 480px) {
+  :host-context(html[dir="rtl"]) .navbar-left {
+    margin-right: 40px;
+  }
+}

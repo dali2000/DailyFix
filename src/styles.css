@@ -951,3 +951,123 @@ img, video, iframe, svg {
   --notion-border: #ddd6fe;
   --notion-border-hover: #c4b5fd;
 }
+
+/* ---------- RTL (arabe) : écriture droite → gauche ---------- */
+html[dir="rtl"] {
+  text-align: right;
+}
+
+html[dir="rtl"] .main-content {
+  margin-left: 0;
+  margin-right: 240px;
+  transition: margin-right 100ms ease-in 0s;
+}
+
+html[dir="rtl"] .main-content.no-sidebar {
+  margin-right: 0;
+}
+
+@media (max-width: 1024px) {
+  html[dir="rtl"] .main-content {
+    margin-right: 48px;
+  }
+}
+
+@media (max-width: 768px) {
+  html[dir="rtl"] .main-content {
+    margin-right: 0;
+  }
+}
+
+/* Sidebar à droite en RTL */
+html[dir="rtl"] app-sidebar .sidebar {
+  left: auto;
+  right: 0;
+  border-right: none;
+  border-left: 1px solid var(--notion-border);
+  transform: translateX(0);
+}
+
+html[dir="rtl"] app-sidebar .sidebar.collapsed {
+  transform: translateX(0);
+}
+
+@media (max-width: 768px) {
+  html[dir="rtl"] app-sidebar .sidebar {
+    transform: translateX(100%);
+  }
+
+  html[dir="rtl"] app-sidebar .sidebar:not(.collapsed) {
+    transform: translateX(0);
+  }
+
+  html[dir="rtl"] app-sidebar .sidebar.collapsed {
+    transform: translateX(100%);
+  }
+}
+
+html[dir="rtl"] app-sidebar .sidebar-overlay {
+  left: 0;
+  right: 0;
+}
+
+/* Navbar : ordre inversé (droite → gauche) */
+html[dir="rtl"] app-navbar .navbar {
+  flex-direction: row-reverse;
+  left: 0;
+  right: 0;
+}
+
+html[dir="rtl"] app-navbar .navbar-left {
+  flex-direction: row-reverse;
+  margin-left: 0;
+  transition: margin-right 100ms ease-in 0s;
+}
+
+html[dir="rtl"] app-navbar .navbar-right {
+  flex-direction: row-reverse;
+}
+
+/* Dropdowns navbar : s'ouvrent depuis la droite en RTL */
+html[dir="rtl"] app-navbar .lang-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+html[dir="rtl"] app-navbar .lang-dropdown .lang-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+html[dir="rtl"] app-navbar .profile-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+html[dir="rtl"] app-navbar .profile-dropdown .dropdown-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+html[dir="rtl"] app-navbar .profile {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 768px) {
+  html[dir="rtl"] app-navbar .navbar-left {
+    margin-right: 48px;
+  }
+
+  html[dir="rtl"] app-navbar .profile-dropdown {
+    left: -8px;
+    right: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  html[dir="rtl"] app-navbar .navbar-left {
+    margin-right: 40px;
+  }
+}

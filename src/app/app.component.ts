@@ -30,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private userSubscription?: Subscription;
   private routerSubscription?: Subscription;
   private initSubscription?: Subscription;
+  private langSubscription?: Subscription;
 
   constructor(
     private router: Router,
@@ -60,6 +61,9 @@ export class AppComponent implements OnInit, OnDestroy {
     if (savedLocale === 'en' || savedLocale === 'ar') {
       this.i18n.use(savedLocale).subscribe();
     }
+    // Direction d'écriture : RTL pour l'arabe, LTR pour les autres
+    this.applyDirAndLang();
+    this.langSubscription = this.i18n.onLangChange.subscribe(() => this.applyDirAndLang());
     // Initialiser le service de thème (charge le thème sauvegardé)
     this.themeService.watchSystemPreference();
     
@@ -83,6 +87,15 @@ export class AppComponent implements OnInit, OnDestroy {
     this.initSubscription?.unsubscribe();
     this.userSubscription?.unsubscribe();
     this.routerSubscription?.unsubscribe();
+    this.langSubscription?.unsubscribe();
+  }
+
+  /** Applique dir (rtl/ltr) et lang sur <html> selon la langue courante. */
+  private applyDirAndLang(): void {
+    const doc = document.documentElement;
+    const lang = this.i18n.currentLang;
+    doc.setAttribute('lang', lang);
+    doc.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
   }
 
   private updateVisibility(url: string): void {

@@ -54,6 +54,11 @@
   min-height: 100vh;
 }
 
+/* RTL : marge droite au lieu de gauche (complément à styles.css) */
+:host-context(html[dir="rtl"]) .main-content.no-sidebar {
+  margin-right: 0;
+}
+
 /* NOTE: on laisse la largeur en "auto" pour éviter les décalages/coupures
    quand `margin-left` change (sidebar ouverte/fermée). */
 
