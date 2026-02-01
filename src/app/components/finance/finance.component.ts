@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
-import { Expense, Budget, SavingsGoal, Salary } from '../../models/finance.model';
+import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } from '../../models/finance.model';
 import { I18nService } from '../../services/i18n.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -56,7 +56,32 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   remainingBudget = 0;
   savingsSuggestions: string[] = [];
 
-  expenseCategories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
+  /** Catégories par défaut (clés i18n). */
+  private static readonly DEFAULT_EXPENSE_CATEGORIES = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
+  /** Valeur spéciale du select pour "Ajouter une catégorie". */
+  readonly addCategoryValue = '__add__';
+  /** Catégories personnalisées (depuis l'API / base de données). */
+  customCategoryList: ExpenseCategory[] = [];
+  /** Nom saisi pour une nouvelle catégorie (dans le formulaire dépense). */
+  newCategoryName = '';
+  /** Nom saisi pour ajouter une catégorie (dans la section "Mes catégories"). */
+  categoryToAdd = '';
+
+  get customCategories(): string[] {
+    return this.customCategoryList.map(c => c.name);
+  }
+
+  get expenseCategories(): string[] {
+    return [...FinanceComponent.DEFAULT_EXPENSE_CATEGORIES, ...this.customCategories];
+  }
+
+  /** Catégories à afficher dans "Dépenses par catégorie" : défaut + custom + celles présentes dans les dépenses du mois. */
+  get expenseCategoriesForOverview(): string[] {
+    const fromExpenses = this.expensesForMonth.map(e => e.category).filter(Boolean);
+    const known = new Set([...FinanceComponent.DEFAULT_EXPENSE_CATEGORIES, ...this.customCategories, ...fromExpenses]);
+    return Array.from(known);
+  }
+
   expensesByCategoryExpanded = false;
   
   // Confirm dialogs
@@ -202,6 +227,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (error) => console.error('Error loading salaries:', error)
     });
+
+    this.financeService.getCustomCategoriesObservable().subscribe({
+      next: (list) => {
+        this.customCategoryList = list.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id : parseInt(String(c.id), 10) }));
+      },
+      error: (err) => console.error('Error loading categories:', err)
+    });
   }
 
   updateOverview(): void {
@@ -297,11 +329,54 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   closeExpenseModal(): void {
     this.showExpenseForm = false;
     this.newExpense = { category: 'other' };
+    this.newCategoryName = '';
   }
 
   openExpenseForm(): void {
     this.newExpense = { category: 'other', date: this.firstDayOfSelectedMonth as unknown as Date };
+    this.newCategoryName = '';
     this.showExpenseForm = true;
+  }
+
+  /** Ajoute une catégorie personnalisée (depuis le formulaire dépense ou la section "Mes catégories"). Persistée en base. */
+  addCustomCategory(nameFromForm?: string): void {
+    const name = (nameFromForm !== undefined ? nameFromForm : this.newCategoryName)?.trim() || '';
+    if (!name) return;
+    const lower = name.toLowerCase();
+    const exists = this.expenseCategories.some(c => c.toLowerCase() === lower);
+    if (exists) {
+      this.toastService.warning(this.i18n.instant('finance.categoryExists') || 'Cette catégorie existe déjà.');
+      return;
+    }
+    this.financeService.addCustomCategory(name).subscribe({
+      next: (result) => {
+        this.customCategoryList = this.financeService.getCustomCategories();
+        if (nameFromForm !== undefined) {
+          this.categoryToAdd = '';
+        } else {
+          this.newExpense = { ...this.newExpense, category: name };
+          this.newCategoryName = '';
+        }
+        this.toastService.success(this.i18n.instant('finance.categoryAdded') || 'Catégorie ajoutée.');
+      },
+      error: (err) => {
+        const msg = err?.error?.message || err?.message || 'Erreur';
+        this.toastService.error(msg);
+      }
+    });
+  }
+
+  /** Supprime une catégorie personnalisée en base (les dépenses existantes gardent leur catégorie). */
+  removeCustomCategory(id: string | number): void {
+    this.financeService.removeCustomCategory(id).subscribe({
+      next: () => {
+        this.customCategoryList = this.financeService.getCustomCategories();
+        this.toastService.success(this.i18n.instant('finance.categoryRemoved') || 'Catégorie retirée.');
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+      }
+    });
   }
 
   closeBudgetModal(): void {
@@ -324,6 +399,10 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
   addExpense(): void {
     if (!this.newExpense.amount || !this.newExpense.description) return;
+    if (this.newExpense.category === this.addCategoryValue || !this.newExpense.category) {
+      this.toastService.warning(this.i18n.instant('finance.selectOrAddCategory') || 'Choisissez ou ajoutez une catégorie.');
+      return;
+    }
     const date = this.newExpense.date ? new Date(this.newExpense.date) : new Date(this.currentYear, this.currentMonth, 1);
     this.financeService.addExpense({
       amount: this.newExpense.amount!,

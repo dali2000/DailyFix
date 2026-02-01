@@ -25,8 +25,9 @@ const Expense = sequelize.define('Expense', {
     }
   },
   category: {
-    type: DataTypes.ENUM('food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'),
-    allowNull: false
+    type: DataTypes.STRING(100),
+    allowNull: false,
+    defaultValue: 'other'
   },
   description: {
     type: DataTypes.STRING,
@@ -172,15 +173,45 @@ const Salary = sequelize.define('Salary', {
   indexes: [{ fields: ['userId'] }]
 });
 
+// Expense Category (catégories personnalisées par utilisateur)
+const ExpenseCategory = sequelize.define('ExpenseCategory', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  name: {
+    type: DataTypes.STRING(100),
+    allowNull: false
+  }
+}, {
+  tableName: 'expense_categories',
+  timestamps: true,
+  indexes: [
+    { fields: ['userId'] },
+    { unique: true, fields: ['userId', 'name'] }
+  ]
+});
+
 // Define associations
 Expense.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Budget.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 SavingsGoal.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Salary.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+ExpenseCategory.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 module.exports = {
   Expense,
   Budget,
   SavingsGoal,
-  Salary
+  Salary,
+  ExpenseCategory
 };

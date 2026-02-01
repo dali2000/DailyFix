@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Expense, Budget, SavingsGoal, Salary } = require('../models/Finance.model');
+const { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } = require('../models/Finance.model');
 const { protect } = require('../middleware/auth.middleware');
 
 // Helper function for CRUD operations (order: e.g. [['date', 'DESC']] or [['createdAt', 'DESC']])
@@ -71,5 +71,53 @@ createCRUDRoutes(Expense, 'expenses', [['date', 'DESC']]);
 createCRUDRoutes(Budget, 'budgets', [['createdAt', 'DESC']]);
 createCRUDRoutes(SavingsGoal, 'savings-goals', [['createdAt', 'DESC']]);
 createCRUDRoutes(Salary, 'salaries', [['date', 'DESC']]);
+
+// Catégories personnalisées (GET, POST avec findOrCreate, DELETE)
+router.get('/categories', protect, async (req, res) => {
+  try {
+    const items = await ExpenseCategory.findAll({
+      where: { userId: req.user.id },
+      order: [['name', 'ASC']]
+    });
+    res.json({ success: true, count: items.length, data: items });
+  } catch (error) {
+    console.error('Get categories error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.post('/categories', protect, async (req, res) => {
+  try {
+    const { name } = req.body;
+    const trimmed = (name && String(name).trim()) || '';
+    if (!trimmed) {
+      return res.status(400).json({ success: false, message: 'Category name is required' });
+    }
+    const [category, created] = await ExpenseCategory.findOrCreate({
+      where: { userId: req.user.id, name: trimmed },
+      defaults: { userId: req.user.id, name: trimmed }
+    });
+    res.status(201).json({ success: true, data: category, created });
+  } catch (error) {
+    console.error('Create category error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.delete('/categories/:id', protect, async (req, res) => {
+  try {
+    const item = await ExpenseCategory.findOne({
+      where: { id: req.params.id, userId: req.user.id }
+    });
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
+    }
+    await item.destroy();
+    res.json({ success: true, message: 'Category deleted' });
+  } catch (error) {
+    console.error('Delete category error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
 
 module.exports = router;

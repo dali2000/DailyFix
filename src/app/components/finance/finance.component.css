@@ -991,6 +991,133 @@
   color: var(--notion-text-primary);
 }
 
+.form-group.category-group {
+  margin-bottom: 16px;
+}
+
+.add-category-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.add-category-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 14px;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+}
+
+.add-category-row input:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+}
+
+.add-category-row .btn-add-cat {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* Section Mes catégories personnelles */
+.custom-categories-section {
+  margin-bottom: 24px;
+  padding: 18px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius-md);
+  border-left: 4px solid var(--notion-blue);
+  box-shadow: var(--notion-shadow-sm);
+}
+
+.custom-categories-emoji {
+  margin-right: 6px;
+  font-size: 1.1em;
+}
+
+.custom-categories-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0 0 6px 0;
+  display: flex;
+  align-items: center;
+}
+
+:host-context(html[dir="rtl"]) .custom-categories-section {
+  border-left: none;
+  border-right: 4px solid var(--notion-blue);
+}
+
+.custom-categories-desc {
+  font-size: 12px;
+  color: var(--notion-text-secondary);
+  margin: 0 0 12px 0;
+  line-height: 1.4;
+}
+
+.custom-categories-add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.custom-categories-add input {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 14px;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+}
+
+.custom-categories-add input:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+}
+
+.custom-categories-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-category-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--notion-bg-tertiary);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 13px;
+  color: var(--notion-text-primary);
+}
+
+.custom-category-item .custom-category-icon {
+  font-size: 14px;
+}
+
+.custom-category-item .custom-category-name {
+  flex: 1;
+}
+
+.custom-categories-empty {
+  font-size: 12px;
+  color: var(--notion-text-tertiary);
+  margin: 0;
+}
+
 .form-group input:focus,
 .form-group select:focus {
   outline: none;

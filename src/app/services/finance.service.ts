@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin } from 'rxjs';
-import { Expense, Budget, SavingsGoal, Salary } from '../models/finance.model';
+import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin, of } from 'rxjs';
+import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } from '../models/finance.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 
@@ -19,10 +19,12 @@ export class FinanceService {
   private budgets: Budget[] = [];
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
+  private customCategories: ExpenseCategory[] = [];
   private expensesCache$: Observable<Expense[]> | null = null;
   private budgetsCache$: Observable<Budget[]> | null = null;
   private savingsGoalsCache$: Observable<SavingsGoal[]> | null = null;
   private salariesCache$: Observable<Salary[]> | null = null;
+  private categoriesCache$: Observable<ExpenseCategory[]> | null = null;
 
   /** Parse API amount (string or number) to number for calculations. */
   private parseAmount(value: unknown): number {
@@ -48,12 +50,63 @@ export class FinanceService {
         this.budgets = [];
         this.savingsGoals = [];
         this.salaries = [];
+        this.customCategories = [];
         this.expensesCache$ = null;
         this.budgetsCache$ = null;
         this.savingsGoalsCache$ = null;
         this.salariesCache$ = null;
+        this.categoriesCache$ = null;
       }
     });
+  }
+
+  // Custom expense categories (from API)
+  getCustomCategories(): ExpenseCategory[] {
+    return [...this.customCategories];
+  }
+
+  getCustomCategoriesObservable(): Observable<ExpenseCategory[]> {
+    if (!this.categoriesCache$) {
+      this.categoriesCache$ = this.apiService.get<ApiResponse<ExpenseCategory[]>>('/finance/categories').pipe(
+        map(response => response.data || []),
+        tap(cats => {
+          this.customCategories = cats.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id : parseInt(String(c.id), 10) }));
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.categoriesCache$;
+  }
+
+  addCustomCategory(name: string): Observable<{ data: ExpenseCategory; created: boolean }> {
+    const trimmed = name?.trim() || '';
+    if (!trimmed) return of({ data: {} as ExpenseCategory, created: false });
+    return this.apiService.post<ApiResponse<ExpenseCategory> & { created?: boolean }>('/finance/categories', { name: trimmed }).pipe(
+      map(response => ({
+        data: response.data!,
+        created: (response as { created?: boolean }).created !== false
+      })),
+      tap(({ data }) => {
+        const newCat = { ...data, id: typeof data.id === 'number' ? data.id : parseInt(String(data.id), 10) };
+        if (!this.customCategories.some(c => c.id === newCat.id)) {
+          this.customCategories.push(newCat);
+        }
+        this.categoriesCache$ = null;
+      })
+    );
+  }
+
+  removeCustomCategory(id: string | number): Observable<boolean> {
+    const idNum = typeof id === 'string' ? parseInt(id, 10) : id;
+    return this.apiService.delete<ApiResponse<unknown>>(`/finance/categories/${idNum}`).pipe(
+      map(response => response.success),
+      tap(success => {
+        if (success) {
+          this.customCategories = this.customCategories.filter(c => c.id !== idNum);
+          this.categoriesCache$ = null;
+        }
+      })
+    );
   }
 
   // Expense methods
@@ -443,7 +496,8 @@ export class FinanceService {
         expenses: this.getExpensesObservable(),
         budgets: this.getBudgetsObservable(),
         savingsGoals: this.getSavingsGoalsObservable(),
-        salaries: this.getSalariesObservable()
+        salaries: this.getSalariesObservable(),
+        categories: this.getCustomCategoriesObservable()
       }).subscribe({
         error: (err) => console.error('Error loading finance data:', err)
       });
@@ -452,6 +506,7 @@ export class FinanceService {
       this.budgets = [];
       this.savingsGoals = [];
       this.salaries = [];
+      this.customCategories = [];
     }
   }
 }

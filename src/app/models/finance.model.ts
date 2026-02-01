@@ -1,7 +1,7 @@
 export interface Expense {
   id: string;
   amount: number;
-  category: 'food' | 'shopping' | 'health' | 'leisure' | 'transport' | 'bills' | 'other';
+  category: string;
   description: string;
   date: Date;
   paymentMethod?: string;
@@ -29,5 +29,12 @@ export interface Salary {
   period: 'monthly' | 'yearly';
   date: Date;
   description?: string;
+}
+
+export interface ExpenseCategory {
+  id: number;
+  name: string;
+  userId?: number;
+  createdAt?: string;
 }
 

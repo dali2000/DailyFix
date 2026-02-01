@@ -4,7 +4,7 @@ const User = require('../models/User.model');
 const Task = require('../models/Task.model');
 const Event = require('../models/Event.model');
 const { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } = require('../models/Health.model');
-const { Expense, Budget, SavingsGoal, Salary } = require('../models/Finance.model');
+const { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } = require('../models/Finance.model');
 const { ShoppingList, HouseholdTask } = require('../models/Home.model');
 const { JournalEntry, PersonalGoal, StressManagement } = require('../models/Wellness.model');
 const { SocialEvent, ActivitySuggestion } = require('../models/Social.model');
@@ -33,6 +33,7 @@ const createTables = async () => {
     console.log('  - water_intakes');
     console.log('  - meditation_sessions');
     console.log('  - expenses');
+    console.log('  - expense_categories');
     console.log('  - budgets');
     console.log('  - savings_goals');
     console.log('  - salaries');
