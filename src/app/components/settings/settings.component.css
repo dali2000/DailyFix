@@ -274,6 +274,97 @@
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
+/* Section Mes catégories personnelles */
+.custom-categories-section .custom-categories-emoji {
+  margin-right: 6px;
+  font-size: 1.1em;
+}
+
+.custom-categories-add {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.custom-categories-add input {
+  flex: 1;
+  min-width: 140px;
+  padding: 8px 12px;
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 14px;
+  background: var(--notion-bg);
+  color: var(--notion-text-primary);
+}
+
+.custom-categories-add input:focus {
+  outline: none;
+  border-color: var(--notion-blue);
+}
+
+.custom-categories-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.custom-category-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: var(--notion-bg-tertiary);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-size: 13px;
+  color: var(--notion-text-primary);
+}
+
+.custom-category-item .custom-category-icon {
+  font-size: 14px;
+}
+
+.custom-category-item .custom-category-name {
+  flex: 1;
+}
+
+.custom-categories-section .btn-icon {
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border-radius: var(--notion-radius);
+  border: none;
+  background: transparent;
+  color: var(--notion-text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.custom-categories-section .btn-icon:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-text-primary);
+}
+
+.custom-categories-section .btn-icon-danger:hover {
+  background: var(--notion-red-bg);
+  color: var(--notion-red);
+}
+
+.custom-categories-empty {
+  font-size: 13px;
+  color: var(--notion-text-secondary);
+  margin: 0;
+}
+
 /* Section Wallet (Portefeuille) - même couleur que le bouton actif */
 .dark-theme .settings-section-wallet {
   background: #2d2d2d !important;

@@ -157,6 +157,24 @@
       </div>
     </section>
 
+    <!-- Section Mes catégories personnelles (dépenses) -->
+    <section class="settings-section custom-categories-section" [attr.aria-label]="'finance.myCategories' | translate">
+      <h2><span class="custom-categories-emoji" aria-hidden="true">🏷️</span> {{ 'finance.myCategories' | translate }}</h2>
+      <p class="section-desc">{{ 'finance.myCategoriesDesc' | translate }}</p>
+      <div class="custom-categories-add">
+        <input type="text" [(ngModel)]="categoryToAdd" [placeholder]="'finance.newCategoryPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addCustomCategory()">
+        <button type="button" class="btn btn-primary" (click)="addCustomCategory()" [disabled]="!categoryToAdd.trim()">+ {{ 'finance.addCategoryButton' | translate }}</button>
+      </div>
+      <ul class="custom-categories-list" *ngIf="customCategoryList.length > 0">
+        <li *ngFor="let cat of customCategoryList" class="custom-category-item">
+          <span class="custom-category-icon">{{ getCategoryIcon(cat.name) }}</span>
+          <span class="custom-category-name">{{ cat.name }}</span>
+          <button type="button" class="btn-icon btn-icon-danger" (click)="removeCustomCategory(cat.id)" [attr.aria-label]="'common.delete' | translate" [title]="'finance.removeCategory' | translate">×</button>
+        </li>
+      </ul>
+      <p *ngIf="customCategoryList.length === 0" class="custom-categories-empty">{{ 'finance.noCustomCategories' | translate }}</p>
+    </section>
+
     <!-- Section Portefeuille -->
     <section class="settings-section settings-section-wallet">
       <h2>{{ 'settings.wallet' | translate }}</h2>

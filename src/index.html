@@ -1,7 +1,16 @@
 <!doctype html>
-<html lang="fr">
+<html lang="fr" dir="ltr">
 
 <head>
+  <script>
+    (function() {
+      var locale = localStorage.getItem('dailyfix_locale');
+      if (locale === 'ar') {
+        document.documentElement.setAttribute('dir', 'rtl');
+        document.documentElement.setAttribute('lang', 'ar');
+      }
+    })();
+  </script>
   <meta charset="utf-8">
   <title>DailyFix</title>
   <base href="/">

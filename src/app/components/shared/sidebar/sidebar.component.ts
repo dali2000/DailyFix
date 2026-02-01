@@ -4,6 +4,7 @@ import { RouterModule, Router } from '@angular/router';
 import { TranslatePipe } from '../../../pipes/translate.pipe';
 import { SidebarService } from '../../../services/sidebar.service';
 import { AuthService } from '../../../services/auth.service';
+import { I18nService } from '../../../services/i18n.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -17,6 +18,7 @@ export class SidebarComponent implements OnInit, OnDestroy {
   isCollapsed = false;
   isMobile = false;
   private sidebarSubscription?: Subscription;
+  private langSubscription?: Subscription;
   
   navigationItems = [
     { icon: '🏠', labelKey: 'nav.home', route: '/home' },
@@ -32,7 +34,8 @@ export class SidebarComponent implements OnInit, OnDestroy {
   constructor(
     private sidebarService: SidebarService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private i18n: I18nService
   ) {}
 
   @HostListener('window:resize', ['$event'])
@@ -71,13 +74,18 @@ export class SidebarComponent implements OnInit, OnDestroy {
 
   private updateMainContentMargin(): void {
     const mainContent = document.querySelector('.main-content') as HTMLElement;
-    if (mainContent) {
-      if (this.isMobile) {
-        // Sur mobile, ne pas ajouter de marge
-        mainContent.style.marginLeft = '0';
-      } else {
-        mainContent.style.marginLeft = this.isCollapsed ? '48px' : '240px';
-      }
+    if (!mainContent) return;
+    const isRtl = document.documentElement.getAttribute('dir') === 'rtl' ||
+      document.querySelector('app-root')?.classList.contains('dir-rtl');
+    if (this.isMobile) {
+      mainContent.style.marginLeft = '';
+      mainContent.style.marginRight = '';
+    } else if (isRtl) {
+      mainContent.style.marginLeft = '0';
+      mainContent.style.marginRight = this.isCollapsed ? '48px' : '240px';
+    } else {
+      mainContent.style.marginRight = '';
+      mainContent.style.marginLeft = this.isCollapsed ? '48px' : '240px';
     }
   }
 
@@ -93,6 +101,10 @@ export class SidebarComponent implements OnInit, OnDestroy {
     // Écouter les événements de toggle depuis la navbar
     this.sidebarSubscription = this.sidebarService.toggleSidebar$.subscribe(() => {
       this.toggleSidebar();
+    });
+    // Recalculer la marge du contenu quand la langue change (RTL / LTR)
+    this.langSubscription = this.i18n.onLangChange.subscribe(() => {
+      setTimeout(() => this.updateMainContentMargin(), 0);
     });
   }
 
@@ -117,12 +129,9 @@ export class SidebarComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    // Restaurer le scroll du body si nécessaire
     document.body.style.overflow = '';
-    // Désabonner du service
-    if (this.sidebarSubscription) {
-      this.sidebarSubscription.unsubscribe();
-    }
+    this.sidebarSubscription?.unsubscribe();
+    this.langSubscription?.unsubscribe();
   }
 }
 

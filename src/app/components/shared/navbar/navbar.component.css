@@ -569,62 +569,86 @@
   }
 }
 
-/* ---------- RTL (langue arabe) : navbar inversée ---------- */
-:host-context(html[dir="rtl"]) .navbar {
-  flex-direction: row-reverse;
+/* ---------- RTL (langue arabe) : inversion complète de la navbar ---------- */
+/* Classe .navbar-rtl et attr dir="rtl" sur <nav> quand isRtl */
+.navbar.navbar-rtl,
+.navbar[dir="rtl"] {
+  flex-direction: row-reverse !important;
 }
 
-:host-context(html[dir="rtl"]) .navbar-left {
-  flex-direction: row-reverse;
-  margin-left: 0;
+.navbar.navbar-rtl .navbar-left,
+.navbar[dir="rtl"] .navbar-left {
+  flex-direction: row-reverse !important;
+  margin-left: 0 !important;
   transition: margin-right 100ms ease-in 0s;
 }
 
-:host-context(html[dir="rtl"]) .navbar-right {
-  flex-direction: row-reverse;
+.navbar.navbar-rtl .navbar-right,
+.navbar[dir="rtl"] .navbar-right {
+  flex-direction: row-reverse !important;
 }
 
-:host-context(html[dir="rtl"]) .profile {
-  flex-direction: row-reverse;
+.navbar.navbar-rtl .weather-widget,
+.navbar[dir="rtl"] .weather-widget {
+  flex-direction: row-reverse !important;
 }
 
-:host-context(html[dir="rtl"]) .lang-dropdown {
-  right: auto;
-  left: 0;
+.navbar.navbar-rtl .weather-info,
+.navbar[dir="rtl"] .weather-info {
+  flex-direction: column;
   text-align: right;
 }
 
-:host-context(html[dir="rtl"]) .lang-dropdown .lang-item {
-  flex-direction: row-reverse;
+.navbar.navbar-rtl .profile,
+.navbar[dir="rtl"] .profile {
+  flex-direction: row-reverse !important;
+}
+
+.navbar.navbar-rtl .lang-dropdown,
+.navbar[dir="rtl"] .lang-dropdown {
+  right: auto !important;
+  left: 0 !important;
   text-align: right;
 }
 
-:host-context(html[dir="rtl"]) .profile-dropdown {
-  right: auto;
-  left: 0;
+.navbar.navbar-rtl .lang-dropdown .lang-item,
+.navbar[dir="rtl"] .lang-dropdown .lang-item {
+  flex-direction: row-reverse !important;
   text-align: right;
 }
 
-:host-context(html[dir="rtl"]) .profile-dropdown .dropdown-item,
-:host-context(html[dir="rtl"]) .dropdown-item {
-  flex-direction: row-reverse;
+.navbar.navbar-rtl .profile-dropdown,
+.navbar[dir="rtl"] .profile-dropdown {
+  right: auto !important;
+  left: 0 !important;
+  text-align: right;
+}
+
+.navbar.navbar-rtl .profile-dropdown .dropdown-item,
+.navbar.navbar-rtl .dropdown-item,
+.navbar[dir="rtl"] .profile-dropdown .dropdown-item,
+.navbar[dir="rtl"] .dropdown-item {
+  flex-direction: row-reverse !important;
   text-align: right;
 }
 
 @media (max-width: 768px) {
-  :host-context(html[dir="rtl"]) .navbar-left {
-    margin-left: 0;
-    margin-right: 48px;
+  .navbar.navbar-rtl .navbar-left,
+  .navbar[dir="rtl"] .navbar-left {
+    margin-left: 0 !important;
+    margin-right: 48px !important;
   }
 
-  :host-context(html[dir="rtl"]) .profile-dropdown {
-    right: auto;
-    left: -8px;
+  .navbar.navbar-rtl .profile-dropdown,
+  .navbar[dir="rtl"] .profile-dropdown {
+    right: auto !important;
+    left: -8px !important;
   }
 }
 
 @media (max-width: 480px) {
-  :host-context(html[dir="rtl"]) .navbar-left {
-    margin-right: 40px;
+  .navbar.navbar-rtl .navbar-left,
+  .navbar[dir="rtl"] .navbar-left {
+    margin-right: 40px !important;
   }
 }

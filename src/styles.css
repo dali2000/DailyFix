@@ -1028,6 +1028,15 @@ html[dir="rtl"] app-navbar .navbar-right {
   flex-direction: row-reverse;
 }
 
+html[dir="rtl"] app-navbar .weather-widget {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] app-navbar .weather-info {
+  flex-direction: column;
+  text-align: right;
+}
+
 /* Dropdowns navbar : s'ouvrent depuis la droite en RTL */
 html[dir="rtl"] app-navbar .lang-dropdown {
   right: auto;
@@ -1068,6 +1077,168 @@ html[dir="rtl"] app-navbar .profile {
 
 @media (max-width: 480px) {
   html[dir="rtl"] app-navbar .navbar-left {
+    margin-right: 40px;
+  }
+}
+
+/* Navbar RTL : .navbar-rtl ou dir="rtl" sur <nav> quand langue = ar */
+app-navbar .navbar.navbar-rtl,
+app-navbar .navbar[dir="rtl"] {
+  flex-direction: row-reverse !important;
+  left: 0;
+  right: 0;
+}
+
+app-navbar .navbar.navbar-rtl .navbar-left,
+app-navbar .navbar[dir="rtl"] .navbar-left {
+  flex-direction: row-reverse !important;
+  margin-left: 0 !important;
+  transition: margin-right 100ms ease-in 0s;
+}
+
+app-navbar .navbar.navbar-rtl .navbar-right,
+app-navbar .navbar[dir="rtl"] .navbar-right {
+  flex-direction: row-reverse !important;
+}
+
+app-navbar .navbar.navbar-rtl .weather-widget,
+app-navbar .navbar[dir="rtl"] .weather-widget {
+  flex-direction: row-reverse !important;
+}
+
+app-navbar .navbar.navbar-rtl .weather-info,
+app-navbar .navbar[dir="rtl"] .weather-info {
+  flex-direction: column;
+  text-align: right;
+}
+
+app-navbar .navbar.navbar-rtl .profile,
+app-navbar .navbar[dir="rtl"] .profile {
+  flex-direction: row-reverse !important;
+}
+
+app-navbar .navbar.navbar-rtl .lang-dropdown,
+app-navbar .navbar[dir="rtl"] .lang-dropdown {
+  right: auto !important;
+  left: 0 !important;
+  text-align: right;
+}
+
+app-navbar .navbar.navbar-rtl .lang-dropdown .lang-item,
+app-navbar .navbar[dir="rtl"] .lang-dropdown .lang-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+}
+
+app-navbar .navbar.navbar-rtl .profile-dropdown,
+app-navbar .navbar[dir="rtl"] .profile-dropdown {
+  right: auto !important;
+  left: 0 !important;
+  text-align: right;
+}
+
+app-navbar .navbar.navbar-rtl .profile-dropdown .dropdown-item,
+app-navbar .navbar.navbar-rtl .dropdown-item,
+app-navbar .navbar[dir="rtl"] .profile-dropdown .dropdown-item,
+app-navbar .navbar[dir="rtl"] .dropdown-item {
+  flex-direction: row-reverse !important;
+  text-align: right;
+}
+
+@media (max-width: 768px) {
+  app-navbar .navbar.navbar-rtl .navbar-left {
+    margin-right: 48px;
+  }
+
+  app-navbar .navbar.navbar-rtl .profile-dropdown {
+    left: -8px;
+    right: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  app-navbar .navbar.navbar-rtl .navbar-left {
+    margin-right: 40px;
+  }
+}
+
+/* Fallback : app-root.dir-rtl */
+app-root.dir-rtl app-navbar .navbar {
+  flex-direction: row-reverse;
+  left: 0;
+  right: 0;
+}
+
+app-root.dir-rtl app-navbar .navbar-left,
+app-navbar.navbar-rtl .navbar-left {
+  flex-direction: row-reverse;
+  margin-left: 0;
+  transition: margin-right 100ms ease-in 0s;
+}
+
+app-root.dir-rtl app-navbar .navbar-right,
+app-navbar.navbar-rtl .navbar-right {
+  flex-direction: row-reverse;
+}
+
+app-root.dir-rtl app-navbar .weather-widget,
+app-navbar.navbar-rtl .weather-widget {
+  flex-direction: row-reverse;
+}
+
+app-root.dir-rtl app-navbar .weather-info,
+app-navbar.navbar-rtl .weather-info {
+  flex-direction: column;
+  text-align: right;
+}
+
+app-root.dir-rtl app-navbar .lang-dropdown,
+app-navbar.navbar-rtl .lang-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+app-root.dir-rtl app-navbar .lang-dropdown .lang-item,
+app-navbar.navbar-rtl .lang-dropdown .lang-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+app-root.dir-rtl app-navbar .profile-dropdown,
+app-navbar.navbar-rtl .profile-dropdown {
+  right: auto;
+  left: 0;
+  text-align: right;
+}
+
+app-root.dir-rtl app-navbar .profile-dropdown .dropdown-item,
+app-navbar.navbar-rtl .profile-dropdown .dropdown-item {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+app-root.dir-rtl app-navbar .profile,
+app-navbar.navbar-rtl .profile {
+  flex-direction: row-reverse;
+}
+
+@media (max-width: 768px) {
+  app-root.dir-rtl app-navbar .navbar-left,
+  app-navbar.navbar-rtl .navbar-left {
+    margin-right: 48px;
+  }
+
+  app-root.dir-rtl app-navbar .profile-dropdown,
+  app-navbar.navbar-rtl .profile-dropdown {
+    left: -8px;
+    right: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  app-root.dir-rtl app-navbar .navbar-left,
+  app-navbar.navbar-rtl .navbar-left {
     margin-right: 40px;
   }
 }

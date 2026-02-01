@@ -149,24 +149,6 @@
 
   <!-- Expenses Tab -->
   <div *ngIf="activeTab === 'expenses'" class="tab-content tab-content-animate" role="tabpanel">
-    <!-- Mes catégories personnelles : en premier pour être bien visible -->
-    <section class="custom-categories-section" [attr.aria-label]="'finance.myCategories' | translate">
-      <h3 class="custom-categories-title"><span class="custom-categories-emoji" aria-hidden="true">🏷️</span> {{ 'finance.myCategories' | translate }}</h3>
-      <p class="custom-categories-desc">{{ 'finance.myCategoriesDesc' | translate }}</p>
-      <div class="custom-categories-add">
-        <input type="text" [(ngModel)]="categoryToAdd" [placeholder]="'finance.newCategoryPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addCustomCategory(categoryToAdd)">
-        <button type="button" class="btn btn-primary" (click)="addCustomCategory(categoryToAdd)" [disabled]="!categoryToAdd.trim()">+ {{ 'finance.addCategoryButton' | translate }}</button>
-      </div>
-      <ul class="custom-categories-list" *ngIf="customCategoryList.length > 0">
-        <li *ngFor="let cat of customCategoryList" class="custom-category-item">
-          <span class="custom-category-icon">{{ getCategoryIcon(cat.name) }}</span>
-          <span class="custom-category-name">{{ cat.name }}</span>
-          <button type="button" class="btn-icon btn-icon-danger" (click)="removeCustomCategory(cat.id)" [attr.aria-label]="'common.delete' | translate" [title]="'finance.removeCategory' | translate">×</button>
-        </li>
-      </ul>
-      <p *ngIf="customCategoryList.length === 0" class="custom-categories-empty">{{ 'finance.noCustomCategories' | translate }}</p>
-    </section>
-
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <div class="section-header">
       <h2>{{ 'finance.expenses' | translate }}</h2>

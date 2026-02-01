@@ -18,7 +18,8 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule, TranslatePipe, ToastComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.css'
+  styleUrl: './app.component.css',
+  host: { '[class.dir-rtl]': 'isRtl' }
 })
 export class AppComponent implements OnInit, OnDestroy {
   title = 'dailyFix';
@@ -63,7 +64,10 @@ export class AppComponent implements OnInit, OnDestroy {
     }
     // Direction d'écriture : RTL pour l'arabe, LTR pour les autres
     this.applyDirAndLang();
-    this.langSubscription = this.i18n.onLangChange.subscribe(() => this.applyDirAndLang());
+    this.langSubscription = this.i18n.onLangChange.subscribe(() => {
+      this.applyDirAndLang();
+      this.cdr.detectChanges();
+    });
     // Initialiser le service de thème (charge le thème sauvegardé)
     this.themeService.watchSystemPreference();
     
@@ -90,12 +94,19 @@ export class AppComponent implements OnInit, OnDestroy {
     this.langSubscription?.unsubscribe();
   }
 
+  /** true quand la langue est l'arabe (layout RTL). */
+  get isRtl(): boolean {
+    const lang = this.i18n.currentLang || localStorage.getItem('dailyfix_locale') || 'fr';
+    return lang === 'ar';
+  }
+
   /** Applique dir (rtl/ltr) et lang sur <html> selon la langue courante. */
   private applyDirAndLang(): void {
     const doc = document.documentElement;
-    const lang = this.i18n.currentLang;
+    const lang = this.i18n.currentLang || (localStorage.getItem('dailyfix_locale') as string) || 'fr';
+    const dir = lang === 'ar' ? 'rtl' : 'ltr';
     doc.setAttribute('lang', lang);
-    doc.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+    doc.setAttribute('dir', dir);
   }
 
   private updateVisibility(url: string): void {

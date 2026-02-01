@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, HostListener, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { WeatherService, WeatherData } from '../../../services/weather.service';
@@ -15,7 +15,8 @@ import { Subscription } from 'rxjs';
   standalone: true,
   imports: [CommonModule, RouterModule, NotificationsComponent, TranslatePipe],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.css'
+  styleUrl: './navbar.component.css',
+  host: { '[class.navbar-rtl]': 'isRtl' }
 })
 export class NavbarComponent implements OnInit, OnDestroy {
   showMenu = false;
@@ -46,7 +47,8 @@ export class NavbarComponent implements OnInit, OnDestroy {
     private router: Router,
     private authService: AuthService,
     private themeService: ThemeService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   @HostListener('window:resize', ['$event'])
@@ -88,7 +90,14 @@ export class NavbarComponent implements OnInit, OnDestroy {
     this.currentLang = this.i18n.currentLang;
     this.langSubscription = this.i18n.onLangChange.subscribe(lang => {
       this.currentLang = lang;
+      this.cdr.detectChanges();
     });
+    this.cdr.detectChanges();
+  }
+
+  /** true en arabe : inversion RTL de la navbar. */
+  get isRtl(): boolean {
+    return this.currentLang === 'ar';
   }
 
   ngOnDestroy(): void {

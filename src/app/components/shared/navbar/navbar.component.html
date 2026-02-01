@@ -1,4 +1,4 @@
-<nav class="navbar">
+<nav class="navbar" [class.navbar-rtl]="isRtl" [attr.dir]="isRtl ? 'rtl' : null">
   <div class="navbar-left">
     <button class="menu-btn" *ngIf="isMobile" (click)="toggleSidebar()" aria-label="Menu">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

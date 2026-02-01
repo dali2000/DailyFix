@@ -7,6 +7,9 @@ import { I18nService } from '../../services/i18n.service';
 import { ThemeService, Theme } from '../../services/theme.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
+import { FinanceService } from '../../services/finance.service';
+import { ToastService } from '../../services/toast.service';
+import { ExpenseCategory } from '../../models/finance.model';
 import { Subscription } from 'rxjs';
 
 export const LANGUAGES = [
@@ -35,16 +38,21 @@ export class SettingsComponent implements OnInit, OnDestroy {
   selectedCurrencyCode = 'EUR';
   selectedLocale = 'fr';
   readonly languages = LANGUAGES;
+  customCategoryList: ExpenseCategory[] = [];
+  categoryToAdd = '';
   private themeSubscription?: Subscription;
   private userSubscription?: Subscription;
   private currencySubscription?: Subscription;
+  private categoriesSubscription?: Subscription;
 
   constructor(
     private themeService: ThemeService,
     private authService: AuthService,
     private currencyService: CurrencyService,
     private i18n: I18nService,
-    private router: Router
+    private router: Router,
+    private financeService: FinanceService,
+    private toastService: ToastService
   ) {}
 
   get currencies() {
@@ -172,6 +180,54 @@ export class SettingsComponent implements OnInit, OnDestroy {
       this.selectedCurrencyCode = code;
     });
     this.selectedLocale = this.authService.getCurrentUser()?.locale || localStorage.getItem('dailyfix_locale') || 'fr';
+
+    this.categoriesSubscription = this.financeService.getCustomCategoriesObservable().subscribe({
+      next: list => {
+        this.customCategoryList = list.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id : parseInt(String(c.id), 10) }));
+      },
+      error: err => console.error('Error loading categories:', err)
+    });
+  }
+
+  getCategoryIcon(category: string): string {
+    const icons: { [key: string]: string } = {
+      food: '🍔',
+      shopping: '🛍️',
+      health: '🏥',
+      leisure: '🎮',
+      transport: '🚗',
+      bills: '📄',
+      other: '📦'
+    };
+    return icons[category] || '📦';
+  }
+
+  addCustomCategory(): void {
+    const name = this.categoryToAdd?.trim() || '';
+    if (!name) return;
+    this.financeService.addCustomCategory(name).subscribe({
+      next: () => {
+        this.customCategoryList = this.financeService.getCustomCategories();
+        this.categoryToAdd = '';
+      },
+      error: err => {
+        console.error('Error adding category:', err);
+        this.toastService.error(this.i18n.instant('common.error') || 'Erreur');
+      }
+    });
+  }
+
+  removeCustomCategory(id: string | number): void {
+    this.financeService.removeCustomCategory(id).subscribe({
+      next: () => {
+        this.customCategoryList = this.financeService.getCustomCategories();
+        this.toastService.success(this.i18n.instant('finance.categoryRemoved') || 'Catégorie retirée.');
+      },
+      error: err => {
+        console.error('Error removing category:', err);
+        this.toastService.error(this.i18n.instant('common.error') || 'Erreur');
+      }
+    });
   }
 
   onLocaleChange(code: string): void {
@@ -191,6 +247,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.themeSubscription?.unsubscribe();
     this.userSubscription?.unsubscribe();
     this.currencySubscription?.unsubscribe();
+    this.categoriesSubscription?.unsubscribe();
   }
 
   onCurrencyChange(code: string): void {
