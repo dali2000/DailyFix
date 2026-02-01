@@ -242,6 +242,7 @@
     "startDate": "Start date",
     "endDate": "End date",
     "today": "Today",
+    "year": "Year",
     "sun": "Sun", "mon": "Mon", "tue": "Tue", "wed": "Wed", "thu": "Thu", "fri": "Fri", "sat": "Sat",
     "blue": "Blue", "green": "Green", "orange": "Orange", "red": "Red", "purple": "Purple", "pink": "Pink",
     "confirmDeleteEvent": "Delete this event?",
