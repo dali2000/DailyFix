@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged, switchMap } from 'rxjs';
+import { Observable, map, tap, distinctUntilChanged, switchMap, shareReplay, forkJoin } from 'rxjs';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../models/home.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -17,6 +17,8 @@ interface ApiResponse<T> {
 export class HomeService {
   private shoppingLists: ShoppingList[] = [];
   private householdTasks: HouseholdTask[] = [];
+  private shoppingListsCache$: Observable<ShoppingList[]> | null = null;
+  private householdTasksCache$: Observable<HouseholdTask[]> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -27,12 +29,12 @@ export class HomeService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
         this.loadAll();
       } else {
-        // Utilisateur déconnecté - vider les données
         this.shoppingLists = [];
         this.householdTasks = [];
+        this.shoppingListsCache$ = null;
+        this.householdTasksCache$ = null;
       }
     });
   }
@@ -43,9 +45,10 @@ export class HomeService {
   }
 
   getShoppingListsObservable(): Observable<ShoppingList[]> {
-    return this.apiService.get<ApiResponse<ShoppingList[]>>('/home/shopping-lists').pipe(
-      map(response => response.data || []),
-      map(lists => lists.map(l => {
+    if (!this.shoppingListsCache$) {
+      this.shoppingListsCache$ = this.apiService.get<ApiResponse<ShoppingList[]>>('/home/shopping-lists').pipe(
+        map(response => response.data || []),
+        map(lists => lists.map(l => {
         // S'assurer que items est un tableau
         let itemsArray: any[] = [];
         if (l.items) {
@@ -75,8 +78,11 @@ export class HomeService {
           }))
         };
       })),
-      tap(lists => this.shoppingLists = lists)
-    );
+        tap(lists => this.shoppingLists = lists),
+        shareReplay(1)
+      );
+    }
+    return this.shoppingListsCache$;
   }
 
   getShoppingListById(id: string): ShoppingList | undefined {
@@ -139,6 +145,7 @@ export class HomeService {
       }),
       tap(newList => {
         this.shoppingLists.push(newList);
+        this.shoppingListsCache$ = null;
       })
     );
   }
@@ -189,9 +196,9 @@ export class HomeService {
         if (index !== -1) {
           this.shoppingLists[index] = updatedList;
         } else {
-          // Si la liste n'est pas trouvée, l'ajouter
           this.shoppingLists.push(updatedList);
         }
+        this.shoppingListsCache$ = null;
       })
     );
   }
@@ -204,6 +211,7 @@ export class HomeService {
         if (index !== -1) {
           this.shoppingLists.splice(index, 1);
         }
+        this.shoppingListsCache$ = null;
       })
     );
   }
@@ -214,16 +222,20 @@ export class HomeService {
   }
 
   getHouseholdTasksObservable(): Observable<HouseholdTask[]> {
-    return this.apiService.get<ApiResponse<HouseholdTask[]>>('/home/household-tasks').pipe(
-      map(response => response.data || []),
-      tap(tasks => this.householdTasks = tasks.map(t => ({
-        ...t,
-        id: t.id.toString(),
-        dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
-        lastCompleted: t.lastCompleted ? new Date(t.lastCompleted) : undefined,
-        nextDueDate: t.nextDueDate ? new Date(t.nextDueDate) : undefined
-      })))
-    );
+    if (!this.householdTasksCache$) {
+      this.householdTasksCache$ = this.apiService.get<ApiResponse<HouseholdTask[]>>('/home/household-tasks').pipe(
+        map(response => response.data || []),
+        tap(tasks => this.householdTasks = tasks.map(t => ({
+          ...t,
+          id: t.id.toString(),
+          dueDate: t.dueDate ? new Date(t.dueDate) : undefined,
+          lastCompleted: t.lastCompleted ? new Date(t.lastCompleted) : undefined,
+          nextDueDate: t.nextDueDate ? new Date(t.nextDueDate) : undefined
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.householdTasksCache$;
   }
 
   getHouseholdTaskById(id: string): HouseholdTask | undefined {
@@ -247,6 +259,7 @@ export class HomeService {
           lastCompleted: newTask.lastCompleted ? new Date(newTask.lastCompleted) : undefined,
           nextDueDate: newTask.nextDueDate ? new Date(newTask.nextDueDate) : undefined
         });
+        this.householdTasksCache$ = null;
       })
     );
   }
@@ -265,6 +278,7 @@ export class HomeService {
             nextDueDate: updatedTask.nextDueDate ? new Date(updatedTask.nextDueDate) : undefined
           };
         }
+        this.householdTasksCache$ = null;
       })
     );
   }
@@ -277,6 +291,7 @@ export class HomeService {
         if (index !== -1) {
           this.householdTasks.splice(index, 1);
         }
+        this.householdTasksCache$ = null;
       })
     );
   }
@@ -362,11 +377,11 @@ export class HomeService {
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
-      this.getShoppingListsObservable().subscribe({
-        error: (error) => console.error('Error loading shopping lists:', error)
-      });
-      this.getHouseholdTasksObservable().subscribe({
-        error: (error) => console.error('Error loading household tasks:', error)
+      forkJoin({
+        shoppingLists: this.getShoppingListsObservable(),
+        householdTasks: this.getHouseholdTasksObservable()
+      }).subscribe({
+        error: (err) => console.error('Error loading home data:', err)
       });
     } else {
       this.shoppingLists = [];

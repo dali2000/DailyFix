@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin } from 'rxjs';
 import { SocialEvent, ActivitySuggestion } from '../models/social.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -16,6 +16,8 @@ interface ApiResponse<T> {
 })
 export class SocialService {
   private events: SocialEvent[] = [];
+  private eventsCache$: Observable<SocialEvent[]> | null = null;
+  private suggestionsCache$: Observable<ActivitySuggestion[]> | null = null;
   private suggestions: ActivitySuggestion[] = [
     {
       id: '1',
@@ -68,11 +70,11 @@ export class SocialService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
         this.loadAll();
       } else {
-        // Utilisateur déconnecté - vider les données (garder les suggestions par défaut)
         this.events = [];
+        this.eventsCache$ = null;
+        this.suggestionsCache$ = null;
       }
     });
   }
@@ -83,15 +85,19 @@ export class SocialService {
   }
 
   getEventsObservable(): Observable<SocialEvent[]> {
-    return this.apiService.get<ApiResponse<SocialEvent[]>>('/social/events').pipe(
-      map(response => response.data || []),
-      tap(events => this.events = events.map(e => ({
-        ...e,
-        id: e.id.toString(),
-        date: new Date(e.date),
-        reminder: e.reminder ? new Date(e.reminder) : undefined
-      })))
-    );
+    if (!this.eventsCache$) {
+      this.eventsCache$ = this.apiService.get<ApiResponse<SocialEvent[]>>('/social/events').pipe(
+        map(response => response.data || []),
+        tap(events => this.events = events.map(e => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date),
+          reminder: e.reminder ? new Date(e.reminder) : undefined
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.eventsCache$;
   }
 
   getEventById(id: string): SocialEvent | undefined {
@@ -153,14 +159,18 @@ export class SocialService {
   }
 
   getSuggestionsObservable(): Observable<ActivitySuggestion[]> {
-    return this.apiService.get<ApiResponse<ActivitySuggestion[]>>('/social/suggestions').pipe(
-      map(response => response.data || []),
-      tap(suggestions => {
-        if (suggestions.length > 0) {
-          this.suggestions = suggestions.map(s => ({ ...s, id: s.id.toString() }));
-        }
-      })
-    );
+    if (!this.suggestionsCache$) {
+      this.suggestionsCache$ = this.apiService.get<ApiResponse<ActivitySuggestion[]>>('/social/suggestions').pipe(
+        map(response => response.data || []),
+        tap(suggestions => {
+          if (suggestions.length > 0) {
+            this.suggestions = suggestions.map(s => ({ ...s, id: s.id.toString() }));
+          }
+        }),
+        shareReplay(1)
+      );
+    }
+    return this.suggestionsCache$;
   }
 
   addSuggestion(suggestion: Omit<ActivitySuggestion, 'id'>): Observable<ActivitySuggestion> {
@@ -232,15 +242,14 @@ export class SocialService {
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
-      this.getEventsObservable().subscribe({
-        error: (error) => console.error('Error loading social events:', error)
-      });
-      this.getSuggestionsObservable().subscribe({
-        error: (error) => console.error('Error loading suggestions:', error)
+      forkJoin({
+        events: this.getEventsObservable(),
+        suggestions: this.getSuggestionsObservable()
+      }).subscribe({
+        error: (err) => console.error('Error loading social data:', err)
       });
     } else {
       this.events = [];
-      // Garder les suggestions par défaut même si non authentifié
     }
   }
 }

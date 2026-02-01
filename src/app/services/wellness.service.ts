@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin } from 'rxjs';
 import { JournalEntry, PersonalGoal, StressManagement } from '../models/wellness.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -18,6 +18,9 @@ export class WellnessService {
   private journalEntries: JournalEntry[] = [];
   private personalGoals: PersonalGoal[] = [];
   private stressRecords: StressManagement[] = [];
+  private journalCache$: Observable<JournalEntry[]> | null = null;
+  private goalsCache$: Observable<PersonalGoal[]> | null = null;
+  private stressCache$: Observable<StressManagement[]> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -28,13 +31,14 @@ export class WellnessService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
         this.loadAll();
       } else {
-        // Utilisateur déconnecté - vider les données
         this.journalEntries = [];
         this.personalGoals = [];
         this.stressRecords = [];
+        this.journalCache$ = null;
+        this.goalsCache$ = null;
+        this.stressCache$ = null;
       }
     });
   }
@@ -47,14 +51,18 @@ export class WellnessService {
   }
 
   getJournalEntriesObservable(): Observable<JournalEntry[]> {
-    return this.apiService.get<ApiResponse<JournalEntry[]>>('/wellness/journal').pipe(
-      map(response => response.data || []),
-      tap(entries => this.journalEntries = entries.map(e => ({
-        ...e,
-        id: e.id.toString(),
-        date: new Date(e.date)
-      })))
-    );
+    if (!this.journalCache$) {
+      this.journalCache$ = this.apiService.get<ApiResponse<JournalEntry[]>>('/wellness/journal').pipe(
+        map(response => response.data || []),
+        tap(entries => this.journalEntries = entries.map(e => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.journalCache$;
   }
 
   getJournalEntryById(id: string): JournalEntry | undefined {
@@ -114,14 +122,18 @@ export class WellnessService {
   }
 
   getPersonalGoalsObservable(): Observable<PersonalGoal[]> {
-    return this.apiService.get<ApiResponse<PersonalGoal[]>>('/wellness/goals').pipe(
-      map(response => response.data || []),
-      tap(goals => this.personalGoals = goals.map(g => ({
-        ...g,
-        id: g.id.toString(),
-        targetDate: g.targetDate ? new Date(g.targetDate) : undefined
-      })))
-    );
+    if (!this.goalsCache$) {
+      this.goalsCache$ = this.apiService.get<ApiResponse<PersonalGoal[]>>('/wellness/goals').pipe(
+        map(response => response.data || []),
+        tap(goals => this.personalGoals = goals.map(g => ({
+          ...g,
+          id: g.id.toString(),
+          targetDate: g.targetDate ? new Date(g.targetDate) : undefined
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.goalsCache$;
   }
 
   getPersonalGoalById(id: string): PersonalGoal | undefined {
@@ -181,14 +193,18 @@ export class WellnessService {
   }
 
   getStressRecordsObservable(): Observable<StressManagement[]> {
-    return this.apiService.get<ApiResponse<StressManagement[]>>('/wellness/stress').pipe(
-      map(response => response.data || []),
-      tap(records => this.stressRecords = records.map(r => ({
-        ...r,
-        id: r.id.toString(),
-        date: new Date(r.date)
-      })))
-    );
+    if (!this.stressCache$) {
+      this.stressCache$ = this.apiService.get<ApiResponse<StressManagement[]>>('/wellness/stress').pipe(
+        map(response => response.data || []),
+        tap(records => this.stressRecords = records.map(r => ({
+          ...r,
+          id: r.id.toString(),
+          date: new Date(r.date)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.stressCache$;
   }
 
   getStressRecordById(id: string): StressManagement | undefined {
@@ -281,14 +297,12 @@ export class WellnessService {
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
-      this.getJournalEntriesObservable().subscribe({
-        error: (error) => console.error('Error loading journal entries:', error)
-      });
-      this.getPersonalGoalsObservable().subscribe({
-        error: (error) => console.error('Error loading personal goals:', error)
-      });
-      this.getStressRecordsObservable().subscribe({
-        error: (error) => console.error('Error loading stress records:', error)
+      forkJoin({
+        journal: this.getJournalEntriesObservable(),
+        goals: this.getPersonalGoalsObservable(),
+        stress: this.getStressRecordsObservable()
+      }).subscribe({
+        error: (err) => console.error('Error loading wellness data:', err)
       });
     } else {
       this.journalEntries = [];

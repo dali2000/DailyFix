@@ -4,9 +4,13 @@ dotenv.config();
 
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const { connectDB } = require('./config/database');
 
 const app = express();
+
+// Compression gzip des réponses pour réduire le temps de transfert
+app.use(compression());
 
 // Middleware CORS - Configuration améliorée
 const allowedOrigins = [

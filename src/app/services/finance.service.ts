@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin } from 'rxjs';
 import { Expense, Budget, SavingsGoal, Salary } from '../models/finance.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -19,6 +19,10 @@ export class FinanceService {
   private budgets: Budget[] = [];
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
+  private expensesCache$: Observable<Expense[]> | null = null;
+  private budgetsCache$: Observable<Budget[]> | null = null;
+  private savingsGoalsCache$: Observable<SavingsGoal[]> | null = null;
+  private salariesCache$: Observable<Salary[]> | null = null;
 
   /** Parse API amount (string or number) to number for calculations. */
   private parseAmount(value: unknown): number {
@@ -38,14 +42,16 @@ export class FinanceService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
         this.loadAll();
       } else {
-        // Utilisateur déconnecté - vider les données
         this.expenses = [];
         this.budgets = [];
         this.savingsGoals = [];
         this.salaries = [];
+        this.expensesCache$ = null;
+        this.budgetsCache$ = null;
+        this.savingsGoalsCache$ = null;
+        this.salariesCache$ = null;
       }
     });
   }
@@ -56,15 +62,19 @@ export class FinanceService {
   }
 
   getExpensesObservable(): Observable<Expense[]> {
-    return this.apiService.get<ApiResponse<Expense[]>>('/finance/expenses').pipe(
-      map(response => response.data || []),
-      tap(expenses => this.expenses = expenses.map(e => ({
-        ...e,
-        id: e.id.toString(),
-        date: new Date(e.date),
-        amount: this.parseAmount((e as any).amount)
-      })))
-    );
+    if (!this.expensesCache$) {
+      this.expensesCache$ = this.apiService.get<ApiResponse<Expense[]>>('/finance/expenses').pipe(
+        map(response => response.data || []),
+        tap(expenses => this.expenses = expenses.map(e => ({
+          ...e,
+          id: e.id.toString(),
+          date: new Date(e.date),
+          amount: this.parseAmount((e as any).amount)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.expensesCache$;
   }
 
   addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
@@ -72,6 +82,7 @@ export class FinanceService {
       map(response => response.data!),
       tap(newExpense => {
         this.expenses.push({ ...newExpense, id: newExpense.id.toString(), date: new Date(newExpense.date) });
+        this.expensesCache$ = null;
       })
     );
   }
@@ -84,6 +95,7 @@ export class FinanceService {
         if (index !== -1) {
           this.expenses[index] = { ...updatedExpense, id: updatedExpense.id.toString(), date: new Date(updatedExpense.date) };
         }
+        this.expensesCache$ = null;
       })
     );
   }
@@ -96,6 +108,7 @@ export class FinanceService {
         if (index !== -1) {
           this.expenses.splice(index, 1);
         }
+        this.expensesCache$ = null;
       })
     );
   }
@@ -114,15 +127,19 @@ export class FinanceService {
   }
 
   getBudgetsObservable(): Observable<Budget[]> {
-    return this.apiService.get<ApiResponse<Budget[]>>('/finance/budgets').pipe(
-      map(response => response.data || []),
-      tap(budgets => this.budgets = budgets.map(b => ({
-        ...b,
-        id: b.id.toString(),
-        limit: this.parseAmount((b as any).limit),
-        spent: this.parseAmount((b as any).spent)
-      })))
-    );
+    if (!this.budgetsCache$) {
+      this.budgetsCache$ = this.apiService.get<ApiResponse<Budget[]>>('/finance/budgets').pipe(
+        map(response => response.data || []),
+        tap(budgets => this.budgets = budgets.map(b => ({
+          ...b,
+          id: b.id.toString(),
+          limit: this.parseAmount((b as any).limit),
+          spent: this.parseAmount((b as any).spent)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.budgetsCache$;
   }
 
   addBudget(budget: Omit<Budget, 'id' | 'spent'>): Observable<Budget> {
@@ -130,6 +147,7 @@ export class FinanceService {
       map(response => response.data!),
       tap(newBudget => {
         this.budgets.push({ ...newBudget, id: newBudget.id.toString() });
+        this.budgetsCache$ = null;
       })
     );
   }
@@ -142,6 +160,7 @@ export class FinanceService {
         if (index !== -1) {
           this.budgets[index] = { ...updatedBudget, id: updatedBudget.id.toString() };
         }
+        this.budgetsCache$ = null;
       })
     );
   }
@@ -154,6 +173,7 @@ export class FinanceService {
         if (index !== -1) {
           this.budgets.splice(index, 1);
         }
+        this.budgetsCache$ = null;
       })
     );
   }
@@ -164,16 +184,20 @@ export class FinanceService {
   }
 
   getSavingsGoalsObservable(): Observable<SavingsGoal[]> {
-    return this.apiService.get<ApiResponse<SavingsGoal[]>>('/finance/savings-goals').pipe(
-      map(response => response.data || []),
-      tap(goals => this.savingsGoals = goals.map(g => ({
-        ...g,
-        id: g.id.toString(),
-        deadline: g.deadline ? new Date(g.deadline) : undefined,
-        targetAmount: this.parseAmount((g as any).targetAmount),
-        currentAmount: this.parseAmount((g as any).currentAmount)
-      })))
-    );
+    if (!this.savingsGoalsCache$) {
+      this.savingsGoalsCache$ = this.apiService.get<ApiResponse<SavingsGoal[]>>('/finance/savings-goals').pipe(
+        map(response => response.data || []),
+        tap(goals => this.savingsGoals = goals.map(g => ({
+          ...g,
+          id: g.id.toString(),
+          deadline: g.deadline ? new Date(g.deadline) : undefined,
+          targetAmount: this.parseAmount((g as any).targetAmount),
+          currentAmount: this.parseAmount((g as any).currentAmount)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.savingsGoalsCache$;
   }
 
   updateSavingsGoal(id: string, updates: Partial<SavingsGoal>): Observable<SavingsGoal> {
@@ -188,6 +212,7 @@ export class FinanceService {
             deadline: updatedGoal.deadline ? new Date(updatedGoal.deadline) : undefined
           };
         }
+        this.savingsGoalsCache$ = null;
       })
     );
   }
@@ -200,6 +225,7 @@ export class FinanceService {
         if (index !== -1) {
           this.savingsGoals.splice(index, 1);
         }
+        this.savingsGoalsCache$ = null;
       })
     );
   }
@@ -210,15 +236,19 @@ export class FinanceService {
   }
 
   getSalariesObservable(): Observable<Salary[]> {
-    return this.apiService.get<ApiResponse<Salary[]>>('/finance/salaries').pipe(
-      map(response => response.data || []),
-      tap(salaries => this.salaries = salaries.map(s => ({
-        ...s,
-        id: s.id.toString(),
-        date: new Date(s.date),
-        amount: this.parseAmount((s as any).amount)
-      })))
-    );
+    if (!this.salariesCache$) {
+      this.salariesCache$ = this.apiService.get<ApiResponse<Salary[]>>('/finance/salaries').pipe(
+        map(response => response.data || []),
+        tap(salaries => this.salaries = salaries.map(s => ({
+          ...s,
+          id: s.id.toString(),
+          date: new Date(s.date),
+          amount: this.parseAmount((s as any).amount)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.salariesCache$;
   }
 
   addSalary(salary: Omit<Salary, 'id'>): Observable<Salary> {
@@ -226,6 +256,7 @@ export class FinanceService {
       map(response => response.data!),
       tap(newSalary => {
         this.salaries.push({ ...newSalary, id: newSalary.id.toString(), date: new Date(newSalary.date) });
+        this.salariesCache$ = null;
       })
     );
   }
@@ -238,6 +269,7 @@ export class FinanceService {
         if (index !== -1) {
           this.salaries[index] = { ...updatedSalary, id: updatedSalary.id.toString(), date: new Date(updatedSalary.date) };
         }
+        this.salariesCache$ = null;
       })
     );
   }
@@ -250,6 +282,7 @@ export class FinanceService {
         if (index !== -1) {
           this.salaries.splice(index, 1);
         }
+        this.salariesCache$ = null;
       })
     );
   }
@@ -399,23 +432,20 @@ export class FinanceService {
           id: newGoal.id.toString(),
           deadline: newGoal.deadline ? new Date(newGoal.deadline) : undefined
         });
+        this.savingsGoalsCache$ = null;
       })
     );
   }
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
-      this.getExpensesObservable().subscribe({
-        error: (error) => console.error('Error loading expenses:', error)
-      });
-      this.getBudgetsObservable().subscribe({
-        error: (error) => console.error('Error loading budgets:', error)
-      });
-      this.getSavingsGoalsObservable().subscribe({
-        error: (error) => console.error('Error loading savings goals:', error)
-      });
-      this.getSalariesObservable().subscribe({
-        error: (error) => console.error('Error loading salaries:', error)
+      forkJoin({
+        expenses: this.getExpensesObservable(),
+        budgets: this.getBudgetsObservable(),
+        savingsGoals: this.getSavingsGoalsObservable(),
+        salaries: this.getSalariesObservable()
+      }).subscribe({
+        error: (err) => console.error('Error loading finance data:', err)
       });
     } else {
       this.expenses = [];

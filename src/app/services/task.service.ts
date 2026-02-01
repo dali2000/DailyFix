@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, BehaviorSubject, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, BehaviorSubject, map, tap, distinctUntilChanged, shareReplay } from 'rxjs';
 import { Task, CalendarEvent } from '../models/task.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -18,6 +18,7 @@ export class TaskService {
   private tasks: Task[] = [];
   private tasksSubject = new BehaviorSubject<Task[]>([]);
   private events: CalendarEvent[] = [];
+  private eventsCache$: Observable<CalendarEvent[]> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -28,14 +29,13 @@ export class TaskService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données (un seul GET)
         this.loadTasks();
         this.loadEvents();
       } else {
-        // Utilisateur déconnecté - vider les données
         this.tasks = [];
         this.tasksSubject.next([]);
         this.events = [];
+        this.eventsCache$ = null;
       }
     });
   }
@@ -138,10 +138,14 @@ export class TaskService {
   }
 
   getEventsObservable(): Observable<CalendarEvent[]> {
-    return this.apiService.get<ApiResponse<CalendarEvent[]>>('/events').pipe(
-      map(response => response.data || []),
-      tap(events => this.events = events)
-    );
+    if (!this.eventsCache$) {
+      this.eventsCache$ = this.apiService.get<ApiResponse<CalendarEvent[]>>('/events').pipe(
+        map(response => response.data || []),
+        tap(events => this.events = events),
+        shareReplay(1)
+      );
+    }
+    return this.eventsCache$;
   }
 
   addEvent(event: Omit<CalendarEvent, 'id'>): Observable<CalendarEvent> {
@@ -149,6 +153,7 @@ export class TaskService {
       map(response => response.data!),
       tap(newEvent => {
         this.events.push(newEvent);
+        this.eventsCache$ = null;
       })
     );
   }
@@ -161,6 +166,7 @@ export class TaskService {
         if (index !== -1) {
           this.events[index] = updatedEvent;
         }
+        this.eventsCache$ = null;
       })
     );
   }
@@ -173,6 +179,7 @@ export class TaskService {
         if (index !== -1) {
           this.events.splice(index, 1);
         }
+        this.eventsCache$ = null;
       })
     );
   }

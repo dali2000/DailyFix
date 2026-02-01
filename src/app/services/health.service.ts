@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable, map, tap, distinctUntilChanged } from 'rxjs';
+import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin } from 'rxjs';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../models/health.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
@@ -20,6 +20,11 @@ export class HealthService {
   private sleepRecords: SleepRecord[] = [];
   private waterIntakes: WaterIntake[] = [];
   private meditationSessions: MeditationSession[] = [];
+  private mealsCache$: Observable<Meal[]> | null = null;
+  private activitiesCache$: Observable<PhysicalActivity[]> | null = null;
+  private sleepCache$: Observable<SleepRecord[]> | null = null;
+  private waterCache$: Observable<WaterIntake[]> | null = null;
+  private meditationCache$: Observable<MeditationSession[]> | null = null;
 
   constructor(
     private authService: AuthService,
@@ -30,15 +35,18 @@ export class HealthService {
       distinctUntilChanged()
     ).subscribe((user) => {
       if (user !== null) {
-        // Utilisateur connecté - charger les données
         this.loadAll();
       } else {
-        // Utilisateur déconnecté - vider les données
         this.meals = [];
         this.activities = [];
         this.sleepRecords = [];
         this.waterIntakes = [];
         this.meditationSessions = [];
+        this.mealsCache$ = null;
+        this.activitiesCache$ = null;
+        this.sleepCache$ = null;
+        this.waterCache$ = null;
+        this.meditationCache$ = null;
       }
     });
   }
@@ -49,10 +57,14 @@ export class HealthService {
   }
 
   getMealsObservable(): Observable<Meal[]> {
-    return this.apiService.get<ApiResponse<Meal[]>>('/health/meals').pipe(
-      map(response => response.data || []),
-      tap(meals => this.meals = meals.map(m => ({ ...m, id: m.id.toString(), date: new Date(m.date) })))
-    );
+    if (!this.mealsCache$) {
+      this.mealsCache$ = this.apiService.get<ApiResponse<Meal[]>>('/health/meals').pipe(
+        map(response => response.data || []),
+        tap(meals => this.meals = meals.map(m => ({ ...m, id: m.id.toString(), date: new Date(m.date) }))),
+        shareReplay(1)
+      );
+    }
+    return this.mealsCache$;
   }
 
   addMeal(meal: Omit<Meal, 'id'>): Observable<Meal> {
@@ -104,10 +116,14 @@ export class HealthService {
   }
 
   getActivitiesObservable(): Observable<PhysicalActivity[]> {
-    return this.apiService.get<ApiResponse<PhysicalActivity[]>>('/health/activities').pipe(
-      map(response => response.data || []),
-      tap(activities => this.activities = activities.map(a => ({ ...a, id: a.id.toString(), date: new Date(a.date) })))
-    );
+    if (!this.activitiesCache$) {
+      this.activitiesCache$ = this.apiService.get<ApiResponse<PhysicalActivity[]>>('/health/activities').pipe(
+        map(response => response.data || []),
+        tap(activities => this.activities = activities.map(a => ({ ...a, id: a.id.toString(), date: new Date(a.date) }))),
+        shareReplay(1)
+      );
+    }
+    return this.activitiesCache$;
   }
 
   addActivity(activity: Omit<PhysicalActivity, 'id'>): Observable<PhysicalActivity> {
@@ -159,16 +175,20 @@ export class HealthService {
   }
 
   getSleepRecordsObservable(): Observable<SleepRecord[]> {
-    return this.apiService.get<ApiResponse<SleepRecord[]>>('/health/sleep').pipe(
-      map(response => response.data || []),
-      tap(records => this.sleepRecords = records.map(s => ({
-        ...s,
-        id: s.id.toString(),
-        date: new Date(s.date),
-        sleepTime: new Date(s.sleepTime),
-        wakeTime: new Date(s.wakeTime)
-      })))
-    );
+    if (!this.sleepCache$) {
+      this.sleepCache$ = this.apiService.get<ApiResponse<SleepRecord[]>>('/health/sleep').pipe(
+        map(response => response.data || []),
+        tap(records => this.sleepRecords = records.map(s => ({
+          ...s,
+          id: s.id.toString(),
+          date: new Date(s.date),
+          sleepTime: new Date(s.sleepTime),
+          wakeTime: new Date(s.wakeTime)
+        }))),
+        shareReplay(1)
+      );
+    }
+    return this.sleepCache$;
   }
 
   addSleepRecord(record: Omit<SleepRecord, 'id' | 'hours'>): Observable<SleepRecord> {
@@ -231,10 +251,14 @@ export class HealthService {
   }
 
   getWaterIntakesObservable(): Observable<WaterIntake[]> {
-    return this.apiService.get<ApiResponse<WaterIntake[]>>('/health/water').pipe(
-      map(response => response.data || []),
-      tap(intakes => this.waterIntakes = intakes.map(w => ({ ...w, id: w.id.toString(), date: new Date(w.date) })))
-    );
+    if (!this.waterCache$) {
+      this.waterCache$ = this.apiService.get<ApiResponse<WaterIntake[]>>('/health/water').pipe(
+        map(response => response.data || []),
+        tap(intakes => this.waterIntakes = intakes.map(w => ({ ...w, id: w.id.toString(), date: new Date(w.date) }))),
+        shareReplay(1)
+      );
+    }
+    return this.waterCache$;
   }
 
   addWaterIntake(intake: Omit<WaterIntake, 'id'>): Observable<WaterIntake> {
@@ -284,10 +308,14 @@ export class HealthService {
   }
 
   getMeditationSessionsObservable(): Observable<MeditationSession[]> {
-    return this.apiService.get<ApiResponse<MeditationSession[]>>('/health/meditation').pipe(
-      map(response => response.data || []),
-      tap(sessions => this.meditationSessions = sessions.map(m => ({ ...m, id: m.id.toString(), date: new Date(m.date) })))
-    );
+    if (!this.meditationCache$) {
+      this.meditationCache$ = this.apiService.get<ApiResponse<MeditationSession[]>>('/health/meditation').pipe(
+        map(response => response.data || []),
+        tap(sessions => this.meditationSessions = sessions.map(m => ({ ...m, id: m.id.toString(), date: new Date(m.date) }))),
+        shareReplay(1)
+      );
+    }
+    return this.meditationCache$;
   }
 
   addMeditationSession(session: Omit<MeditationSession, 'id'>): Observable<MeditationSession> {
@@ -325,20 +353,14 @@ export class HealthService {
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
-      this.getMealsObservable().subscribe({
-        error: (error) => console.error('Error loading meals:', error)
-      });
-      this.getActivitiesObservable().subscribe({
-        error: (error) => console.error('Error loading activities:', error)
-      });
-      this.getSleepRecordsObservable().subscribe({
-        error: (error) => console.error('Error loading sleep records:', error)
-      });
-      this.getWaterIntakesObservable().subscribe({
-        error: (error) => console.error('Error loading water intakes:', error)
-      });
-      this.getMeditationSessionsObservable().subscribe({
-        error: (error) => console.error('Error loading meditation sessions:', error)
+      forkJoin({
+        meals: this.getMealsObservable(),
+        activities: this.getActivitiesObservable(),
+        sleep: this.getSleepRecordsObservable(),
+        water: this.getWaterIntakesObservable(),
+        meditation: this.getMeditationSessionsObservable()
+      }).subscribe({
+        error: (err) => console.error('Error loading health data:', err)
       });
     } else {
       this.meals = [];
