@@ -39,6 +39,14 @@
   --notion-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
   --notion-shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.08);
   
+  /* Focus (boutons / navigation clavier) */
+  --focus-color: #0b85ff;
+  --focus-glow: rgba(11, 133, 255, 0.2);
+
+  /* Onglet actif (mode clair) */
+  --active-tab-bg: var(--notion-text-primary);
+  --active-tab-color: #fff;
+
   /* Border Radius */
   --notion-radius: 3px;
   --notion-radius-sm: 2px;
@@ -59,6 +67,85 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+/* Smooth transitions for better UX */
+*:not(.no-transition) {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Focus visible for keyboard navigation */
+*:focus-visible {
+  outline: 2px solid var(--notion-blue);
+  outline-offset: 2px;
+}
+
+/* Boutons au focus - couleur d'accent visible */
+button:focus-visible,
+.btn:focus-visible,
+[role="button"]:focus-visible {
+  outline: 2px solid var(--focus-color);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--focus-glow);
+}
+
+.dark-theme button:focus-visible,
+.dark-theme .btn:focus-visible,
+.dark-theme [role="button"]:focus-visible {
+  outline-color: var(--focus-color);
+  box-shadow: 0 0 0 4px var(--focus-glow);
+}
+
+/* Smooth scroll behavior */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Performance optimizations */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ---------- Animated numbers ---------- */
+.animate-number {
+  animation: numberIn 0.5s ease-out backwards;
+}
+
+@keyframes numberIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Stagger delay for multiple numbers in a row */
+.animate-number-delay-1 { animation-delay: 0.05s; }
+.animate-number-delay-2 { animation-delay: 0.1s; }
+.animate-number-delay-3 { animation-delay: 0.15s; }
+.animate-number-delay-4 { animation-delay: 0.2s; }
+.animate-number-delay-5 { animation-delay: 0.25s; }
+
+/* ---------- Progress bars (transition on width) ---------- */
+.progress-fill,
+.stat-progress-fill {
+  transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html {
@@ -160,6 +247,17 @@ h4 {
   body {
     font-size: 13px;
   }
+
+  /* Better touch targets on mobile */
+  .btn {
+    min-height: 44px;
+    padding: 10px 16px;
+  }
+
+  .btn-small {
+    min-height: 36px;
+    padding: 6px 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -187,7 +285,7 @@ h4 {
   border: none;
   border-radius: var(--notion-radius);
   cursor: pointer;
-  transition: background 20ms ease-in 0s;
+  transition: all 0.2s ease;
   text-decoration: none;
   gap: 6px;
   background: transparent;
@@ -195,8 +293,10 @@ h4 {
   user-select: none;
 }
 
-.btn:hover {
+.btn:hover:not(:disabled) {
   background: var(--notion-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--notion-shadow-sm);
 }
 
 .btn-primary {
@@ -232,6 +332,43 @@ h4 {
   font-size: 13px;
 }
 
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Loading state for buttons */
+.btn.loading {
+  position: relative;
+  color: transparent;
+  pointer-events: none;
+}
+
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: inherit;
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 /* Cards - Notion style */
 .card {
   background: var(--notion-bg);
@@ -247,20 +384,75 @@ h4 {
 /* Inputs - Notion style */
 input, textarea, select {
   width: 100%;
-  padding: 6px 8px;
+  padding: 8px 12px;
   border: 1px solid var(--notion-border);
   border-radius: var(--notion-radius);
   font-size: 14px;
-  transition: border-color 20ms ease-in 0s;
+  transition: all 0.2s ease;
   background: var(--notion-bg);
   color: var(--notion-text-primary);
   font-family: inherit;
 }
 
+input:hover:not(:disabled),
+textarea:hover:not(:disabled),
+select:hover:not(:disabled) {
+  border-color: var(--notion-border-hover);
+}
+
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--notion-blue);
-  box-shadow: 0 0 0 1px var(--notion-blue);
+  box-shadow: 0 0 0 3px rgba(35, 131, 226, 0.1);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--notion-bg-tertiary);
+}
+
+/* Form validation feedback - HTML5 */
+input:invalid:not(:placeholder-shown),
+textarea:invalid:not(:placeholder-shown) {
+  border-color: var(--notion-red);
+}
+
+input:valid:not(:placeholder-shown):not([type="date"]):not([type="time"]),
+textarea:valid:not(:placeholder-shown) {
+  border-color: var(--notion-green);
+}
+
+/* Angular template-driven validation: show error when touched or form submitted */
+input.ng-invalid.ng-touched,
+textarea.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: var(--notion-red);
+  box-shadow: 0 0 0 1px var(--notion-red);
+}
+
+input.ng-valid.ng-touched:not([type="date"]):not([type="time"]),
+textarea.ng-valid.ng-touched,
+select.ng-valid.ng-touched {
+  border-color: var(--notion-green);
+}
+
+/* Error message below field */
+.field-error {
+  display: block;
+  font-size: 12px;
+  color: var(--notion-red);
+  margin-top: 4px;
+  line-height: 1.3;
+}
+
+/* In form-row: error on full width below row */
+.field-error-inline {
+  flex-basis: 100%;
+  width: 100%;
+  order: 10;
 }
 
 input::placeholder, textarea::placeholder {
@@ -430,11 +622,11 @@ img, video, iframe, svg {
   --notion-bg-tertiary: #2d2d2d;
   --notion-bg-hover: #2d2d2d;
   
-  /* Text Colors */
+  /* Text Colors - contraste élevé pour une lecture claire */
   --notion-text-primary: #ffffff;
-  --notion-text-secondary: #b3b3b3;
-  --notion-text-tertiary: #808080;
-  --notion-text-disabled: #5a5a5a;
+  --notion-text-secondary: #d8d8d8;
+  --notion-text-tertiary: #b0b0b0;
+  --notion-text-disabled: #7a7a7a;
   
   /* Accent Colors - Adjusted for dark mode */
   --notion-blue: #4a9eff;
@@ -455,7 +647,15 @@ img, video, iframe, svg {
   /* Borders */
   --notion-border: #3d3d3d;
   --notion-border-hover: #4d4d4d;
-  
+
+  /* Focus (boutons) - bleu plus clair en dark */
+  --focus-color: #4a9eff;
+  --focus-glow: rgba(74, 158, 255, 0.35);
+
+  /* Onglet / bouton actif (couleur demandée) */
+  --active-tab-bg: #2d2d2d;
+  --active-tab-color: #e0e0e0;
+
   /* Shadows - Lighter for dark mode */
   --notion-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
   --notion-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
@@ -516,6 +716,109 @@ img, video, iframe, svg {
 
 .dark-theme .btn:hover {
   background: var(--notion-bg-hover) !important;
+}
+
+/* Dark theme - Pill tabs (Health, Finance, Home-org, Social, Wellness) */
+.dark-theme .health-tabs,
+.dark-theme .finance-tabs,
+.dark-theme .page-tabs,
+.dark-theme .social-tabs,
+.dark-theme .wellness-tabs {
+  background: var(--notion-bg-tertiary);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .health-tabs button,
+.dark-theme .finance-tabs button,
+.dark-theme .page-tabs button,
+.dark-theme .social-tabs button,
+.dark-theme .wellness-tabs button {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 500;
+}
+
+.dark-theme .health-tabs button:hover,
+.dark-theme .finance-tabs button:hover,
+.dark-theme .page-tabs button:hover,
+.dark-theme .social-tabs button:hover,
+.dark-theme .wellness-tabs button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* Onglet actif en dark theme - couleur #2d2d2d */
+.dark-theme .health-tabs button.active,
+.dark-theme .finance-tabs button.active,
+.dark-theme .page-tabs button.active,
+.dark-theme .social-tabs button.active,
+.dark-theme .wellness-tabs button.active {
+  background: var(--active-tab-bg);
+  color: var(--active-tab-color);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark theme - Cards & panels (éviter les blocs blancs) */
+.dark-theme .health-score-card,
+.dark-theme .health-score-wrapper .health-score-card,
+.dark-theme .stat-card,
+.dark-theme .health-card,
+.dark-theme .meal-card,
+.dark-theme .activity-card,
+.dark-theme .sleep-card,
+.dark-theme .meditation-card {
+  background: var(--notion-bg) !important;
+  border-color: var(--notion-border) !important;
+}
+
+.dark-theme .health-score-card h2 {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .stat-card h3 {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .stat-card .stat-value {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .stat-card small {
+  color: var(--notion-text-tertiary);
+}
+
+.dark-theme .health-card h4,
+.dark-theme .meal-card h4,
+.dark-theme .activity-card h4,
+.dark-theme .sleep-card h4,
+.dark-theme .meditation-card h4 {
+  color: var(--notion-text-primary);
+}
+
+.dark-theme .health-card .health-meta,
+.dark-theme .health-card .health-date,
+.dark-theme .meal-card .meal-type,
+.dark-theme .health-card .notes {
+  color: var(--notion-text-secondary);
+}
+
+/* Finance, Social, Wellness, Home-org - cartes en dark theme */
+.dark-theme .finance-overview-card,
+.dark-theme .bank-card,
+.dark-theme .expense-card,
+.dark-theme .budget-card,
+.dark-theme .savings-card,
+.dark-theme .event-card,
+.dark-theme .suggestion-card,
+.dark-theme .entry-card,
+.dark-theme .goal-card,
+.dark-theme .stress-card,
+.dark-theme .stress-record-card,
+.dark-theme .task-card,
+.dark-theme .card-panel,
+.dark-theme .list-details {
+  background: var(--notion-bg) !important;
+  border-color: var(--notion-border) !important;
 }
 
 /* Light Mode (default) - Explicit for clarity */

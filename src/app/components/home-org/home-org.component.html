@@ -1,21 +1,31 @@
 <div class="home-org-page">
-  <h1>{{ 'homeOrg.title' | translate }}</h1>
+  <header class="page-header">
+    <div class="page-header-inner">
+      <span class="page-header-icon" aria-hidden="true">🏠</span>
+      <h1>{{ 'homeOrg.title' | translate }}</h1>
+      <p class="page-header-sub">{{ 'homeOrg.subtitle' | translate }}</p>
+    </div>
+  </header>
 
   <div *ngIf="errorMessage" class="alert alert-error">
     <span>{{ errorMessage }}</span>
     <button type="button" class="alert-close" (click)="errorMessage = null" [attr.aria-label]="'common.close' | translate">×</button>
   </div>
 
-  <div class="tabs">
-    <button [class.active]="activeTab === 'shopping'" (click)="activeTab = 'shopping'">{{ 'homeOrg.shoppingLists' | translate }}</button>
-    <button [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">{{ 'homeOrg.householdTasks' | translate }}</button>
-  </div>
+  <nav class="page-tabs" role="tablist">
+    <button type="button" role="tab" [class.active]="activeTab === 'shopping'" (click)="activeTab = 'shopping'" [attr.aria-selected]="activeTab === 'shopping'">
+      <span class="tab-icon">🛒</span>{{ 'homeOrg.shoppingLists' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'" [attr.aria-selected]="activeTab === 'tasks'">
+      <span class="tab-icon">🧹</span>{{ 'homeOrg.householdTasks' | translate }}
+    </button>
+  </nav>
 
   <!-- Shopping Lists Tab -->
-  <div *ngIf="activeTab === 'shopping'" class="tab-content">
+  <div *ngIf="activeTab === 'shopping'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
       <h2>{{ 'homeOrg.shoppingLists' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showShoppingForm = true">+ {{ 'homeOrg.newList' | translate }}</button>
+      <button type="button" class="btn btn-primary btn-add" (click)="showShoppingForm = true">+ {{ 'homeOrg.newList' | translate }}</button>
     </div>
 
     <div class="shopping-lists-container">
@@ -24,28 +34,39 @@
         <div *ngFor="let list of shoppingLists" 
              class="list-item" 
              [class.active]="selectedList?.id === list.id"
-             (click)="selectList(list)">
-          <span>{{ list.name }}</span>
-          <span class="item-count">{{ (list.items || []).length }} {{ 'homeOrg.articles' | translate }}</span>
+             (click)="selectList(list)"
+             role="button"
+             tabindex="0"
+             (keydown.enter)="selectList(list)"
+             (keydown.space)="selectList(list); $event.preventDefault()">
+          <span class="list-item-icon">🛒</span>
+          <span class="list-item-name">{{ list.name }}</span>
+          <span class="item-count"><app-count-up [value]="(list.items || []).length" [duration]="400"></app-count-up> {{ 'homeOrg.articles' | translate }}</span>
         </div>
-        <div *ngIf="shoppingLists.length === 0" class="empty-state">
-          {{ 'homeOrg.noList' | translate }}
-        </div>
+        <app-empty-state 
+          *ngIf="shoppingLists.length === 0"
+          icon="🛒"
+          [title]="'homeOrg.emptyListTitle' | translate"
+          [message]="'homeOrg.emptyListMessage' | translate"
+          [actionText]="'+ ' + ('homeOrg.newList' | translate)"
+          (action)="showShoppingForm = true">
+        </app-empty-state>
       </div>
 
-      <div *ngIf="selectedList" class="list-details">
+      <div *ngIf="selectedList" class="list-details card-panel">
         <div class="list-header">
           <h3>{{ selectedList.name }}</h3>
-          <button class="btn btn-danger btn-small" (click)="deleteShoppingList(selectedList.id)">{{ 'common.delete' | translate }}</button>
+          <button type="button" class="btn-icon btn-icon-danger" (click)="deleteShoppingList(selectedList.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
         </div>
 
         <div class="add-item-form">
           <h4>{{ 'homeOrg.addArticle' | translate }}</h4>
-          <form (ngSubmit)="addItemToList($event)">
+          <form #addItemForm="ngForm" (ngSubmit)="addItemToList($event)">
             <div class="form-row">
-              <input type="text" [(ngModel)]="newItem.name" name="itemName" [placeholder]="'homeOrg.articleNamePlaceholder' | translate" required>
-              <input type="text" [(ngModel)]="newItem.quantity" name="quantity" [placeholder]="'homeOrg.quantity' | translate">
-              <select [(ngModel)]="newItem.category" name="category">
+              <input type="text" [(ngModel)]="newItem.name" name="itemName" #itemName="ngModel" [placeholder]="'homeOrg.articleNamePlaceholder' | translate" required>
+              <span class="field-error field-error-inline" *ngIf="itemName.invalid && (itemName.touched || addItemForm.submitted)">{{ 'validation.required' | translate }}</span>
+              <input type="text" [(ngModel)]="newItem.quantity" name="quantity" #itemQuantity="ngModel" [placeholder]="'homeOrg.quantity' | translate">
+              <select [(ngModel)]="newItem.category" name="category" #itemCategory="ngModel">
                 <option value="">{{ 'common.category' | translate }}</option>
                 <option value="fruits">{{ 'homeOrg.fruitsVeg' | translate }}</option>
                 <option value="dairy">{{ 'homeOrg.dairy' | translate }}</option>
@@ -75,8 +96,8 @@
               <div *ngIf="item.category" class="item-category">{{ getCategoryLabel(item.category) }}</div>
             </div>
           </div>
-          <div *ngIf="!selectedList.items || selectedList.items.length === 0" class="empty-state">
-            Aucun article. Ajoutez-en !
+          <div *ngIf="!selectedList.items || selectedList.items.length === 0" class="empty-state-inline">
+            {{ 'homeOrg.noItemsInList' | translate }}
           </div>
         </div>
       </div>
@@ -88,48 +109,58 @@
   </div>
 
   <!-- Household Tasks Tab -->
-  <div *ngIf="activeTab === 'tasks'" class="tab-content">
+  <div *ngIf="activeTab === 'tasks'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
-      <h2>Tâches ménagères</h2>
-      <button type="button" class="btn btn-primary" (click)="showTaskForm = true">+ Nouvelle tâche</button>
+      <h2>{{ 'homeOrg.householdTasks' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="showTaskForm = true">+ {{ 'homeOrg.newHouseholdTask' | translate }}</button>
     </div>
 
     <div class="upcoming-tasks-section">
-      <h3>Prochaines tâches</h3>
-      <div class="tasks-list">
-        <div *ngFor="let task of getUpcomingTasks()" class="task-card">
-          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)">
+      <h3>{{ 'homeOrg.upcomingTasks' | translate }}</h3>
+      <div class="tasks-list" *ngIf="getUpcomingTasks().length > 0">
+        <div *ngFor="let task of getUpcomingTasks()" class="task-card task-card-accent">
+          <div class="task-card-accent-bar"></div>
+          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)" [id]="'task-up-' + task.id" [attr.aria-label]="task.name">
           <div class="task-info">
             <h4>{{ task.name }}</h4>
             <p *ngIf="task.description">{{ task.description }}</p>
             <div class="task-meta">
-              <span class="frequency">{{ task.frequency }}</span>
+              <span class="frequency">{{ getFrequencyLabel(task.frequency) }}</span>
               <span *ngIf="task.nextDueDate" class="due-date">
-                Prochaine: {{ formatDate(task.nextDueDate) }}
+                {{ 'homeOrg.nextDue' | translate }}: {{ formatDate(task.nextDueDate) }}
               </span>
             </div>
           </div>
-          <button class="btn btn-small btn-danger" (click)="deleteHouseholdTask(task.id)">{{ 'common.delete' | translate }}</button>
+          <button type="button" class="btn-icon btn-icon-danger" (click)="deleteHouseholdTask(task.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
         </div>
       </div>
+      <app-empty-state
+        *ngIf="getUpcomingTasks().length === 0 && householdTasks.length === 0"
+        icon="🧹"
+        [title]="'homeOrg.emptyTasksTitle' | translate"
+        [message]="'homeOrg.emptyTasksMessage' | translate"
+        [actionText]="'+ ' + ('homeOrg.newHouseholdTask' | translate)"
+        (action)="showTaskForm = true">
+      </app-empty-state>
     </div>
 
-    <div class="all-tasks-section">
+      <div class="all-tasks-section" *ngIf="householdTasks.length > 0">
       <h3>{{ 'homeOrg.householdTasks' | translate }}</h3>
       <div class="tasks-list">
-        <div *ngFor="let task of householdTasks" class="task-card" [class.completed]="task.completed">
-          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)">
+        <div *ngFor="let task of householdTasks" class="task-card task-card-accent" [class.completed]="task.completed">
+          <div class="task-card-accent-bar"></div>
+          <input type="checkbox" [checked]="task.completed" (change)="toggleTaskComplete(task)" [id]="'task-' + task.id" [attr.aria-label]="task.name">
           <div class="task-info">
             <h4>{{ task.name }}</h4>
             <p *ngIf="task.description">{{ task.description }}</p>
             <div class="task-meta">
-              <span class="frequency">{{ task.frequency }}</span>
+              <span class="frequency">{{ getFrequencyLabel(task.frequency) }}</span>
               <span *ngIf="task.lastCompleted" class="last-completed">
-                Dernière: {{ formatDate(task.lastCompleted) }}
+                {{ 'homeOrg.lastCompleted' | translate }}: {{ formatDate(task.lastCompleted) }}
               </span>
             </div>
           </div>
-          <button class="btn btn-small btn-danger" (click)="deleteHouseholdTask(task.id)">{{ 'common.delete' | translate }}</button>
+          <button type="button" class="btn-icon btn-icon-danger" (click)="deleteHouseholdTask(task.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
         </div>
       </div>
     </div>
@@ -179,10 +210,11 @@
   </div>
 
   <app-modal *ngIf="showShoppingForm" [title]="'homeOrg.newList' | translate" size="sm" (closeModal)="closeShoppingModal()">
-    <form (ngSubmit)="createShoppingList()">
+    <form #shoppingListForm="ngForm" (ngSubmit)="createShoppingList()">
       <div class="form-group">
         <label>{{ 'common.name' | translate }} *</label>
-        <input type="text" [(ngModel)]="newListName" name="listName" required>
+        <input type="text" [(ngModel)]="newListName" name="listName" #listName="ngModel" required>
+        <span class="field-error" *ngIf="listName.invalid && (listName.touched || shoppingListForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeShoppingModal()">{{ 'common.cancel' | translate }}</button>
@@ -192,28 +224,32 @@
   </app-modal>
 
   <app-modal *ngIf="showTaskForm" [title]="'homeOrg.newHouseholdTask' | translate" size="md" (closeModal)="closeTaskModal()">
-    <form (ngSubmit)="addHouseholdTask()">
+    <form #taskForm="ngForm" (ngSubmit)="addHouseholdTask()">
       <div class="form-group">
         <label>{{ 'homeOrg.taskNamePlaceholder' | translate }} *</label>
-        <input type="text" [(ngModel)]="newTask.name" name="name" required>
+        <input type="text" [(ngModel)]="newTask.name" name="name" #taskName="ngModel" required>
+        <span class="field-error" *ngIf="taskName.invalid && (taskName.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'common.description' | translate }}</label>
-        <textarea [(ngModel)]="newTask.description" name="description" rows="2"></textarea>
+        <textarea [(ngModel)]="newTask.description" name="description" #taskDesc="ngModel" rows="2"></textarea>
+        <span class="field-error" *ngIf="taskDesc.invalid && (taskDesc.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.period' | translate }}</label>
-          <select [(ngModel)]="newTask.frequency" name="frequency">
-            <option value="daily">Quotidienne</option>
+          <select [(ngModel)]="newTask.frequency" name="frequency" #taskFrequency="ngModel">
+            <option value="daily">{{ 'homeOrg.daily' | translate }}</option>
             <option value="weekly">{{ 'common.weekly' | translate }}</option>
             <option value="monthly">{{ 'common.monthly' | translate }}</option>
-            <option value="one-time">Unique</option>
+            <option value="one-time">{{ 'homeOrg.oneTime' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="taskFrequency.invalid && (taskFrequency.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group" *ngIf="newTask.frequency === 'one-time'">
           <label>{{ 'tasks.dueDate' | translate }}</label>
-          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate" #taskDueDate="ngModel">
+          <span class="field-error" *ngIf="taskDueDate.invalid && (taskDueDate.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
@@ -222,5 +258,24 @@
       </div>
     </form>
   </app-modal>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteListConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'homeOrg.confirmDeleteList' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteList()"
+    (cancelled)="cancelDeleteList()">
+  </app-confirm-dialog>
+  <app-confirm-dialog
+    [isOpen]="showDeleteTaskConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'homeOrg.confirmDeleteTask' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteTask()"
+    (cancelled)="cancelDeleteTask()">
+  </app-confirm-dialog>
 </div>
 

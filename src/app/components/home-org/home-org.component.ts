@@ -3,28 +3,36 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HomeService } from '../../services/home.service';
 import { GeminiService, ChatMessage } from '../../services/gemini.service';
+import { ToastService } from '../../services/toast.service';
 import { ShoppingList, ShoppingItem, HouseholdTask } from '../../models/home.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { CountUpComponent } from '../shared/count-up/count-up.component';
 
 @Component({
   selector: 'app-home-org',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
   templateUrl: './home-org.component.html',
   styleUrl: './home-org.component.css'
 })
 export class HomeOrgComponent implements OnInit {
   activeTab: 'shopping' | 'tasks' = 'shopping';
-  
+
   shoppingLists: ShoppingList[] = [];
   householdTasks: HouseholdTask[] = [];
-  
+
   showShoppingForm = false;
   showTaskForm = false;
   selectedList: ShoppingList | null = null;
   errorMessage: string | null = null;
+
+  showDeleteListConfirm = false;
+  showDeleteTaskConfirm = false;
+  itemToDelete: string | null = null;
   
   newListName = '';
   newItem: Partial<ShoppingItem> = {};
@@ -39,7 +47,8 @@ export class HomeOrgComponent implements OnInit {
 
   constructor(
     private homeService: HomeService,
-    private geminiService: GeminiService
+    private geminiService: GeminiService,
+    private toastService: ToastService
   ) {}
 
   get geminiAvailable(): boolean {
@@ -100,9 +109,12 @@ export class HomeOrgComponent implements OnInit {
         this.newListName = '';
         this.showShoppingForm = false;
         this.loadData();
+        this.toastService.success('Liste créée');
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de la création de la liste';
+        const msg = error?.error?.message || error?.message || 'Erreur lors de la création de la liste';
+        this.errorMessage = msg;
+        this.toastService.error(msg);
       }
     });
   }
@@ -142,9 +154,12 @@ export class HomeOrgComponent implements OnInit {
         this.selectedList = updatedList;
         this.newItem = {};
         this.loadData();
+        this.toastService.success('Article ajouté');
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de l\'ajout de l\'article';
+        const msg = error?.error?.message || error?.message || 'Erreur lors de l\'ajout de l\'article';
+        this.errorMessage = msg;
+        this.toastService.error(msg);
       }
     });
   }
@@ -159,22 +174,39 @@ export class HomeOrgComponent implements OnInit {
         this.loadData();
       },
       error: (error) => {
-        this.errorMessage = error?.error?.message || error?.message || 'Erreur lors de la mise à jour de l\'article';
+        const msg = error?.error?.message || error?.message || 'Erreur lors de la mise à jour';
+        this.toastService.error(msg);
       }
     });
   }
 
   deleteShoppingList(id: string): void {
-    if (confirm('Supprimer cette liste ?')) {
-      this.homeService.deleteShoppingList(id).subscribe({
-        next: () => {
-          if (this.selectedList?.id === id) {
-            this.selectedList = null;
-          }
-          this.loadData();
+    this.itemToDelete = id;
+    this.showDeleteListConfirm = true;
+  }
+
+  confirmDeleteList(): void {
+    if (!this.itemToDelete) return;
+    this.homeService.deleteShoppingList(this.itemToDelete).subscribe({
+      next: () => {
+        if (this.selectedList?.id === this.itemToDelete) {
+          this.selectedList = null;
         }
-      });
-    }
+        this.loadData();
+        this.toastService.success('Liste supprimée');
+        this.showDeleteListConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteListConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteList(): void {
+    this.showDeleteListConfirm = false;
+    this.itemToDelete = null;
   }
 
   // Household Task methods
@@ -191,7 +223,9 @@ export class HomeOrgComponent implements OnInit {
         this.showTaskForm = false;
         this.newTask = { frequency: 'weekly' };
         this.loadData();
-      }
+        this.toastService.success('Tâche créée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -204,13 +238,29 @@ export class HomeOrgComponent implements OnInit {
   }
 
   deleteHouseholdTask(id: string): void {
-    if (confirm('Supprimer cette tâche ?')) {
-      this.homeService.deleteHouseholdTask(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteTaskConfirm = true;
+  }
+
+  confirmDeleteTask(): void {
+    if (!this.itemToDelete) return;
+    this.homeService.deleteHouseholdTask(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Tâche supprimée');
+        this.showDeleteTaskConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteTaskConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteTask(): void {
+    this.showDeleteTaskConfirm = false;
+    this.itemToDelete = null;
   }
 
   getUpcomingTasks(): HouseholdTask[] {
@@ -232,6 +282,16 @@ export class HomeOrgComponent implements OnInit {
       'other': 'Autre'
     };
     return labels[category] || category;
+  }
+
+  getFrequencyLabel(freq: string): string {
+    const labels: { [key: string]: string } = {
+      daily: 'Quotidienne',
+      weekly: 'Hebdomadaire',
+      monthly: 'Mensuelle',
+      'one-time': 'Unique'
+    };
+    return labels[freq] || freq;
   }
 
   async sendHouseholdChatMessage(): Promise<void> {

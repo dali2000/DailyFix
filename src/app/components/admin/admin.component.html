@@ -211,25 +211,29 @@
         <button type="button" class="close-btn" (click)="closeModal()" [attr.aria-label]="'common.close' | translate">×</button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="createUser()">
+        <form #createUserForm="ngForm" (ngSubmit)="createUser()">
           <div class="form-group">
             <label for="create-fullName">{{ 'admin.fullName' | translate }} *</label>
-            <input id="create-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+            <input id="create-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" #createFullName="ngModel" required />
+            <span class="field-error" *ngIf="createFullName.invalid && (createFullName.touched || createUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="create-email">{{ 'admin.email' | translate }} *</label>
-            <input id="create-email" type="email" [(ngModel)]="userForm.email" name="email" required />
+            <input id="create-email" type="email" [(ngModel)]="userForm.email" name="email" #createEmail="ngModel" required />
+            <span class="field-error" *ngIf="createEmail.invalid && (createEmail.touched || createUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="create-password">{{ 'admin.password' | translate }}</label>
-            <input id="create-password" type="password" [(ngModel)]="userForm.password" name="password" />
+            <input id="create-password" type="password" [(ngModel)]="userForm.password" name="password" #createPassword="ngModel" />
+            <span class="field-error" *ngIf="createPassword.invalid && (createPassword.touched || createUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="create-role">{{ 'admin.role' | translate }}</label>
-            <select id="create-role" [(ngModel)]="userForm.role" name="role">
+            <select id="create-role" [(ngModel)]="userForm.role" name="role" #createRole="ngModel">
               <option value="user">{{ 'admin.userOption' | translate }}</option>
               <option value="admin">{{ 'admin.adminOption' | translate }}</option>
             </select>
+            <span class="field-error" *ngIf="createRole.invalid && (createRole.touched || createUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>
@@ -248,25 +252,29 @@
         <button type="button" class="close-btn" (click)="closeModal()" [attr.aria-label]="'common.close' | translate">×</button>
       </div>
       <div class="modal-body">
-        <form (ngSubmit)="updateUser()">
+        <form #editUserForm="ngForm" (ngSubmit)="updateUser()">
           <div class="form-group">
             <label for="edit-fullName">{{ 'admin.fullName' | translate }} *</label>
-            <input id="edit-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" required />
+            <input id="edit-fullName" type="text" [(ngModel)]="userForm.fullName" name="fullName" #editFullName="ngModel" required />
+            <span class="field-error" *ngIf="editFullName.invalid && (editFullName.touched || editUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="edit-email">{{ 'admin.email' | translate }} *</label>
-            <input id="edit-email" type="email" [(ngModel)]="userForm.email" name="email" required />
+            <input id="edit-email" type="email" [(ngModel)]="userForm.email" name="email" #editEmail="ngModel" required />
+            <span class="field-error" *ngIf="editEmail.invalid && (editEmail.touched || editUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="edit-password">{{ 'admin.newPasswordHint' | translate }}</label>
-            <input id="edit-password" type="password" [(ngModel)]="userForm.password" name="password" />
+            <input id="edit-password" type="password" [(ngModel)]="userForm.password" name="password" #editPassword="ngModel" />
+            <span class="field-error" *ngIf="editPassword.invalid && (editPassword.touched || editUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="form-group">
             <label for="edit-role">{{ 'admin.role' | translate }}</label>
-            <select id="edit-role" [(ngModel)]="userForm.role" name="role">
+            <select id="edit-role" [(ngModel)]="userForm.role" name="role" #editRole="ngModel">
               <option value="user">{{ 'admin.userOption' | translate }}</option>
               <option value="admin">{{ 'admin.adminOption' | translate }}</option>
             </select>
+            <span class="field-error" *ngIf="editRole.invalid && (editRole.touched || editUserForm.submitted)">{{ 'validation.required' | translate }}</span>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn-secondary" (click)="closeModal()">{{ 'common.cancel' | translate }}</button>

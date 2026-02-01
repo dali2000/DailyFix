@@ -1,22 +1,34 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HealthService } from '../../services/health.service';
 import { GeminiService, ChatMessage } from '../../services/gemini.service';
+import { ToastService } from '../../services/toast.service';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../../models/health.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { CountUpComponent } from '../shared/count-up/count-up.component';
 
 @Component({
   selector: 'app-health',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
   templateUrl: './health.component.html',
   styleUrl: './health.component.css'
 })
-export class HealthComponent implements OnInit, OnDestroy {
+export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
   activeTab: 'overview' | 'meals' | 'activity' | 'sleep' | 'meditation' = 'overview';
+
+  /** Déclenche l’animation des barres de progression (0 → valeur) après affichage. */
+  progressReady = false;
+
+  showDeleteMealConfirm = false;
+  showDeleteActivityConfirm = false;
+  showDeleteMeditationConfirm = false;
+  itemToDelete: string | null = null;
   
   // Overview data
   todayCalories = 0;
@@ -83,7 +95,8 @@ export class HealthComponent implements OnInit, OnDestroy {
 
   constructor(
     private healthService: HealthService,
-    private geminiService: GeminiService
+    private geminiService: GeminiService,
+    private toastService: ToastService
   ) {}
 
   get geminiAvailable(): boolean {
@@ -94,6 +107,10 @@ export class HealthComponent implements OnInit, OnDestroy {
     this.loadData();
   }
 
+  ngAfterViewInit(): void {
+    setTimeout(() => (this.progressReady = true), 80);
+  }
+
   ngOnDestroy(): void {
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
@@ -101,7 +118,7 @@ export class HealthComponent implements OnInit, OnDestroy {
   }
 
   loadData(): void {
-    // Charger toutes les données depuis l'API
+    // Charger toutes les données depuis l'API (premier chargement)
     this.healthService.getMealsObservable().subscribe({
       next: (meals) => {
         this.meals = meals.map((m: any) => ({ ...m, id: m.id.toString(), date: new Date(m.date) }));
@@ -139,6 +156,33 @@ export class HealthComponent implements OnInit, OnDestroy {
       },
       error: (error) => console.error('Error loading meditation sessions:', error)
     });
+  }
+
+  /** Met à jour les listes et l’aperçu à partir du cache du service (après add/delete). */
+  private refreshFromService(): void {
+    this.meals = (this.healthService.getMeals() || []).map((m: any) => ({
+      ...m,
+      id: (m.id && m.id.toString) ? m.id.toString() : String(m.id),
+      date: m.date instanceof Date ? m.date : new Date(m.date)
+    }));
+    this.activities = (this.healthService.getActivities() || []).map((a: any) => ({
+      ...a,
+      id: (a.id && a.id.toString) ? a.id.toString() : String(a.id),
+      date: a.date instanceof Date ? a.date : new Date(a.date)
+    }));
+    this.sleepRecords = (this.healthService.getSleepRecords() || []).map((s: any) => ({
+      ...s,
+      id: (s.id && s.id.toString) ? s.id.toString() : String(s.id),
+      date: s.date instanceof Date ? s.date : new Date(s.date),
+      sleepTime: s.sleepTime instanceof Date ? s.sleepTime : new Date(s.sleepTime),
+      wakeTime: s.wakeTime instanceof Date ? s.wakeTime : new Date(s.wakeTime)
+    }));
+    this.meditationSessions = (this.healthService.getMeditationSessions() || []).map((m: any) => ({
+      ...m,
+      id: (m.id && m.id.toString) ? m.id.toString() : String(m.id),
+      date: m.date instanceof Date ? m.date : new Date(m.date)
+    }));
+    this.updateOverview();
   }
 
   updateOverview(): void {
@@ -187,17 +231,37 @@ export class HealthComponent implements OnInit, OnDestroy {
       next: () => {
         this.showMealForm = false;
         this.newMeal = { type: 'breakfast' };
-        this.loadData();
-      }
+        this.refreshFromService();
+        this.toastService.success('Repas ajouté');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
   deleteMeal(id: string): void {
-    this.healthService.deleteMeal(id).subscribe({
+    this.itemToDelete = id;
+    this.showDeleteMealConfirm = true;
+  }
+
+  confirmDeleteMeal(): void {
+    if (!this.itemToDelete) return;
+    this.healthService.deleteMeal(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.refreshFromService();
+        this.toastService.success('Repas supprimé');
+        this.showDeleteMealConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteMealConfirm = false;
       }
     });
+  }
+
+  cancelDeleteMeal(): void {
+    this.showDeleteMealConfirm = false;
+    this.itemToDelete = null;
   }
 
   // Activity methods
@@ -213,17 +277,37 @@ export class HealthComponent implements OnInit, OnDestroy {
       next: () => {
         this.showActivityForm = false;
         this.newActivity = {};
-        this.loadData();
-      }
+        this.refreshFromService();
+        this.toastService.success('Activité ajoutée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
   deleteActivity(id: string): void {
-    this.healthService.deleteActivity(id).subscribe({
+    this.itemToDelete = id;
+    this.showDeleteActivityConfirm = true;
+  }
+
+  confirmDeleteActivity(): void {
+    if (!this.itemToDelete) return;
+    this.healthService.deleteActivity(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.refreshFromService();
+        this.toastService.success('Activité supprimée');
+        this.showDeleteActivityConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteActivityConfirm = false;
       }
     });
+  }
+
+  cancelDeleteActivity(): void {
+    this.showDeleteActivityConfirm = false;
+    this.itemToDelete = null;
   }
 
   // Sleep methods
@@ -238,8 +322,10 @@ export class HealthComponent implements OnInit, OnDestroy {
       next: () => {
         this.showSleepForm = false;
         this.newSleep = { quality: 'good' };
-        this.loadData();
-      }
+        this.refreshFromService();
+        this.toastService.success('Sommeil enregistré');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -251,7 +337,8 @@ export class HealthComponent implements OnInit, OnDestroy {
       date: new Date(),
       amount: this.LITERS_PER_CUP
     }).subscribe({
-      next: () => this.loadData()
+      next: () => this.refreshFromService(),
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -265,8 +352,10 @@ export class HealthComponent implements OnInit, OnDestroy {
       next: () => {
         this.showWaterForm = false;
         this.waterCups = 2;
-        this.loadData();
-      }
+        this.refreshFromService();
+        this.toastService.success('Eau ajoutée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -281,17 +370,67 @@ export class HealthComponent implements OnInit, OnDestroy {
       next: () => {
         this.showMeditationForm = false;
         this.newMeditation = { duration: 10, type: 'guided' };
-        this.loadData();
-      }
+        this.refreshFromService();
+        this.toastService.success('Session enregistrée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
   deleteMeditationSession(id: string): void {
-    this.healthService.deleteMeditationSession(id).subscribe({
+    this.itemToDelete = id;
+    this.showDeleteMeditationConfirm = true;
+  }
+
+  confirmDeleteMeditation(): void {
+    if (!this.itemToDelete) return;
+    this.healthService.deleteMeditationSession(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.refreshFromService();
+        this.toastService.success('Session supprimée');
+        this.showDeleteMeditationConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteMeditationConfirm = false;
       }
     });
+  }
+
+  cancelDeleteMeditation(): void {
+    this.showDeleteMeditationConfirm = false;
+    this.itemToDelete = null;
+  }
+
+  getMealTypeLabel(type: string): string {
+    const keys: { [key: string]: string } = {
+      breakfast: 'health.mealBreakfast',
+      lunch: 'health.mealLunch',
+      dinner: 'health.mealDinner',
+      snack: 'health.mealSnack'
+    };
+    return keys[type] || type;
+  }
+
+  getSleepQualityLabel(quality: string): string {
+    const keys: { [key: string]: string } = {
+      poor: 'health.qualityPoor',
+      fair: 'health.qualityFair',
+      good: 'health.qualityGood',
+      excellent: 'health.qualityExcellent'
+    };
+    return keys[quality] || quality;
+  }
+
+  getMeditationTypeLabel(type: string): string {
+    const keys: { [key: string]: string } = {
+      guided: 'health.meditationGuided',
+      breathing: 'health.meditationBreathing',
+      mindfulness: 'health.meditationMindfulness',
+      'body-scan': 'health.meditationBodyScan'
+    };
+    return keys[type] || type;
   }
 
   getHealthScore(): number {
@@ -301,6 +440,29 @@ export class HealthComponent implements OnInit, OnDestroy {
     if (this.todayWaterIntake >= 2) score += 25;
     if (this.lastSleepHours >= 7 && this.lastSleepHours <= 9) score += 25;
     return score;
+  }
+
+  /** Pour l’anneau SVG du score (circonférence ≈ 2 * π * 54 ≈ 339.3). */
+  getScoreRingDash(): string {
+    const p = this.getHealthScore() / 100;
+    const filled = p * 339.3;
+    return `${filled} 339.3`;
+  }
+
+  getCaloriesProgress(): number {
+    return Math.min(100, (this.todayCalories / 2000) * 100);
+  }
+
+  getActivityProgress(): number {
+    return Math.min(100, (this.todayActivityMinutes / 30) * 100);
+  }
+
+  getWaterProgress(): number {
+    return Math.min(100, (this.todayWaterIntake / 2) * 100);
+  }
+
+  getSleepProgress(): number {
+    return this.lastSleepHours ? Math.min(100, (this.lastSleepHours / 9) * 100) : 0;
   }
 
   async sendChatMessage(): Promise<void> {

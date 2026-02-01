@@ -268,8 +268,31 @@
 }
 
 .dark-theme .theme-option.active {
-  background: rgba(255, 255, 255, 0.15) !important;
-  color: white !important;
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Section Wallet (Portefeuille) - même couleur que le bouton actif */
+.dark-theme .settings-section-wallet {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .settings-section-wallet h2 {
+  color: #e0e0e0;
+}
+
+.dark-theme .settings-section-wallet .setting-info h3,
+.dark-theme .settings-section-wallet .setting-info p {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .settings-section-wallet .currency-select {
+  background: #1e1e1e !important;
+  border-color: rgba(255, 255, 255, 0.15);
+  color: #e0e0e0;
 }
 
 .theme-option svg {

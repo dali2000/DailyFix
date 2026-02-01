@@ -7,6 +7,7 @@ import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { NotificationService } from './services/notification.service';
+import { ToastComponent } from './components/shared/toast/toast.component';
 import { ThemeService } from './services/theme.service';
 import { I18nService } from './services/i18n.service';
 import { TranslatePipe } from './pipes/translate.pipe';
@@ -15,7 +16,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule, TranslatePipe],
+  imports: [RouterOutlet, NavbarComponent, SidebarComponent, AdminSidebarComponent, CommonModule, TranslatePipe, ToastComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

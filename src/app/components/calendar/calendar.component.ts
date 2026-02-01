@@ -4,25 +4,31 @@ import { FormsModule } from '@angular/forms';
 import { TaskService } from '../../services/task.service';
 import { SocialService } from '../../services/social.service';
 import { I18nService } from '../../services/i18n.service';
+import { ToastService } from '../../services/toast.service';
 import { Task, CalendarEvent } from '../../models/task.model';
 import { SocialEvent } from '../../models/social.model';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-calendar',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent],
   templateUrl: './calendar.component.html',
   styleUrl: './calendar.component.css'
 })
 export class CalendarComponent implements OnInit, OnDestroy {
   currentDate = new Date();
   viewMode: 'month' | 'week' | 'day' = 'month';
-  
+
   selectedDate: Date | null = null;
   eventsForSelectedDate: (CalendarEvent | SocialEvent)[] = [];
+
+  showDeleteEventConfirm = false;
+  eventToDeleteId: string | null = null;
   
   showEventForm = false;
   editingEvent: CalendarEvent | null = null;
@@ -58,6 +64,7 @@ export class CalendarComponent implements OnInit, OnDestroy {
     private taskService: TaskService,
     private socialService: SocialService,
     private i18n: I18nService,
+    private toastService: ToastService,
     private cdr: ChangeDetectorRef
   ) {}
 
@@ -301,16 +308,32 @@ export class CalendarComponent implements OnInit, OnDestroy {
   }
 
   deleteEvent(event: CalendarEvent): void {
-    if (confirm('Supprimer cet événement ?')) {
-      this.taskService.deleteEvent(event.id).subscribe({
-        next: () => {
-          this.loadCalendar();
-          if (this.selectedDate) {
-            this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
-          }
+    this.eventToDeleteId = event.id;
+    this.showDeleteEventConfirm = true;
+  }
+
+  confirmDeleteEvent(): void {
+    if (!this.eventToDeleteId) return;
+    this.taskService.deleteEvent(this.eventToDeleteId).subscribe({
+      next: () => {
+        this.loadCalendar();
+        if (this.selectedDate) {
+          this.eventsForSelectedDate = this.getEventsForDate(this.selectedDate);
         }
-      });
-    }
+        this.toastService.success('Événement supprimé');
+        this.showDeleteEventConfirm = false;
+        this.eventToDeleteId = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteEventConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteEvent(): void {
+    this.showDeleteEventConfirm = false;
+    this.eventToDeleteId = null;
   }
 
   getMonthName(): string {

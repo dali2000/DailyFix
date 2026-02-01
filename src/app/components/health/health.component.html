@@ -1,120 +1,226 @@
 <div class="health-page">
-  <h1>{{ 'health.title' | translate }}</h1>
+  <header class="health-header">
+    <div class="health-header-inner">
+      <span class="health-header-icon" aria-hidden="true">❤️</span>
+      <h1>{{ 'health.title' | translate }}</h1>
+      <p class="health-header-sub">{{ 'health.subtitle' | translate }}</p>
+    </div>
+  </header>
 
-  <div class="tabs">
-    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">{{ 'health.overview' | translate }}</button>
-    <button [class.active]="activeTab === 'meals'" (click)="activeTab = 'meals'">{{ 'health.meals' | translate }}</button>
-    <button [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">{{ 'health.activity' | translate }}</button>
-    <button [class.active]="activeTab === 'sleep'" (click)="activeTab = 'sleep'">{{ 'health.sleep' | translate }}</button>
-    <button [class.active]="activeTab === 'meditation'" (click)="activeTab = 'meditation'">{{ 'health.meditation' | translate }}</button>
-  </div>
+  <nav class="health-tabs" role="tablist">
+    <button type="button" role="tab" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'" [attr.aria-selected]="activeTab === 'overview'">
+      <span class="tab-icon">📊</span>
+      {{ 'health.overview' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'meals'" (click)="activeTab = 'meals'" [attr.aria-selected]="activeTab === 'meals'">
+      <span class="tab-icon">🍽️</span>
+      {{ 'health.meals' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'" [attr.aria-selected]="activeTab === 'activity'">
+      <span class="tab-icon">🏃</span>
+      {{ 'health.activity' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'sleep'" (click)="activeTab = 'sleep'" [attr.aria-selected]="activeTab === 'sleep'">
+      <span class="tab-icon">😴</span>
+      {{ 'health.sleep' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'meditation'" (click)="activeTab = 'meditation'" [attr.aria-selected]="activeTab === 'meditation'">
+      <span class="tab-icon">🧘</span>
+      {{ 'health.meditation' | translate }}
+    </button>
+  </nav>
 
   <!-- Overview Tab -->
-  <div *ngIf="activeTab === 'overview'" class="tab-content">
-    <div class="health-score-card">
-      <h2>{{ 'health.healthScore' | translate }}</h2>
-      <div class="score-circle">
-        <span class="score-value">{{ getHealthScore() }}%</span>
+  <div *ngIf="activeTab === 'overview'" class="tab-content tab-content-animate" role="tabpanel">
+    <div class="health-score-wrapper">
+      <div class="health-score-card" [class.score-low]="getHealthScore() < 50" [class.score-mid]="getHealthScore() >= 50 && getHealthScore() < 75" [class.score-high]="getHealthScore() >= 75">
+        <h2>{{ 'health.healthScore' | translate }}</h2>
+        <div class="score-ring">
+          <svg viewBox="0 0 120 120" class="score-ring-svg">
+            <circle class="score-ring-bg" cx="60" cy="60" r="54"/>
+            <circle class="score-ring-fill" cx="60" cy="60" r="54" [attr.stroke-dasharray]="getScoreRingDash()"/>
+          </svg>
+          <app-count-up [value]="getHealthScore()" suffix="%" className="score-value animate-number" [duration]="700"></app-count-up>
+        </div>
       </div>
     </div>
 
     <div class="stats-grid">
-      <div class="stat-card">
-        <h3>{{ 'health.caloriesToday' | translate }}</h3>
-        <p class="stat-value">{{ todayCalories }} kcal</p>
-        <small>{{ 'health.goal' | translate }}: 2000 kcal</small>
+      <div class="stat-card stat-calories">
+        <div class="stat-icon">🔥</div>
+        <div class="stat-body">
+          <h3>{{ 'health.caloriesToday' | translate }}</h3>
+          <p class="stat-value-wrap"><app-count-up [value]="todayCalories" className="stat-value animate-number animate-number-delay-1" [duration]="600"></app-count-up> <span class="stat-unit">kcal</span></p>
+          <div class="stat-progress"><span class="stat-progress-fill" [style.width.%]="progressReady ? getCaloriesProgress() : 0"></span></div>
+          <small>{{ 'health.goal' | translate }}: 2000 kcal</small>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3>{{ 'health.physicalActivity' | translate }}</h3>
-        <p class="stat-value">{{ todayActivityMinutes }} min</p>
-        <small>{{ 'health.goal' | translate }}: 30 min/jour</small>
+      <div class="stat-card stat-activity">
+        <div class="stat-icon">⚡</div>
+        <div class="stat-body">
+          <h3>{{ 'health.physicalActivity' | translate }}</h3>
+          <p class="stat-value-wrap"><app-count-up [value]="todayActivityMinutes" className="stat-value animate-number animate-number-delay-2" [duration]="600"></app-count-up> <span class="stat-unit">min</span></p>
+          <div class="stat-progress"><span class="stat-progress-fill" [style.width.%]="progressReady ? getActivityProgress() : 0"></span></div>
+          <small>{{ 'health.goal' | translate }}: 30 min/jour</small>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3>{{ 'health.waterConsumed' | translate }}</h3>
-        <p class="stat-value">{{ todayWaterIntake | number:'1.1-2' }} L</p>
-        <small>{{ 'health.goal' | translate }}: 2 L/jour</small>
+      <div class="stat-card stat-water">
+        <div class="stat-icon">💧</div>
+        <div class="stat-body">
+          <h3>{{ 'health.waterConsumed' | translate }}</h3>
+          <p class="stat-value-wrap"><app-count-up [value]="todayWaterIntake" format="1.1-2" className="stat-value animate-number animate-number-delay-3" [duration]="600"></app-count-up> <span class="stat-unit">L</span></p>
+          <div class="stat-progress"><span class="stat-progress-fill" [style.width.%]="progressReady ? getWaterProgress() : 0"></span></div>
+          <small>{{ 'health.goal' | translate }}: 2 L/jour</small>
+        </div>
       </div>
-      <div class="stat-card">
-        <h3>{{ 'health.sleepLastNight' | translate }}</h3>
-        <p class="stat-value">{{ lastSleepHours }}h</p>
-        <small>{{ 'health.recommended' | translate }}: 7-9h</small>
+      <div class="stat-card stat-sleep">
+        <div class="stat-icon">🌙</div>
+        <div class="stat-body">
+          <h3>{{ 'health.sleepLastNight' | translate }}</h3>
+          <p class="stat-value-wrap"><app-count-up [value]="lastSleepHours" format="1.0-1" className="stat-value animate-number animate-number-delay-4" [duration]="600"></app-count-up><span class="stat-unit">h</span></p>
+          <div class="stat-progress"><span class="stat-progress-fill" [style.width.%]="progressReady ? getSleepProgress() : 0"></span></div>
+          <small>{{ 'health.recommended' | translate }}: 7-9h</small>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- Meals Tab -->
-  <div *ngIf="activeTab === 'meals'" class="tab-content">
+  <div *ngIf="activeTab === 'meals'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
       <h2>{{ 'health.mealTracking' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showMealForm = true">+ {{ 'health.addMeal' | translate }}</button>
+      <button type="button" class="btn btn-primary btn-add" (click)="showMealForm = true">+ {{ 'health.addMeal' | translate }}</button>
     </div>
 
-    <div class="meals-list">
-      <div *ngFor="let meal of meals.slice().reverse()" class="meal-card">
-        <div class="meal-header">
-          <h4>{{ meal.name }}</h4>
-          <span class="meal-type">{{ meal.type }}</span>
+    <div class="health-list meals-list" *ngIf="meals.length > 0">
+      <div *ngFor="let meal of meals.slice().reverse()" class="health-card meal-card meal-card-animate">
+        <div class="health-card-accent health-card-meals"></div>
+        <div class="health-card-body">
+          <div class="health-card-top">
+            <span class="health-card-icon">🍽️</span>
+            <div class="health-card-main">
+              <h4>{{ meal.name }}</h4>
+              <span class="meal-type">{{ getMealTypeLabel(meal.type) | translate }}</span>
+            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteMeal(meal.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+          </div>
+          <p *ngIf="meal.calories" class="health-meta calories">{{ meal.calories }} kcal</p>
+          <p *ngIf="meal.notes" class="notes">{{ meal.notes }}</p>
+          <small class="health-date">{{ meal.date | date:'short' }}</small>
         </div>
-        <p *ngIf="meal.calories" class="calories">{{ meal.calories }} kcal</p>
-        <p *ngIf="meal.notes" class="notes">{{ meal.notes }}</p>
-        <small>{{ meal.date | date:'short' }}</small>
-        <button class="btn btn-small btn-danger" (click)="deleteMeal(meal.id)">{{ 'common.delete' | translate }}</button>
       </div>
     </div>
+    <app-empty-state
+      *ngIf="meals.length === 0"
+      icon="🍽️"
+      [title]="'health.emptyMealsTitle' | translate"
+      [message]="'health.emptyMealsMessage' | translate"
+      [actionText]="'+ ' + ('health.addMeal' | translate)"
+      (action)="showMealForm = true">
+    </app-empty-state>
   </div>
 
   <!-- Activity Tab -->
-  <div *ngIf="activeTab === 'activity'" class="tab-content">
+  <div *ngIf="activeTab === 'activity'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
-      <h2>Activité Physique</h2>
-      <button type="button" class="btn btn-primary" (click)="showActivityForm = true">+ Ajouter une activité</button>
+      <h2>{{ 'health.activityTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="showActivityForm = true">+ {{ 'health.addActivity' | translate }}</button>
     </div>
 
-    <div class="activities-list">
-      <div *ngFor="let activity of activities.slice().reverse()" class="activity-card">
-        <h4>{{ activity.type }}</h4>
-        <p class="duration">{{ activity.duration }} {{ 'common.minutes' | translate }}</p>
-        <p *ngIf="activity.calories" class="calories">{{ activity.calories }} {{ 'health.caloriesBurned' | translate }}</p>
-        <p *ngIf="activity.notes" class="notes">{{ activity.notes }}</p>
-        <small>{{ activity.date | date:'short' }}</small>
-        <button class="btn btn-small btn-danger" (click)="deleteActivity(activity.id)">Supprimer</button>
+    <div class="health-list activities-list" *ngIf="activities.length > 0">
+      <div *ngFor="let activity of activities.slice().reverse()" class="health-card activity-card activity-card-animate">
+        <div class="health-card-accent health-card-activity"></div>
+        <div class="health-card-body">
+          <div class="health-card-top">
+            <span class="health-card-icon">🏃</span>
+            <div class="health-card-main">
+              <h4>{{ activity.type }}</h4>
+              <span class="health-meta duration">{{ activity.duration }} {{ 'common.minutes' | translate }}</span>
+            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteActivity(activity.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+          </div>
+          <p *ngIf="activity.calories" class="calories">{{ activity.calories }} {{ 'health.caloriesBurned' | translate }}</p>
+          <p *ngIf="activity.notes" class="notes">{{ activity.notes }}</p>
+          <small class="health-date">{{ activity.date | date:'short' }}</small>
+        </div>
       </div>
     </div>
+    <app-empty-state
+      *ngIf="activities.length === 0"
+      icon="🏃"
+      [title]="'health.emptyActivityTitle' | translate"
+      [message]="'health.emptyActivityMessage' | translate"
+      [actionText]="'+ ' + ('health.addActivity' | translate)"
+      (action)="showActivityForm = true">
+    </app-empty-state>
   </div>
 
   <!-- Sleep Tab -->
-  <div *ngIf="activeTab === 'sleep'" class="tab-content">
+  <div *ngIf="activeTab === 'sleep'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
       <h2>{{ 'health.sleepTracking' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showSleepForm = true">+ {{ 'health.recordSleep' | translate }}</button>
+      <button type="button" class="btn btn-primary btn-add" (click)="showSleepForm = true">+ {{ 'health.recordSleep' | translate }}</button>
     </div>
 
-    <div class="sleep-records">
-      <div *ngFor="let record of sleepRecords.slice().reverse()" class="sleep-card">
-        <h4>{{ record.hours }} heures de sommeil</h4>
-        <p>Coucher: {{ record.sleepTime | date:'short' }}</p>
-        <p>Réveil: {{ record.wakeTime | date:'short' }}</p>
-        <p>Qualité: {{ record.quality }}</p>
-        <small>{{ record.date | date:'short' }}</small>
+    <div class="health-list sleep-records" *ngIf="sleepRecords.length > 0">
+      <div *ngFor="let record of sleepRecords.slice().reverse()" class="health-card sleep-card sleep-card-animate">
+        <div class="health-card-accent health-card-sleep"></div>
+        <div class="health-card-body">
+          <div class="health-card-top">
+            <span class="health-card-icon">😴</span>
+            <div class="health-card-main">
+              <h4>{{ record.hours }} {{ 'health.sleepHoursLabel' | translate }}</h4>
+              <span class="health-meta">{{ getSleepQualityLabel(record.quality) | translate }}</span>
+            </div>
+          </div>
+          <p class="health-detail">{{ 'health.bedtimeLabel' | translate }}: {{ record.sleepTime | date:'short' }}</p>
+          <p class="health-detail">{{ 'health.wakeupLabel' | translate }}: {{ record.wakeTime | date:'short' }}</p>
+          <small class="health-date">{{ record.date | date:'short' }}</small>
+        </div>
       </div>
     </div>
+    <app-empty-state
+      *ngIf="sleepRecords.length === 0"
+      icon="😴"
+      [title]="'health.emptySleepTitle' | translate"
+      [message]="'health.emptySleepMessage' | translate"
+      [actionText]="'+ ' + ('health.recordSleep' | translate)"
+      (action)="showSleepForm = true">
+    </app-empty-state>
   </div>
 
   <!-- Meditation Tab -->
-  <div *ngIf="activeTab === 'meditation'" class="tab-content">
+  <div *ngIf="activeTab === 'meditation'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
       <h2>{{ 'health.meditationTitle' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showMeditationForm = true">+ {{ 'health.newSession' | translate }}</button>
+      <button type="button" class="btn btn-primary btn-add" (click)="showMeditationForm = true">+ {{ 'health.newSession' | translate }}</button>
     </div>
 
-    <div class="meditation-sessions">
-      <div *ngFor="let session of meditationSessions.slice().reverse()" class="meditation-card">
-        <h4>{{ session.type }}</h4>
-        <p class="duration">{{ session.duration }} minutes</p>
-        <p *ngIf="session.notes" class="notes">{{ session.notes }}</p>
-        <small>{{ session.date | date:'short' }}</small>
+    <div class="health-list meditation-sessions" *ngIf="meditationSessions.length > 0">
+      <div *ngFor="let session of meditationSessions.slice().reverse()" class="health-card meditation-card meditation-card-animate">
+        <div class="health-card-accent health-card-meditation"></div>
+        <div class="health-card-body">
+          <div class="health-card-top">
+            <span class="health-card-icon">🧘</span>
+            <div class="health-card-main">
+              <h4>{{ getMeditationTypeLabel(session.type) | translate }}</h4>
+              <span class="health-meta duration">{{ session.duration }} {{ 'health.minutesShort' | translate }}</span>
+            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteMeditationSession(session.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+          </div>
+          <p *ngIf="session.notes" class="notes">{{ session.notes }}</p>
+          <small class="health-date">{{ session.date | date:'short' }}</small>
+        </div>
       </div>
     </div>
+    <app-empty-state
+      *ngIf="meditationSessions.length === 0"
+      icon="🧘"
+      [title]="'health.emptyMeditationTitle' | translate"
+      [message]="'health.emptyMeditationMessage' | translate"
+      [actionText]="'+ ' + ('health.newSession' | translate)"
+      (action)="showMeditationForm = true">
+    </app-empty-state>
   </div>
 
   <!-- Water + Chat : trois boutons séparés, chacun avec son propre style -->
@@ -173,19 +279,20 @@
 
   <!-- Health Modals -->
   <app-modal *ngIf="showMealForm" [title]="'health.addMeal' | translate" size="md" (closeModal)="closeMealModal()">
-    <form (ngSubmit)="addMeal()">
+    <form #mealForm="ngForm" (ngSubmit)="addMeal()">
       <div class="form-group">
         <label>{{ 'common.name' | translate }} *</label>
-        <input type="text" [(ngModel)]="newMeal.name" name="name" required>
+        <input type="text" [(ngModel)]="newMeal.name" name="name" #mealName="ngModel" required>
+        <span class="field-error" *ngIf="mealName.invalid && (mealName.touched || mealForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newMeal.type" name="type">
-            <option value="breakfast">Petit-déjeuner</option>
-            <option value="lunch">Déjeuner</option>
-            <option value="dinner">Dîner</option>
-            <option value="snack">Collation</option>
+            <option value="breakfast">{{ 'health.mealBreakfast' | translate }}</option>
+            <option value="lunch">{{ 'health.mealLunch' | translate }}</option>
+            <option value="dinner">{{ 'health.mealDinner' | translate }}</option>
+            <option value="snack">{{ 'health.mealSnack' | translate }}</option>
           </select>
         </div>
         <div class="form-group">
@@ -194,7 +301,7 @@
         </div>
       </div>
       <div class="form-group">
-        <label>Notes</label>
+        <label>{{ 'health.notes' | translate }}</label>
         <textarea [(ngModel)]="newMeal.notes" name="notes" rows="2"></textarea>
       </div>
       <div class="form-actions">
@@ -205,24 +312,28 @@
   </app-modal>
 
   <app-modal *ngIf="showActivityForm" [title]="'health.addActivity' | translate" size="md" (closeModal)="closeActivityModal()">
-    <form (ngSubmit)="addActivity()">
+    <form #activityForm="ngForm" (ngSubmit)="addActivity()">
       <div class="form-group">
         <label>{{ 'health.activityTitle' | translate }} *</label>
-        <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" required>
+        <input type="text" [(ngModel)]="newActivity.type" name="type" placeholder="ex: Course, Natation, Yoga" #activityType="ngModel" required>
+        <span class="field-error" *ngIf="activityType.invalid && (activityType.touched || activityForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.minutes' | translate }} *</label>
-          <input type="number" [(ngModel)]="newActivity.duration" name="duration" required>
+          <input type="number" [(ngModel)]="newActivity.duration" name="duration" #activityDuration="ngModel" required>
+          <span class="field-error" *ngIf="activityDuration.invalid && (activityDuration.touched || activityForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'health.caloriesBurned' | translate }}</label>
-          <input type="number" [(ngModel)]="newActivity.calories" name="calories">
+          <input type="number" [(ngModel)]="newActivity.calories" name="calories" #activityCalories="ngModel">
+          <span class="field-error" *ngIf="activityCalories.invalid && (activityCalories.touched || activityForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea [(ngModel)]="newActivity.notes" name="notes" rows="2"></textarea>
+        <label>{{ 'health.notes' | translate }}</label>
+        <textarea [(ngModel)]="newActivity.notes" name="notes" #activityNotes="ngModel" rows="2"></textarea>
+        <span class="field-error" *ngIf="activityNotes.invalid && (activityNotes.touched || activityForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeActivityModal()">{{ 'common.cancel' | translate }}</button>
@@ -232,24 +343,26 @@
   </app-modal>
 
   <app-modal *ngIf="showSleepForm" [title]="'health.recordSleep' | translate" size="md" (closeModal)="closeSleepModal()">
-    <form (ngSubmit)="addSleepRecord()">
+    <form #sleepForm="ngForm" (ngSubmit)="addSleepRecord()">
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.bedtime' | translate }} *</label>
-          <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" required>
+          <input type="datetime-local" [(ngModel)]="newSleep.sleepTime" name="sleepTime" #sleepTime="ngModel" required>
+          <span class="field-error" *ngIf="sleepTime.invalid && (sleepTime.touched || sleepForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'common.wakeup' | translate }} *</label>
-          <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" required>
+          <input type="datetime-local" [(ngModel)]="newSleep.wakeTime" name="wakeTime" #wakeTime="ngModel" required>
+          <span class="field-error" *ngIf="wakeTime.invalid && (wakeTime.touched || sleepForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
         <label>{{ 'common.quality' | translate }}</label>
         <select [(ngModel)]="newSleep.quality" name="quality">
-          <option value="poor">Mauvaise</option>
-          <option value="fair">Moyenne</option>
-          <option value="good">Bonne</option>
-          <option value="excellent">Excellente</option>
+          <option value="poor">{{ 'health.qualityPoor' | translate }}</option>
+          <option value="fair">{{ 'health.qualityFair' | translate }}</option>
+          <option value="good">{{ 'health.qualityGood' | translate }}</option>
+          <option value="excellent">{{ 'health.qualityExcellent' | translate }}</option>
         </select>
       </div>
       <div class="form-actions">
@@ -260,25 +373,28 @@
   </app-modal>
 
   <app-modal *ngIf="showMeditationForm" [title]="'health.newSession' | translate" size="sm" (closeModal)="closeMeditationModal()">
-    <form (ngSubmit)="addMeditationSession()">
+    <form #meditationForm="ngForm" (ngSubmit)="addMeditationSession()">
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'health.minutesLabel' | translate }}</label>
-          <input type="number" [(ngModel)]="newMeditation.duration" name="duration">
+          <input type="number" [(ngModel)]="newMeditation.duration" name="duration" #meditationDuration="ngModel">
+          <span class="field-error" *ngIf="meditationDuration.invalid && (meditationDuration.touched || meditationForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'calendar.type' | translate }}</label>
-          <select [(ngModel)]="newMeditation.type" name="type">
-            <option value="guided">Guidée</option>
-            <option value="breathing">Respiration</option>
-            <option value="mindfulness">Pleine conscience</option>
-            <option value="body-scan">Balayage corporel</option>
+          <select [(ngModel)]="newMeditation.type" name="type" #meditationType="ngModel">
+            <option value="guided">{{ 'health.meditationGuided' | translate }}</option>
+            <option value="breathing">{{ 'health.meditationBreathing' | translate }}</option>
+            <option value="mindfulness">{{ 'health.meditationMindfulness' | translate }}</option>
+            <option value="body-scan">{{ 'health.meditationBodyScan' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="meditationType.invalid && (meditationType.touched || meditationForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
-        <label>Notes</label>
-        <textarea [(ngModel)]="newMeditation.notes" name="notes" rows="2"></textarea>
+        <label>{{ 'health.notes' | translate }}</label>
+        <textarea [(ngModel)]="newMeditation.notes" name="notes" #meditationNotes="ngModel" rows="2"></textarea>
+        <span class="field-error" *ngIf="meditationNotes.invalid && (meditationNotes.touched || meditationForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeMeditationModal()">{{ 'common.cancel' | translate }}</button>
@@ -288,10 +404,11 @@
   </app-modal>
 
   <app-modal *ngIf="showWaterForm" [title]="'health.waterConsumed' | translate" size="sm" (closeModal)="closeWaterModal()">
-    <form (ngSubmit)="addWaterIntake()">
+    <form #waterForm="ngForm" (ngSubmit)="addWaterIntake()">
       <div class="form-group">
         <label>{{ 'health.cupsLabel' | translate }}</label>
-        <input type="number" [(ngModel)]="waterCups" name="waterCups" step="1" min="1" max="20" required>
+        <input type="number" [(ngModel)]="waterCups" name="waterCups" step="1" min="1" max="20" #waterCupsField="ngModel" required>
+        <span class="field-error" *ngIf="waterCupsField.invalid && (waterCupsField.touched || waterForm.submitted)">{{ 'validation.required' | translate }}</span>
         <small class="form-hint">({{ waterCupsToLiters | number:'1.2-2' }} L)</small>
       </div>
       <div class="form-actions">
@@ -300,6 +417,34 @@
       </div>
     </form>
   </app-modal>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteMealConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'health.confirmDeleteMeal' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteMeal()"
+    (cancelled)="cancelDeleteMeal()">
+  </app-confirm-dialog>
+  <app-confirm-dialog
+    [isOpen]="showDeleteActivityConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'health.confirmDeleteActivity' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteActivity()"
+    (cancelled)="cancelDeleteActivity()">
+  </app-confirm-dialog>
+  <app-confirm-dialog
+    [isOpen]="showDeleteMeditationConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'health.confirmDeleteMeditation' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteMeditation()"
+    (cancelled)="cancelDeleteMeditation()">
+  </app-confirm-dialog>
 </div>
 
 

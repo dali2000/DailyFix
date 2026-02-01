@@ -1,11 +1,23 @@
 <div class="wellness-page">
-  <h1>{{ 'wellness.title' | translate }}</h1>
+  <header class="wellness-header">
+    <div class="wellness-header-inner">
+      <span class="wellness-header-icon" aria-hidden="true">🧘</span>
+      <h1>{{ 'wellness.title' | translate }}</h1>
+      <p class="wellness-header-sub">{{ 'wellness.subtitle' | translate }}</p>
+    </div>
+  </header>
 
-  <div class="tabs">
-    <button [class.active]="activeTab === 'journal'" (click)="activeTab = 'journal'">{{ 'wellness.journal' | translate }}</button>
-    <button [class.active]="activeTab === 'goals'" (click)="activeTab = 'goals'">{{ 'wellness.goals' | translate }}</button>
-    <button [class.active]="activeTab === 'stress'" (click)="activeTab = 'stress'">{{ 'wellness.stress' | translate }}</button>
-  </div>
+  <nav class="wellness-tabs" role="tablist">
+    <button type="button" role="tab" [class.active]="activeTab === 'journal'" (click)="activeTab = 'journal'" [attr.aria-selected]="activeTab === 'journal'">
+      <span class="tab-icon">📔</span>{{ 'wellness.journal' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'goals'" (click)="activeTab = 'goals'" [attr.aria-selected]="activeTab === 'goals'">
+      <span class="tab-icon">🎯</span>{{ 'wellness.goals' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'stress'" (click)="activeTab = 'stress'" [attr.aria-selected]="activeTab === 'stress'">
+      <span class="tab-icon">🧘</span>{{ 'wellness.stress' | translate }}
+    </button>
+  </nav>
 
   <!-- Journal Tab -->
   <div *ngIf="activeTab === 'journal'" class="tab-content">
@@ -14,25 +26,39 @@
       <button type="button" class="btn btn-primary" (click)="showJournalForm = true">+ {{ 'wellness.newEntry' | translate }}</button>
     </div>
 
-    <div class="journal-entries">
-      <div *ngFor="let entry of journalEntries" class="entry-card">
-        <div class="entry-header">
-          <h4>{{ entry.title || ('wellness.untitled' | translate) }}</h4>
-          <span class="mood">{{ getMoodEmoji(entry.mood) }}</span>
-        </div>
-        <p class="entry-content">{{ entry.content }}</p>
-        <div class="entry-meta">
-          <span>{{ entry.date | date:'full' }}</span>
-          <span *ngIf="entry.tags && entry.tags.length > 0" class="tags">
-            {{ entry.tags.join(', ') }}
-          </span>
-        </div>
-        <div class="entry-actions">
-          <button class="btn btn-small" (click)="editJournalEntry(entry)">{{ 'common.edit' | translate }}</button>
-          <button class="btn btn-small btn-danger" (click)="deleteJournalEntry(entry.id)">{{ 'common.delete' | translate }}</button>
+    <div class="journal-entries" *ngIf="journalEntries.length > 0">
+      <div *ngFor="let entry of journalEntries" class="entry-card entry-card-accent entry-card-animate">
+        <div class="entry-card-accent-bar"></div>
+        <div class="entry-card-body">
+          <span class="entry-card-icon">📔</span>
+          <div class="entry-card-main">
+            <div class="entry-header">
+              <h4>{{ entry.title || ('wellness.untitled' | translate) }}</h4>
+              <span class="mood">{{ getMoodEmoji(entry.mood) }}</span>
+            </div>
+            <p class="entry-content">{{ entry.content }}</p>
+            <div class="entry-meta">
+              <span>{{ entry.date | date:'full' }}</span>
+              <span *ngIf="entry.tags && entry.tags.length > 0" class="tags">
+                {{ entry.tags.join(', ') }}
+              </span>
+            </div>
+            <div class="entry-actions">
+              <button type="button" class="btn btn-small" (click)="editJournalEntry(entry)">{{ 'common.edit' | translate }}</button>
+              <button type="button" class="btn-icon btn-icon-danger" (click)="deleteJournalEntry(entry.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+    <app-empty-state
+      *ngIf="journalEntries.length === 0"
+      icon="📔"
+      [title]="'wellness.emptyJournalTitle' | translate"
+      [message]="'wellness.emptyJournalMessage' | translate"
+      [actionText]="'+ ' + ('wellness.newEntry' | translate)"
+      (action)="showJournalForm = true">
+    </app-empty-state>
   </div>
 
   <!-- Goals Tab -->
@@ -44,39 +70,59 @@
 
     <div class="active-goals-section">
       <h3>{{ 'wellness.activeGoals' | translate }}</h3>
-      <div class="goals-list">
-        <div *ngFor="let goal of getActiveGoals()" class="goal-card">
-          <div class="goal-header">
-            <h4>{{ goal.title }}</h4>
-            <span class="category-badge">{{ getCategoryName(goal.category) }}</span>
-          </div>
-          <p *ngIf="goal.description">{{ goal.description }}</p>
-          <div class="goal-progress">
-            <div class="progress-bar">
-              <div class="progress-fill" [style.width.%]="getGoalProgress(goal)"></div>
+      <div class="goals-list" *ngIf="getActiveGoals().length > 0">
+        <div *ngFor="let goal of getActiveGoals()" class="goal-card goal-card-accent goal-card-animate">
+          <div class="goal-card-accent-bar"></div>
+          <div class="goal-card-body">
+            <span class="goal-card-icon">🎯</span>
+            <div class="goal-card-main">
+              <div class="goal-header">
+                <h4>{{ goal.title }}</h4>
+                <span class="category-badge">{{ getCategoryName(goal.category) }}</span>
+              </div>
+              <p *ngIf="goal.description">{{ goal.description }}</p>
+              <div class="goal-progress">
+                <div class="progress-bar">
+                  <div class="progress-fill" [style.width.%]="progressReady ? getGoalProgress(goal) : 0"></div>
+                </div>
+                <div class="progress-info">
+                  <span><app-count-up [value]="getGoalProgress(goal)" format="1.0-0" suffix="%" [duration]="500"></app-count-up></span>
+                  <input type="number" min="0" max="100" [value]="goal.progress" 
+                         (change)="updateGoalProgress(goal, +$any($event.target).value)"
+                         class="progress-input" [attr.aria-label]="'wellness.targetDateLabel' | translate">
+                </div>
+              </div>
+              <div class="goal-meta">
+                <span *ngIf="goal.targetDate">{{ 'wellness.targetDateLabel' | translate }}: {{ goal.targetDate | date:'shortDate' }}</span>
+              </div>
             </div>
-            <div class="progress-info">
-              <span>{{ getGoalProgress(goal) }}%</span>
-              <input type="number" min="0" max="100" [value]="goal.progress" 
-                     (change)="updateGoalProgress(goal, +$any($event.target).value)"
-                     class="progress-input">
-            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deletePersonalGoal(goal.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
           </div>
-          <div class="goal-meta">
-            <span *ngIf="goal.targetDate">Date cible: {{ goal.targetDate | date:'shortDate' }}</span>
-          </div>
-          <button class="btn btn-small btn-danger" (click)="deletePersonalGoal(goal.id)">{{ 'common.delete' | translate }}</button>
         </div>
       </div>
+      <app-empty-state
+        *ngIf="getActiveGoals().length === 0 && getCompletedGoals().length === 0"
+        icon="🎯"
+        [title]="'wellness.emptyGoalsTitle' | translate"
+        [message]="'wellness.emptyGoalsMessage' | translate"
+        [actionText]="'+ ' + ('wellness.newGoal' | translate)"
+        (action)="showGoalForm = true">
+      </app-empty-state>
     </div>
 
-    <div class="completed-goals-section">
+    <div class="completed-goals-section" *ngIf="getCompletedGoals().length > 0">
       <h3>{{ 'wellness.completedGoals' | translate }}</h3>
       <div class="goals-list">
-        <div *ngFor="let goal of getCompletedGoals()" class="goal-card completed">
-          <h4>{{ goal.title }}</h4>
-          <p>{{ goal.description }}</p>
-          <span class="completed-badge">✓ {{ 'wellness.completedBadge' | translate }}</span>
+        <div *ngFor="let goal of getCompletedGoals()" class="goal-card goal-card-accent completed">
+          <div class="goal-card-accent-bar goal-card-accent-completed"></div>
+          <div class="goal-card-body">
+            <span class="goal-card-icon">✅</span>
+            <div class="goal-card-main">
+              <h4>{{ goal.title }}</h4>
+              <p>{{ goal.description }}</p>
+              <span class="completed-badge">✓ {{ 'wellness.completedBadge' | translate }}</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -85,16 +131,16 @@
   <!-- Stress Tab -->
   <div *ngIf="activeTab === 'stress'" class="tab-content">
     <div class="stress-overview">
-      <div class="stress-card">
-        <h3>Niveau de stress moyen (7 derniers jours)</h3>
+      <div class="stress-card stress-card-animate">
+        <h3>{{ 'wellness.averageStressTitle' | translate }}</h3>
         <div class="stress-level-display" [style.color]="getStressLevelColor(averageStressLevel)">
-          <span class="stress-value">{{ averageStressLevel }}/10</span>
+          <span class="stress-value"><app-count-up [value]="averageStressLevel" format="1.0-0" [duration]="600"></app-count-up>/10</span>
         </div>
       </div>
     </div>
 
     <div class="stress-tips-section">
-      <h3>💡 Conseils de gestion du stress</h3>
+      <h3>💡 {{ 'wellness.stressTipsTitle' | translate }}</h3>
       <div class="tips-grid">
         <div *ngFor="let tip of stressTips" class="tip-card">
           {{ tip }}
@@ -108,51 +154,69 @@
     </div>
 
     <div class="stress-records-section">
-      <h3>Historique</h3>
-      <div class="stress-records">
-        <div *ngFor="let record of stressRecords" class="stress-record-card">
-          <div class="stress-record-header">
-            <span class="stress-level" [style.color]="getStressLevelColor(record.stressLevel)">
-              Niveau: {{ record.stressLevel }}/10
-            </span>
-            <span class="date">{{ record.date | date:'short' }}</span>
+      <h3>{{ 'wellness.historyLabel' | translate }}</h3>
+      <div class="stress-records" *ngIf="stressRecords.length > 0">
+        <div *ngFor="let record of stressRecords" class="stress-record-card stress-record-accent stress-record-animate">
+          <div class="stress-record-accent-bar" [style.background]="getStressLevelColor(record.stressLevel)"></div>
+          <div class="stress-record-body">
+            <span class="stress-record-icon">🧘</span>
+            <div class="stress-record-main">
+              <div class="stress-record-header">
+                <span class="stress-level" [style.color]="getStressLevelColor(record.stressLevel)">
+                  {{ 'wellness.stressLevelShort' | translate }}: {{ record.stressLevel }}/10
+                </span>
+                <span class="date">{{ record.date | date:'short' }}</span>
+              </div>
+              <div *ngIf="record.triggers && record.triggers.length > 0" class="triggers">
+                <strong>{{ 'wellness.triggers' | translate }}:</strong> {{ record.triggers.join(', ') }}
+              </div>
+              <div *ngIf="record.copingStrategies && record.copingStrategies.length > 0" class="strategies">
+                <strong>{{ 'wellness.strategies' | translate }}:</strong> {{ record.copingStrategies.join(', ') }}
+              </div>
+              <p *ngIf="record.notes">{{ record.notes }}</p>
+            </div>
           </div>
-          <div *ngIf="record.triggers && record.triggers.length > 0" class="triggers">
-            <strong>Déclencheurs:</strong> {{ record.triggers.join(', ') }}
-          </div>
-          <div *ngIf="record.copingStrategies && record.copingStrategies.length > 0" class="strategies">
-            <strong>Stratégies:</strong> {{ record.copingStrategies.join(', ') }}
-          </div>
-          <p *ngIf="record.notes">{{ record.notes }}</p>
         </div>
       </div>
+      <app-empty-state
+        *ngIf="stressRecords.length === 0"
+        icon="🧘"
+        [title]="'wellness.emptyStressTitle' | translate"
+        [message]="'wellness.emptyStressMessage' | translate"
+        [actionText]="'+ ' + ('wellness.newStressEntry' | translate)"
+        (action)="showStressForm = true">
+      </app-empty-state>
     </div>
   </div>
 
   <app-modal *ngIf="showJournalForm" [title]="(selectedEntry ? 'common.edit' : 'wellness.newEntry') | translate" size="lg" (closeModal)="closeJournalModal()">
-    <form (ngSubmit)="selectedEntry ? updateJournalEntry() : addJournalEntry()">
+    <form #journalForm="ngForm" (ngSubmit)="selectedEntry ? updateJournalEntry() : addJournalEntry()">
       <div class="form-group">
         <label>{{ 'common.title' | translate }} (optionnel)</label>
-        <input type="text" [(ngModel)]="newEntry.title" name="title">
+        <input type="text" [(ngModel)]="newEntry.title" name="title" #journalTitle="ngModel">
+        <span class="field-error" *ngIf="journalTitle.invalid && (journalTitle.touched || journalForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'common.description' | translate }} *</label>
-        <textarea [(ngModel)]="newEntry.content" name="content" rows="8" required></textarea>
+        <textarea [(ngModel)]="newEntry.content" name="content" #journalContent="ngModel" rows="8" required></textarea>
+        <span class="field-error" *ngIf="journalContent.invalid && (journalContent.touched || journalForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Humeur</label>
-          <select [(ngModel)]="newEntry.mood" name="mood">
-            <option value="">Sélectionner</option>
+          <label>{{ 'wellness.mood' | translate }}</label>
+          <select [(ngModel)]="newEntry.mood" name="mood" #journalMood="ngModel">
+            <option value="">{{ 'wellness.moodSelect' | translate }}</option>
             <option *ngFor="let mood of moods" [value]="mood">
               {{ getMoodEmoji(mood) }} {{ mood }}
             </option>
           </select>
+          <span class="field-error" *ngIf="journalMood.invalid && (journalMood.touched || journalForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
-        <label>Tags (séparés par des virgules)</label>
-        <input type="text" [(ngModel)]="newEntry.tags" name="tags" placeholder="gratitude, objectifs, réflexion">
+        <label>{{ 'wellness.tagsPlaceholder' | translate }}</label>
+        <input type="text" [(ngModel)]="newEntry.tags" name="tags" #journalTags="ngModel" placeholder="gratitude, objectifs, réflexion">
+        <span class="field-error" *ngIf="journalTags.invalid && (journalTags.touched || journalForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeJournalModal()">{{ 'common.cancel' | translate }}</button>
@@ -162,25 +226,29 @@
   </app-modal>
 
   <app-modal *ngIf="showGoalForm" [title]="'wellness.newGoal' | translate" size="md" (closeModal)="closeGoalModal()">
-    <form (ngSubmit)="addPersonalGoal()">
+    <form #goalForm="ngForm" (ngSubmit)="addPersonalGoal()">
       <div class="form-group">
         <label>{{ 'common.title' | translate }} *</label>
-        <input type="text" [(ngModel)]="newGoal.title" name="title" required>
+        <input type="text" [(ngModel)]="newGoal.title" name="title" #goalTitle="ngModel" required>
+        <span class="field-error" *ngIf="goalTitle.invalid && (goalTitle.touched || goalForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'common.description' | translate }}</label>
-        <textarea [(ngModel)]="newGoal.description" name="description" rows="3"></textarea>
+        <textarea [(ngModel)]="newGoal.description" name="description" #goalDesc="ngModel" rows="3"></textarea>
+        <span class="field-error" *ngIf="goalDesc.invalid && (goalDesc.touched || goalForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.category' | translate }}</label>
-          <select [(ngModel)]="newGoal.category" name="category">
+          <select [(ngModel)]="newGoal.category" name="category" #goalCategory="ngModel">
             <option *ngFor="let cat of goalCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
+          <span class="field-error" *ngIf="goalCategory.invalid && (goalCategory.touched || goalForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'common.targetDate' | translate }}</label>
-          <input type="date" [(ngModel)]="newGoal.targetDate" name="targetDate">
+          <input type="date" [(ngModel)]="newGoal.targetDate" name="targetDate" #goalTargetDate="ngModel">
+          <span class="field-error" *ngIf="goalTargetDate.invalid && (goalTargetDate.touched || goalForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
@@ -191,23 +259,27 @@
   </app-modal>
 
   <app-modal *ngIf="showStressForm" [title]="'wellness.newStressEntry' | translate" size="md" (closeModal)="closeStressModal()">
-    <form (ngSubmit)="addStressRecord()">
+    <form #stressForm="ngForm" (ngSubmit)="addStressRecord()">
       <div class="form-group">
-        <label>Niveau de stress (1-10) *</label>
-        <input type="range" min="1" max="10" [(ngModel)]="newStress.stressLevel" name="stressLevel" required>
+        <label>{{ 'wellness.stressLevelLabel' | translate }} *</label>
+        <input type="range" min="1" max="10" [(ngModel)]="newStress.stressLevel" name="stressLevel" #stressLevel="ngModel" required [attr.aria-valuetext]="newStress.stressLevel + '/10'">
         <span class="stress-level-value">{{ newStress.stressLevel }}/10</span>
+        <span class="field-error" *ngIf="stressLevel.invalid && (stressLevel.touched || stressForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
-        <label>Déclencheurs (séparés par des virgules)</label>
-        <input type="text" [(ngModel)]="newStress.triggers" name="triggers" placeholder="travail, famille, finances">
+        <label>{{ 'wellness.triggersLabel' | translate }}</label>
+        <input type="text" [(ngModel)]="newStress.triggers" name="triggers" #stressTriggers="ngModel" placeholder="travail, famille, finances">
+        <span class="field-error" *ngIf="stressTriggers.invalid && (stressTriggers.touched || stressForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
-        <label>Stratégies d'adaptation (séparées par des virgules)</label>
-        <input type="text" [(ngModel)]="newStress.copingStrategies" name="copingStrategies" placeholder="respiration, marche, méditation">
+        <label>{{ 'wellness.copingLabel' | translate }}</label>
+        <input type="text" [(ngModel)]="newStress.copingStrategies" name="copingStrategies" #stressCoping="ngModel" placeholder="respiration, marche, méditation">
+        <span class="field-error" *ngIf="stressCoping.invalid && (stressCoping.touched || stressForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>Notes</label>
-        <textarea [(ngModel)]="newStress.notes" name="notes" rows="3"></textarea>
+        <textarea [(ngModel)]="newStress.notes" name="notes" #stressNotes="ngModel" rows="3"></textarea>
+        <span class="field-error" *ngIf="stressNotes.invalid && (stressNotes.touched || stressForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeStressModal()">{{ 'common.cancel' | translate }}</button>
@@ -215,5 +287,24 @@
       </div>
     </form>
   </app-modal>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteEntryConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'wellness.confirmDeleteEntry' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteEntry()"
+    (cancelled)="cancelDeleteEntry()">
+  </app-confirm-dialog>
+  <app-confirm-dialog
+    [isOpen]="showDeleteGoalConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'wellness.confirmDeleteGoal' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteGoal()"
+    (cancelled)="cancelDeleteGoal()">
+  </app-confirm-dialog>
 </div>
 

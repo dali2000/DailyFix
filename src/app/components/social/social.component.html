@@ -1,10 +1,20 @@
 <div class="social-page">
-  <h1>{{ 'social.title' | translate }}</h1>
+  <header class="social-header">
+    <div class="social-header-inner">
+      <span class="social-header-icon" aria-hidden="true">📅</span>
+      <h1>{{ 'social.title' | translate }}</h1>
+      <p class="social-header-sub">{{ 'social.subtitle' | translate }}</p>
+    </div>
+  </header>
 
-  <div class="tabs">
-    <button [class.active]="activeTab === 'events'" (click)="activeTab = 'events'">{{ 'social.events' | translate }}</button>
-    <button [class.active]="activeTab === 'suggestions'" (click)="activeTab = 'suggestions'">{{ 'social.suggestions' | translate }}</button>
-  </div>
+  <nav class="social-tabs" role="tablist">
+    <button type="button" role="tab" [class.active]="activeTab === 'events'" (click)="activeTab = 'events'" [attr.aria-selected]="activeTab === 'events'">
+      <span class="tab-icon">📅</span>{{ 'social.events' | translate }}
+    </button>
+    <button type="button" role="tab" [class.active]="activeTab === 'suggestions'" (click)="activeTab = 'suggestions'" [attr.aria-selected]="activeTab === 'suggestions'">
+      <span class="tab-icon">💡</span>{{ 'social.suggestions' | translate }}
+    </button>
+  </nav>
 
   <!-- Events Tab -->
   <div *ngIf="activeTab === 'events'" class="tab-content">
@@ -15,46 +25,68 @@
 
     <div class="birthdays-section">
       <h3>🎂 {{ 'social.birthdays' | translate }}</h3>
-      <div class="events-list">
-        <div *ngFor="let birthday of getBirthdays()" class="event-card birthday">
-          <h4>{{ birthday.title }}</h4>
-          <p>{{ birthday.date | date:'fullDate' }}</p>
-          <div class="event-actions">
-            <button class="btn btn-small" (click)="editEvent(birthday)">✏️ {{ 'social.modify' | translate }}</button>
-            <button class="btn btn-small btn-danger" (click)="deleteEvent(birthday.id)">🗑️ {{ 'common.delete' | translate }}</button>
+      <div class="events-list" *ngIf="getBirthdays().length > 0">
+        <div *ngFor="let birthday of getBirthdays()" class="event-card event-card-accent event-card-birthday">
+          <div class="event-card-accent-bar"></div>
+          <div class="event-card-body">
+            <span class="event-card-icon">🎂</span>
+            <div class="event-card-main">
+              <h4>{{ birthday.title }}</h4>
+              <p>{{ birthday.date | date:'fullDate' }}</p>
+            </div>
+            <div class="event-actions">
+              <button type="button" class="btn btn-small" (click)="editEvent(birthday)">✏️ {{ 'social.modify' | translate }}</button>
+              <button type="button" class="btn-icon btn-icon-danger" (click)="deleteEvent(birthday.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+            </div>
           </div>
         </div>
-        <div *ngIf="getBirthdays().length === 0" class="empty-state">
-          {{ 'social.noBirthdays' | translate }}
-        </div>
       </div>
+      <app-empty-state
+        *ngIf="getBirthdays().length === 0"
+        icon="🎂"
+        [title]="'social.emptyBirthdaysTitle' | translate"
+        [message]="'social.emptyBirthdaysMessage' | translate"
+        [actionText]="'+ ' + ('social.newEvent' | translate)"
+        (action)="showEventForm = true">
+      </app-empty-state>
     </div>
 
     <div class="upcoming-events-section">
       <h3>{{ 'social.upcomingEvents' | translate }}</h3>
-      <div class="events-list">
-        <div *ngFor="let event of getUpcomingEvents()" class="event-card">
-          <div class="event-header">
-            <h4>{{ event.title }}</h4>
-            <span class="event-type">{{ getEventTypeName(event.type) }}</span>
+      <div class="events-list" *ngIf="getUpcomingEvents().length > 0">
+        <div *ngFor="let event of getUpcomingEvents()" class="event-card event-card-accent event-card-animate">
+          <div class="event-card-accent-bar"></div>
+          <div class="event-card-body">
+            <span class="event-card-icon">📅</span>
+            <div class="event-card-main">
+              <div class="event-header">
+                <h4>{{ event.title }}</h4>
+                <span class="event-type">{{ getEventTypeName(event.type) }}</span>
+              </div>
+              <p *ngIf="event.description">{{ event.description }}</p>
+              <div class="event-meta">
+                <span>📅 {{ event.date | date:'full' }}</span>
+                <span *ngIf="event.location">📍 {{ event.location }}</span>
+                <span *ngIf="event.attendees && event.attendees.length > 0">
+                  👥 {{ event.attendees.join(', ') }}
+                </span>
+              </div>
+            </div>
+            <div class="event-actions">
+              <button type="button" class="btn btn-small" (click)="editEvent(event)">✏️ {{ 'social.modify' | translate }}</button>
+              <button type="button" class="btn-icon btn-icon-danger" (click)="deleteEvent(event.id)" [attr.aria-label]="'common.delete' | translate" title="{{ 'common.delete' | translate }}">×</button>
+            </div>
           </div>
-          <p *ngIf="event.description">{{ event.description }}</p>
-          <div class="event-meta">
-            <span>📅 {{ event.date | date:'full' }}</span>
-            <span *ngIf="event.location">📍 {{ event.location }}</span>
-            <span *ngIf="event.attendees && event.attendees.length > 0">
-              👥 {{ event.attendees.join(', ') }}
-            </span>
-          </div>
-          <div class="event-actions">
-            <button class="btn btn-small" (click)="editEvent(event)">✏️ {{ 'social.modify' | translate }}</button>
-            <button class="btn btn-small btn-danger" (click)="deleteEvent(event.id)">🗑️ {{ 'common.delete' | translate }}</button>
-          </div>
-        </div>
-        <div *ngIf="getUpcomingEvents().length === 0" class="empty-state">
-          {{ 'social.noUpcoming' | translate }}
         </div>
       </div>
+      <app-empty-state
+        *ngIf="getUpcomingEvents().length === 0"
+        icon="📅"
+        [title]="'social.emptyUpcomingTitle' | translate"
+        [message]="'social.emptyUpcomingMessage' | translate"
+        [actionText]="'+ ' + ('social.newEvent' | translate)"
+        (action)="showEventForm = true">
+      </app-empty-state>
     </div>
   </div>
 
@@ -68,16 +100,22 @@
     <div *ngFor="let category of suggestionCategories" class="category-section">
       <h3>{{ getCategoryName(category) }}</h3>
       <div class="suggestions-grid">
-        <div *ngFor="let suggestion of getSuggestionsByCategory(category)" class="suggestion-card">
-          <h4>{{ suggestion.title }}</h4>
-          <p>{{ suggestion.description }}</p>
-          <div class="suggestion-meta">
-            <span *ngIf="suggestion.estimatedCost !== undefined">
-              💰 {{ suggestion.estimatedCost }} €
-            </span>
-            <span *ngIf="suggestion.estimatedDuration">
-              ⏱️ {{ suggestion.estimatedDuration }} min
-            </span>
+        <div *ngFor="let suggestion of getSuggestionsByCategory(category)" class="suggestion-card suggestion-card-accent">
+          <div class="suggestion-card-accent-bar"></div>
+          <div class="suggestion-card-body">
+            <span class="suggestion-card-icon">💡</span>
+            <div class="suggestion-card-main">
+              <h4>{{ suggestion.title }}</h4>
+              <p>{{ suggestion.description }}</p>
+              <div class="suggestion-meta">
+                <span *ngIf="suggestion.estimatedCost !== undefined">
+                  💰 <app-count-up [value]="suggestion.estimatedCost" [duration]="500"></app-count-up> €
+                </span>
+                <span *ngIf="suggestion.estimatedDuration">
+                  ⏱️ <app-count-up [value]="suggestion.estimatedDuration" [duration]="500"></app-count-up> min
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -85,20 +123,22 @@
   </div>
 
   <app-modal *ngIf="showEventForm" [title]="(editingEvent ? 'calendar.editEvent' : 'social.newEvent') | translate" size="lg" (closeModal)="cancelEventForm()">
-    <form (ngSubmit)="addEvent()">
+    <form #socialEventForm="ngForm" (ngSubmit)="addEvent()">
       <div class="form-group">
         <label>{{ 'common.title' | translate }} *</label>
-        <input type="text" [(ngModel)]="newEvent.title" name="title" required>
+        <input type="text" [(ngModel)]="newEvent.title" name="title" #eventTitle="ngModel" required>
+        <span class="field-error" *ngIf="eventTitle.invalid && (eventTitle.touched || socialEventForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'common.description' | translate }}</label>
         <textarea [(ngModel)]="newEvent.description" name="description" rows="2"></textarea>
       </div>
       <div class="form-row">
-        <div class="form-group">
-          <label>{{ 'common.date' | translate }} *</label>
-          <input type="datetime-local" [(ngModel)]="newEvent.dateString" name="date" required>
-        </div>
+<div class="form-group">
+        <label>{{ 'common.date' | translate }} *</label>
+        <input type="datetime-local" [(ngModel)]="newEvent.dateString" name="date" #eventDate="ngModel" required>
+        <span class="field-error" *ngIf="eventDate.invalid && (eventDate.touched || socialEventForm.submitted)">{{ 'validation.required' | translate }}</span>
+      </div>
         <div class="form-group">
           <label>{{ 'calendar.type' | translate }}</label>
           <select [(ngModel)]="newEvent.type" name="type">
@@ -108,49 +148,54 @@
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Lieu</label>
+          <label>{{ 'social.location' | translate }}</label>
           <input type="text" [(ngModel)]="newEvent.location" name="location">
         </div>
         <div class="form-group">
-          <label>Rappel</label>
+          <label>{{ 'social.reminder' | translate }}</label>
           <input type="datetime-local" [(ngModel)]="newEvent.reminderString" name="reminder">
         </div>
       </div>
       <div class="form-group">
-        <label>Participants (séparés par des virgules)</label>
+        <label>{{ 'social.attendeesPlaceholder' | translate }}</label>
         <input type="text" [(ngModel)]="newEvent.attendeesString" name="attendees" placeholder="Marie, Paul, Sophie">
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="cancelEventForm()">Annuler</button>
-        <button type="submit" class="btn btn-primary">{{ editingEvent ? 'Modifier' : 'Créer' }}</button>
+        <button type="button" class="btn btn-secondary" (click)="cancelEventForm()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ editingEvent ? ('common.update' | translate) : ('common.create' | translate) }}</button>
       </div>
     </form>
   </app-modal>
 
   <app-modal *ngIf="showSuggestionForm" [title]="'social.addSuggestion' | translate" size="md" (closeModal)="closeSuggestionModal()">
-    <form (ngSubmit)="addCustomSuggestion()">
+    <form #suggestionForm="ngForm" (ngSubmit)="addCustomSuggestion()">
       <div class="form-group">
         <label>{{ 'common.title' | translate }} *</label>
-        <input type="text" [(ngModel)]="newSuggestion.title" name="title" required>
+        <input type="text" [(ngModel)]="newSuggestion.title" name="title" #suggestionTitle="ngModel" required>
+        <span class="field-error" *ngIf="suggestionTitle.invalid && (suggestionTitle.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'common.description' | translate }} *</label>
-        <textarea [(ngModel)]="newSuggestion.description" name="description" rows="3" required></textarea>
+        <textarea [(ngModel)]="newSuggestion.description" name="description" #suggestionDesc="ngModel" rows="3" required></textarea>
+        <span class="field-error" *ngIf="suggestionDesc.invalid && (suggestionDesc.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.category' | translate }}</label>
-          <select [(ngModel)]="newSuggestion.category" name="category">
+          <select [(ngModel)]="newSuggestion.category" name="category" #suggestionCategory="ngModel">
             <option *ngFor="let cat of suggestionCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
+          <span class="field-error" *ngIf="suggestionCategory.invalid && (suggestionCategory.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'common.amount' | translate }} (€)</label>
-          <input type="number" [(ngModel)]="newSuggestion.estimatedCost" name="cost">
+          <input type="number" [(ngModel)]="newSuggestion.estimatedCost" name="cost" #suggestionCost="ngModel">
+          <span class="field-error" *ngIf="suggestionCost.invalid && (suggestionCost.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'common.minutes' | translate }}</label>
-          <input type="number" [(ngModel)]="newSuggestion.estimatedDuration" name="duration">
+          <input type="number" [(ngModel)]="newSuggestion.estimatedDuration" name="duration" #suggestionDuration="ngModel">
+          <span class="field-error" *ngIf="suggestionDuration.invalid && (suggestionDuration.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
@@ -159,4 +204,14 @@
       </div>
     </form>
   </app-modal>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteEventConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'social.confirmDeleteEvent' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteEvent()"
+    (cancelled)="cancelDeleteEvent()">
+  </app-confirm-dialog>
 </div>

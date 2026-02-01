@@ -1,24 +1,39 @@
 <div class="finance-page">
-  <h1>💰 {{ 'finance.title' | translate }}</h1>
+  <header class="finance-header">
+    <div class="finance-header-inner">
+      <span class="finance-header-icon" aria-hidden="true">💰</span>
+      <h1>{{ 'finance.title' | translate }}</h1>
+      <p class="finance-header-sub">{{ 'finance.subtitle' | translate }}</p>
+    </div>
+  </header>
 
-  <!-- Sélecteur de mois : gestion distincte par mois -->
-  <div class="month-selector">
-    <button type="button" class="btn btn-icon" (click)="goToPrevMonth()" [attr.aria-label]="'Mois précédent'">‹</button>
+  <div class="month-selector-bar">
+    <button type="button" class="month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate">‹</button>
     <span class="month-label">{{ selectedMonthLabel }}</span>
-    <button type="button" class="btn btn-icon" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'Mois suivant'">›</button>
+    <button type="button" class="month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate">›</button>
     <button type="button" class="btn btn-secondary btn-today" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
   </div>
 
-  <div class="tabs">
-    <button [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">{{ 'finance.overview' | translate }}</button>
-    <button [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">{{ 'finance.salary' | translate }}</button>
-    <button [class.active]="activeTab === 'expenses'" (click)="activeTab = 'expenses'">{{ 'finance.expenses' | translate }}</button>
-    <button [class.active]="activeTab === 'budget'" (click)="activeTab = 'budget'">{{ 'finance.budget' | translate }}</button>
-    <button [class.active]="activeTab === 'savings'" (click)="activeTab = 'savings'">{{ 'finance.savings' | translate }}</button>
-  </div>
+  <nav class="finance-tabs" role="tablist" aria-label="Finance sections">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'overview'" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">
+      <span class="tab-icon">📊</span>{{ 'finance.overview' | translate }}
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'salary'" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">
+      <span class="tab-icon">💵</span>{{ 'finance.salary' | translate }}
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'expenses'" [class.active]="activeTab === 'expenses'" (click)="activeTab = 'expenses'">
+      <span class="tab-icon">💸</span>{{ 'finance.expenses' | translate }}
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'budget'" [class.active]="activeTab === 'budget'" (click)="activeTab = 'budget'">
+      <span class="tab-icon">📋</span>{{ 'finance.budget' | translate }}
+    </button>
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'savings'" [class.active]="activeTab === 'savings'" (click)="activeTab = 'savings'">
+      <span class="tab-icon">🎯</span>{{ 'finance.savings' | translate }}
+    </button>
+  </nav>
 
-  <!-- Overview Tab : synthèse du mois sélectionné -->
-  <div *ngIf="activeTab === 'overview'" class="tab-content">
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <!-- Bank Card -->
     <div class="bank-card" [class.negative-balance]="remainingBalance < 0">
@@ -41,8 +56,8 @@
       </div>
       <div class="card-balance">
         <div class="balance-label">{{ 'finance.availableBalance' | translate }}</div>
-        <div class="balance-amount" [class.negative]="remainingBalance < 0">
-          {{ remainingBalance | number:'1.2-2' }} {{ currencySymbol }}
+        <div class="balance-amount animate-number" [class.negative]="remainingBalance < 0">
+          <app-count-up [value]="remainingBalance" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="800"></app-count-up>
         </div>
       </div>
     </div>
@@ -52,30 +67,33 @@
         <div class="card-icon">💵</div>
         <div class="card-content">
           <h3>{{ 'finance.income' | translate }}</h3>
-          <p class="amount positive">{{ monthlySalary | number:'1.2-2' }} {{ currencySymbol }}</p>
+          <p class="amount positive animate-number animate-number-delay-1"><app-count-up [value]="monthlySalary" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="600"></app-count-up></p>
         </div>
       </div>
       <div class="overview-card expenses">
         <div class="card-icon">💸</div>
         <div class="card-content">
           <h3>{{ 'finance.expenses' | translate }}</h3>
-          <p class="amount negative">{{ monthlyExpenses | number:'1.2-2' }} {{ currencySymbol }}</p>
+          <p class="amount negative animate-number animate-number-delay-2"><app-count-up [value]="monthlyExpenses" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="600"></app-count-up></p>
         </div>
       </div>
       <div class="overview-card balance" [class.negative]="remainingBalance < 0">
         <div class="card-icon">{{ remainingBalance >= 0 ? '✅' : '⚠️' }}</div>
         <div class="card-content">
-          <h3>Reste</h3>
-          <p class="amount" [class.positive]="remainingBalance >= 0" [class.negative]="remainingBalance < 0">
-            {{ remainingBalance | number:'1.2-2' }} {{ currencySymbol }}
+          <h3>{{ 'finance.remaining' | translate }}</h3>
+          <p class="amount animate-number animate-number-delay-3" [class.positive]="remainingBalance >= 0" [class.negative]="remainingBalance < 0">
+            <app-count-up [value]="remainingBalance" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="600"></app-count-up>
           </p>
         </div>
       </div>
     </div>
 
-    <div class="expenses-by-category">
-      <h3>📊 {{ 'finance.expensesByCategory' | translate }}</h3>
-      <div class="category-list">
+    <div class="expenses-by-category dropdown-section">
+      <button type="button" class="category-section-toggle" (click)="expensesByCategoryExpanded = !expensesByCategoryExpanded" [attr.aria-expanded]="expensesByCategoryExpanded" [attr.aria-controls]="'category-content'" [attr.aria-label]="'finance.expensesByCategory' | translate">
+        <span class="toggle-title"><span class="toggle-emoji">📊</span> {{ 'finance.expensesByCategory' | translate }}</span>
+        <span class="toggle-icon" aria-hidden="true">{{ expensesByCategoryExpanded ? '▼' : '▶' }}</span>
+      </button>
+      <div id="category-content" class="category-dropdown-content" [class.is-open]="expensesByCategoryExpanded" [attr.aria-hidden]="!expensesByCategoryExpanded">
         <div *ngFor="let category of expenseCategories" class="category-item">
           <div class="category-info">
             <span class="category-icon">{{ getCategoryIcon(category) }}</span>
@@ -87,195 +105,235 @@
     </div>
 
     <div *ngIf="savingsSuggestions.length > 0" class="suggestions-card">
-      <h3>💡 {{ 'finance.savingsSuggestions' | translate }}</h3>
+      <h3><span class="suggestion-emoji">💡</span> {{ 'finance.savingsSuggestions' | translate }}</h3>
       <ul>
         <li *ngFor="let suggestion of savingsSuggestions">{{ suggestion }}</li>
       </ul>
     </div>
   </div>
 
-  <!-- Salary Tab : salaires du mois sélectionné -->
-  <div *ngIf="activeTab === 'salary'" class="tab-content">
+  <!-- Salary Tab -->
+  <div *ngIf="activeTab === 'salary'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <div class="section-header">
-      <h2>💵 Salaires</h2>
-      <button type="button" class="btn btn-primary" (click)="openSalaryForm()">+ Ajouter un salaire</button>
+      <h2>{{ 'finance.salariesTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="openSalaryForm()">+ {{ 'finance.addSalary' | translate }}</button>
     </div>
 
-    <div class="salaries-list">
-      <div *ngFor="let salary of salariesForMonth.slice().reverse()" class="salary-card">
-        <div class="salary-header">
-          <div class="salary-info">
-            <h4>{{ salary.description || ('finance.salaryLabel' | translate) }}</h4>
-            <span class="salary-period">{{ salary.period === 'monthly' ? ('common.monthly' | translate) : ('common.yearly' | translate) }}</span>
+    <div class="finance-list salaries-list">
+      <div *ngFor="let salary of salariesForMonth.slice().reverse()" class="finance-card salary-card finance-card-salary">
+        <div class="finance-card-accent"></div>
+        <div class="finance-card-body">
+          <div class="finance-card-top">
+            <span class="finance-card-icon">💵</span>
+            <div class="finance-card-main">
+              <h4>{{ salary.description || ('finance.salaryLabel' | translate) }}</h4>
+              <span class="finance-meta">{{ salary.period === 'monthly' ? ('common.monthly' | translate) : ('common.yearly' | translate) }}</span>
+            </div>
+            <span class="finance-amount positive">{{ salary.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteSalary(salary.id)" [attr.aria-label]="'common.delete' | translate">×</button>
           </div>
-          <span class="salary-amount positive">{{ salary.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <small class="finance-date">{{ salary.date | date:'short' }}</small>
         </div>
-        <div class="salary-meta">
-          <span class="date">{{ salary.date | date:'short' }}</span>
-        </div>
-        <button class="btn btn-small btn-danger" (click)="deleteSalary(salary.id)">Supprimer</button>
       </div>
-      <div *ngIf="salariesForMonth.length === 0" class="empty-state">
-        <p>Aucun salaire pour ce mois</p>
-      </div>
+      <app-empty-state 
+        *ngIf="salariesForMonth.length === 0"
+        icon="💵"
+        [title]="'finance.noSalary' | translate"
+        [message]="'finance.noSalaryMessage' | translate"
+        [actionText]="'+ ' + ('finance.addSalary' | translate)"
+        (action)="openSalaryForm()">
+      </app-empty-state>
     </div>
   </div>
 
-  <!-- Expenses Tab : dépenses du mois sélectionné -->
-  <div *ngIf="activeTab === 'expenses'" class="tab-content">
+  <!-- Expenses Tab -->
+  <div *ngIf="activeTab === 'expenses'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
     <div class="section-header">
-      <h2>💸 {{ 'finance.expenses' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="openExpenseForm()">+ {{ 'finance.addExpense' | translate }}</button>
+      <h2>{{ 'finance.expenses' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="openExpenseForm()">+ {{ 'finance.addExpense' | translate }}</button>
     </div>
 
-    <div class="expenses-list">
-      <div *ngFor="let expense of expensesForMonth.slice().reverse()" class="expense-card">
-        <div class="expense-header">
-          <div class="expense-info">
-            <span class="expense-icon">{{ getCategoryIcon(expense.category) }}</span>
-            <h4>{{ expense.description }}</h4>
+    <div class="finance-list expenses-list">
+      <div *ngFor="let expense of expensesForMonth.slice().reverse()" class="finance-card expense-card finance-card-expense">
+        <div class="finance-card-accent"></div>
+        <div class="finance-card-body">
+          <div class="finance-card-top">
+            <span class="finance-card-icon">{{ getCategoryIcon(expense.category) }}</span>
+            <div class="finance-card-main">
+              <h4>{{ expense.description }}</h4>
+              <span class="category-badge">{{ getCategoryName(expense.category) }}</span>
+            </div>
+            <span class="finance-amount negative">{{ expense.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteExpense(expense.id)" [attr.aria-label]="'common.delete' | translate">×</button>
           </div>
-          <span class="expense-amount negative">{{ expense.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <small class="finance-date">{{ expense.date | date:'short' }}</small>
         </div>
-        <div class="expense-meta">
-          <span class="category-badge">{{ getCategoryName(expense.category) }}</span>
-          <span class="date">{{ expense.date | date:'short' }}</span>
-        </div>
-        <button class="btn btn-small btn-danger" (click)="deleteExpense(expense.id)">{{ 'common.delete' | translate }}</button>
       </div>
-      <div *ngIf="expensesForMonth.length === 0" class="empty-state">
-        <p>{{ 'finance.noExpense' | translate }}</p>
-      </div>
+      <app-empty-state 
+        *ngIf="expensesForMonth.length === 0"
+        icon="💸"
+        [title]="'finance.noExpense' | translate"
+        [message]="'finance.noExpenseMessage' | translate"
+        [actionText]="'+ ' + ('finance.addExpense' | translate)"
+        (action)="openExpenseForm()">
+      </app-empty-state>
     </div>
   </div>
 
   <!-- Budget Tab -->
-  <div *ngIf="activeTab === 'budget'" class="tab-content">
+  <div *ngIf="activeTab === 'budget'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
-      <h2>📊 {{ 'finance.budget' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showBudgetForm = true">+ {{ 'finance.newBudget' | translate }}</button>
+      <h2>{{ 'finance.budget' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="showBudgetForm = true">+ {{ 'finance.newBudget' | translate }}</button>
     </div>
 
-    <div class="budgets-list">
-      <div *ngFor="let budget of budgets" class="budget-card">
-        <div class="budget-header">
-          <h4>{{ budget.category }}</h4>
-          <span class="budget-period">{{ budget.period === 'monthly' ? ('common.monthly' | translate) : budget.period === 'weekly' ? ('common.weekly' | translate) : ('common.yearly' | translate) }}</span>
-        </div>
-        <div class="budget-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getBudgetProgress(budget)" [class.over-budget]="getBudgetProgress(budget) > 100"></div>
+    <div class="finance-list budgets-list">
+      <div *ngFor="let budget of budgets" class="finance-card budget-card finance-card-budget">
+        <div class="finance-card-accent"></div>
+        <div class="finance-card-body">
+          <div class="finance-card-top">
+            <span class="finance-card-icon">📋</span>
+            <div class="finance-card-main">
+              <h4>{{ getCategoryName(budget.category) | translate }}</h4>
+              <span class="finance-meta">{{ budget.period === 'monthly' ? ('common.monthly' | translate) : budget.period === 'weekly' ? ('common.weekly' | translate) : ('common.yearly' | translate) }}</span>
+            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteBudget(budget.id)" [attr.aria-label]="'common.delete' | translate">×</button>
           </div>
-          <div class="budget-amounts">
-            <span>{{ budget.spent | number:'1.2-2' }} {{ currencySymbol }} / {{ budget.limit | number:'1.2-2' }} {{ currencySymbol }}</span>
-            <span class="percentage" [class.over-budget]="getBudgetProgress(budget) > 100">{{ getBudgetProgress(budget) | number:'1.0-0' }}%</span>
+          <div class="budget-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="progressReady ? getBudgetProgress(budget) : 0" [class.over-budget]="getBudgetProgress(budget) > 100"></div>
+            </div>
+            <div class="budget-amounts">
+              <span>{{ budget.spent | number:'1.2-2' }} {{ currencySymbol }} / {{ budget.limit | number:'1.2-2' }} {{ currencySymbol }}</span>
+              <span class="percentage" [class.over-budget]="getBudgetProgress(budget) > 100"><app-count-up [value]="getBudgetProgress(budget)" format="1.0-0" suffix="%" [duration]="500"></app-count-up></span>
+            </div>
           </div>
         </div>
-        <button class="btn btn-small btn-danger" (click)="deleteBudget(budget.id)">Supprimer</button>
       </div>
-      <div *ngIf="budgets.length === 0" class="empty-state">
-        <p>Aucun budget défini</p>
-      </div>
+      <app-empty-state 
+        *ngIf="budgets.length === 0"
+        icon="📊"
+        [title]="'finance.noBudgetEmptyTitle' | translate"
+        [message]="'finance.noBudgetEmptyMessage' | translate"
+        [actionText]="'+ ' + ('finance.newBudget' | translate)"
+        (action)="showBudgetForm = true">
+      </app-empty-state>
     </div>
   </div>
 
   <!-- Savings Tab -->
-  <div *ngIf="activeTab === 'savings'" class="tab-content">
+  <div *ngIf="activeTab === 'savings'" class="tab-content tab-content-animate" role="tabpanel">
     <div class="section-header">
-      <h2>🎯 {{ 'finance.savingsGoalsTitle' | translate }}</h2>
-      <button type="button" class="btn btn-primary" (click)="showSavingsForm = true">+ {{ 'finance.newSavingsGoal' | translate }}</button>
+      <h2>{{ 'finance.savingsGoalsTitle' | translate }}</h2>
+      <button type="button" class="btn btn-primary btn-add" (click)="showSavingsForm = true">+ {{ 'finance.newSavingsGoal' | translate }}</button>
     </div>
 
-    <div class="savings-goals-list">
-      <div *ngFor="let goal of savingsGoals" class="savings-card">
-        <div class="savings-header">
-          <h4>{{ goal.name }}</h4>
-          <span *ngIf="goal.deadline" class="deadline">{{ goal.deadline | date:'shortDate' }}</span>
-        </div>
-        <div class="savings-progress">
-          <div class="progress-bar">
-            <div class="progress-fill" [style.width.%]="getSavingsProgress(goal)"></div>
+    <div class="finance-list savings-goals-list">
+      <div *ngFor="let goal of savingsGoals" class="finance-card savings-card finance-card-savings">
+        <div class="finance-card-accent"></div>
+        <div class="finance-card-body">
+          <div class="finance-card-top">
+            <span class="finance-card-icon">🎯</span>
+            <div class="finance-card-main">
+              <h4>{{ goal.name }}</h4>
+              <span *ngIf="goal.deadline" class="finance-meta deadline">{{ goal.deadline | date:'shortDate' }}</span>
+            </div>
+            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteSavingsGoal(goal.id)" [attr.aria-label]="'common.delete' | translate">×</button>
           </div>
-          <div class="savings-amounts">
-            <span>{{ goal.currentAmount | number:'1.2-2' }} {{ currencySymbol }} / {{ goal.targetAmount | number:'1.2-2' }} {{ currencySymbol }}</span>
-            <span class="percentage">{{ getSavingsProgress(goal) | number:'1.0-0' }}%</span>
+          <div class="savings-progress">
+            <div class="progress-bar">
+              <div class="progress-fill" [style.width.%]="progressReady ? getSavingsProgress(goal) : 0"></div>
+            </div>
+            <div class="savings-amounts">
+              <span>{{ goal.currentAmount | number:'1.2-2' }} {{ currencySymbol }} / {{ goal.targetAmount | number:'1.2-2' }} {{ currencySymbol }}</span>
+              <span class="percentage"><app-count-up [value]="getSavingsProgress(goal)" format="1.0-0" suffix="%" [duration]="500"></app-count-up></span>
+            </div>
           </div>
-        </div>
-        <div class="savings-actions">
-          <button type="button" class="btn btn-small btn-primary" (click)="openSavingsAdjust(goal, 'add')">
-            + {{ 'finance.addAmount' | translate }}
-          </button>
-          <button type="button" class="btn btn-small btn-secondary" (click)="openSavingsAdjust(goal, 'decrease')">
-            − {{ 'finance.decreaseAmount' | translate }}
-          </button>
-          <button class="btn btn-small btn-danger" (click)="deleteSavingsGoal(goal.id)">{{ 'common.delete' | translate }}</button>
+          <div class="savings-actions">
+            <button type="button" class="btn btn-small btn-primary" (click)="openSavingsAdjust(goal, 'add')">+ {{ 'finance.addAmount' | translate }}</button>
+            <button type="button" class="btn btn-small btn-secondary" (click)="openSavingsAdjust(goal, 'decrease')">− {{ 'finance.decreaseAmount' | translate }}</button>
+          </div>
         </div>
       </div>
-      <div *ngIf="savingsGoals.length === 0" class="empty-state">
-        <p>{{ 'finance.noSavingsGoal' | translate }}</p>
-      </div>
+      <app-empty-state 
+        *ngIf="savingsGoals.length === 0"
+        icon="🎯"
+        [title]="'finance.noSavingsGoal' | translate"
+        [message]="'finance.noSavingsMessage' | translate"
+        [actionText]="'+ ' + ('finance.newSavingsGoal' | translate)"
+        (action)="showSavingsForm = true">
+      </app-empty-state>
     </div>
   </div>
 
   <!-- Salary Modal -->
   <app-modal *ngIf="showSalaryForm" [title]="'finance.newSalary' | translate" size="sm" (closeModal)="closeSalaryModal()">
-    <form (ngSubmit)="addSalary()">
+    <form #salaryForm="ngForm" (ngSubmit)="addSalary()">
       <div class="form-group">
-        <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
-        <input type="number" step="0.01" [(ngModel)]="newSalary.amount" name="amount" required>
+        <label for="salary-amount">{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
+        <input id="salary-amount" type="number" step="0.01" [(ngModel)]="newSalary.amount" name="amount" #salaryAmount="ngModel" required aria-required="true">
+        <span class="field-error" *ngIf="salaryAmount.invalid && (salaryAmount.touched || salaryForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>Période *</label>
-          <select [(ngModel)]="newSalary.period" name="period" required>
-            <option value="monthly">Mensuel</option>
-            <option value="yearly">Annuel</option>
+          <label for="salary-period">{{ 'common.period' | translate }} *</label>
+          <select id="salary-period" [(ngModel)]="newSalary.period" name="period" #salaryPeriod="ngModel" required aria-required="true">
+            <option value="monthly">{{ 'common.monthly' | translate }}</option>
+            <option value="yearly">{{ 'common.yearly' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="salaryPeriod.invalid && (salaryPeriod.touched || salaryForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
-          <label>{{ 'finance.dateLabel' | translate }}</label>
-          <input type="date" [(ngModel)]="newSalary.date" name="date">
+          <label for="salary-date">{{ 'finance.dateLabel' | translate }}</label>
+          <input id="salary-date" type="date" [(ngModel)]="newSalary.date" name="date" #salaryDate="ngModel">
+          <span class="field-error" *ngIf="salaryDate.invalid && (salaryDate.touched || salaryForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
-        <label>Description</label>
-        <input type="text" [(ngModel)]="newSalary.description" name="description" placeholder="Ex: Salaire principal">
+        <label for="salary-description">{{ 'common.description' | translate }}</label>
+        <input id="salary-description" type="text" [(ngModel)]="newSalary.description" name="description" #salaryDescription="ngModel" [placeholder]="'finance.salaryDescPlaceholder' | translate">
+        <span class="field-error" *ngIf="salaryDescription.invalid && (salaryDescription.touched || salaryForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
-        <button type="button" class="btn btn-secondary" (click)="closeSalaryModal()">Annuler</button>
-        <button type="submit" class="btn btn-primary">Ajouter</button>
+        <button type="button" class="btn btn-secondary" (click)="closeSalaryModal()">{{ 'common.cancel' | translate }}</button>
+        <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
       </div>
     </form>
   </app-modal>
 
   <!-- Expense Modal -->
   <app-modal *ngIf="showExpenseForm" [title]="'finance.newExpenseTitle' | translate" size="md" (closeModal)="closeExpenseModal()">
-    <form (ngSubmit)="addExpense()">
+    <form #expenseForm="ngForm" (ngSubmit)="addExpense()">
       <div class="form-group">
-        <label>{{ 'finance.descriptionLabel' | translate }} *</label>
-        <input type="text" [(ngModel)]="newExpense.description" name="description" required>
+        <label for="expense-description">{{ 'finance.descriptionLabel' | translate }} *</label>
+        <input id="expense-description" type="text" [(ngModel)]="newExpense.description" name="description" #expenseDesc="ngModel" required aria-required="true">
+        <span class="field-error" *ngIf="expenseDesc.invalid && (expenseDesc.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
-          <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
-          <input type="number" step="0.01" [(ngModel)]="newExpense.amount" name="amount" required>
+          <label for="expense-amount">{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
+          <input id="expense-amount" type="number" step="0.01" [(ngModel)]="newExpense.amount" name="amount" #expenseAmount="ngModel" required aria-required="true">
+          <span class="field-error" *ngIf="expenseAmount.invalid && (expenseAmount.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
-          <label>{{ 'common.category' | translate }}</label>
-          <select [(ngModel)]="newExpense.category" name="category">
+          <label for="expense-category">{{ 'common.category' | translate }}</label>
+          <select id="expense-category" [(ngModel)]="newExpense.category" name="category" #expenseCategory="ngModel">
             <option *ngFor="let cat of expenseCategories" [value]="cat">{{ getCategoryName(cat) }}</option>
           </select>
+          <span class="field-error" *ngIf="expenseCategory.invalid && (expenseCategory.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
         <label>{{ 'finance.dateLabel' | translate }}</label>
-        <input type="date" [(ngModel)]="newExpense.date" name="date">
+        <input type="date" [(ngModel)]="newExpense.date" name="date" #expenseDate="ngModel">
+        <span class="field-error" *ngIf="expenseDate.invalid && (expenseDate.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label>{{ 'finance.paymentMethod' | translate }}</label>
-        <input type="text" [(ngModel)]="newExpense.paymentMethod" name="paymentMethod" [placeholder]="'finance.paymentPlaceholder' | translate">
+        <input type="text" [(ngModel)]="newExpense.paymentMethod" name="paymentMethod" #expensePayment="ngModel" [placeholder]="'finance.paymentPlaceholder' | translate">
+        <span class="field-error" *ngIf="expensePayment.invalid && (expensePayment.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeExpenseModal()">{{ 'common.cancel' | translate }}</button>
@@ -286,23 +344,26 @@
 
   <!-- Budget Modal -->
   <app-modal *ngIf="showBudgetForm" [title]="'finance.newBudgetTitle' | translate" size="sm" (closeModal)="closeBudgetModal()">
-    <form (ngSubmit)="addBudget()">
+    <form #budgetForm="ngForm" (ngSubmit)="addBudget()">
       <div class="form-group">
         <label>{{ 'common.category' | translate }} *</label>
-        <input type="text" [(ngModel)]="newBudget.category" name="category" required>
+        <input type="text" [(ngModel)]="newBudget.category" name="category" #budgetCategory="ngModel" required>
+        <span class="field-error" *ngIf="budgetCategory.invalid && (budgetCategory.touched || budgetForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'common.amount' | translate }} ({{ currencySymbol }}) *</label>
-          <input type="number" step="0.01" [(ngModel)]="newBudget.limit" name="limit" required>
+          <input type="number" step="0.01" [(ngModel)]="newBudget.limit" name="limit" #budgetLimit="ngModel" required>
+          <span class="field-error" *ngIf="budgetLimit.invalid && (budgetLimit.touched || budgetForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'common.period' | translate }}</label>
-          <select [(ngModel)]="newBudget.period" name="period">
+          <select [(ngModel)]="newBudget.period" name="period" #budgetPeriod="ngModel">
             <option value="weekly">{{ 'common.weekly' | translate }}</option>
             <option value="monthly">{{ 'common.monthly' | translate }}</option>
             <option value="yearly">{{ 'common.yearly' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="budgetPeriod.invalid && (budgetPeriod.touched || budgetForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
@@ -314,24 +375,28 @@
 
   <!-- Savings Goal Modal -->
   <app-modal *ngIf="showSavingsForm" [title]="'finance.newSavingsGoalTitle' | translate" size="sm" (closeModal)="closeSavingsModal()">
-    <form (ngSubmit)="addSavingsGoal()">
+    <form #savingsForm="ngForm" (ngSubmit)="addSavingsGoal()">
       <div class="form-group">
         <label>{{ 'common.name' | translate }} *</label>
-        <input type="text" [(ngModel)]="newSavingsGoal.name" name="name" required>
+        <input type="text" [(ngModel)]="newSavingsGoal.name" name="name" #savingsName="ngModel" required>
+        <span class="field-error" *ngIf="savingsName.invalid && (savingsName.touched || savingsForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'finance.targetAmount' | translate }} ({{ currencySymbol }}) *</label>
-          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.targetAmount" name="targetAmount" required>
+          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.targetAmount" name="targetAmount" #savingsTarget="ngModel" required>
+          <span class="field-error" *ngIf="savingsTarget.invalid && (savingsTarget.touched || savingsForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'finance.currentAmount' | translate }} ({{ currencySymbol }})</label>
-          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.currentAmount" name="currentAmount">
+          <input type="number" step="0.01" [(ngModel)]="newSavingsGoal.currentAmount" name="currentAmount" #savingsCurrent="ngModel">
+          <span class="field-error" *ngIf="savingsCurrent.invalid && (savingsCurrent.touched || savingsForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-group">
         <label>{{ 'finance.deadline' | translate }}</label>
-        <input type="date" [(ngModel)]="newSavingsGoal.deadline" name="deadline">
+        <input type="date" [(ngModel)]="newSavingsGoal.deadline" name="deadline" #savingsDeadline="ngModel">
+        <span class="field-error" *ngIf="savingsDeadline.invalid && (savingsDeadline.touched || savingsForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-actions">
         <button type="button" class="btn btn-secondary" (click)="closeSavingsModal()">{{ 'common.cancel' | translate }}</button>
@@ -342,10 +407,11 @@
 
   <!-- Modal Ajouter / Retirer montant épargne -->
   <app-modal *ngIf="showSavingsAdjustModal && savingsAdjustGoal" [title]="savingsAdjustModalTitle" size="sm" (closeModal)="closeSavingsAdjustModal()">
-    <form (ngSubmit)="submitSavingsAdjust()">
+    <form #savingsAdjustForm="ngForm" (ngSubmit)="submitSavingsAdjust()">
       <div class="form-group">
         <label>{{ (savingsAdjustOperation === 'add' ? 'finance.amountToAdd' : 'finance.amountToDecrease') | translate }} ({{ currencySymbol }}) *</label>
-        <input type="number" step="0.01" min="0" [(ngModel)]="savingsAdjustAmount" name="savingsAdjustAmount" required>
+        <input type="number" step="0.01" min="0" [(ngModel)]="savingsAdjustAmount" name="savingsAdjustAmount" #savingsAdjustAmountField="ngModel" required>
+        <span class="field-error" *ngIf="savingsAdjustAmountField.invalid && (savingsAdjustAmountField.touched || savingsAdjustForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <p class="savings-adjust-hint" *ngIf="savingsAdjustGoal">
         {{ 'finance.currentAmount' | translate }}: {{ savingsAdjustGoal.currentAmount | number:'1.2-2' }} {{ currencySymbol }}
@@ -356,4 +422,46 @@
       </div>
     </form>
   </app-modal>
+
+  <!-- Confirm Dialogs -->
+  <app-confirm-dialog
+    [isOpen]="showDeleteExpenseConfirm"
+    title="Supprimer la dépense"
+    message="Êtes-vous sûr de vouloir supprimer cette dépense ? Cette action est irréversible."
+    confirmText="Supprimer"
+    cancelText="Annuler"
+    type="danger"
+    (confirmed)="confirmDeleteExpense()"
+    (cancelled)="cancelDeleteExpense()">
+  </app-confirm-dialog>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteSalaryConfirm"
+    title="Supprimer le salaire"
+    message="Êtes-vous sûr de vouloir supprimer ce salaire ?"
+    confirmText="Supprimer"
+    type="danger"
+    (confirmed)="confirmDeleteSalary()"
+    (cancelled)="cancelDeleteSalary()">
+  </app-confirm-dialog>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteBudgetConfirm"
+    title="Supprimer le budget"
+    message="Êtes-vous sûr de vouloir supprimer ce budget ?"
+    confirmText="Supprimer"
+    type="danger"
+    (confirmed)="confirmDeleteBudget()"
+    (cancelled)="cancelDeleteBudget()">
+  </app-confirm-dialog>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteSavingsConfirm"
+    title="Supprimer l'objectif"
+    message="Êtes-vous sûr de vouloir supprimer cet objectif d'épargne ?"
+    confirmText="Supprimer"
+    type="danger"
+    (confirmed)="confirmDeleteSavingsGoal()"
+    (cancelled)="cancelDeleteSavingsGoal()">
+  </app-confirm-dialog>
 </div>

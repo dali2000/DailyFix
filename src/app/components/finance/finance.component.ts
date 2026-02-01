@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
@@ -9,16 +9,23 @@ import { I18nService } from '../../services/i18n.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
+import { ToastService } from '../../services/toast.service';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { CountUpComponent } from '../shared/count-up/count-up.component';
 
 @Component({
   selector: 'app-finance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
-export class FinanceComponent implements OnInit, OnDestroy {
+export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   activeTab: 'overview' | 'salary' | 'expenses' | 'budget' | 'savings' = 'overview';
+
+  /** Déclenche l’animation des barres de progression (0 → valeur) après affichage. */
+  progressReady = false;
 
   expenses: Expense[] = [];
   budgets: Budget[] = [];
@@ -50,7 +57,15 @@ export class FinanceComponent implements OnInit, OnDestroy {
   savingsSuggestions: string[] = [];
 
   expenseCategories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
+  expensesByCategoryExpanded = false;
   
+  // Confirm dialogs
+  showDeleteExpenseConfirm = false;
+  showDeleteSalaryConfirm = false;
+  showDeleteBudgetConfirm = false;
+  showDeleteSavingsConfirm = false;
+  itemToDelete: string | null = null;
+
   // User info for bank card
   userName = '';
   rib = 'FR76 1234 5678 9012 3456 7890 123';
@@ -82,12 +97,19 @@ export class FinanceComponent implements OnInit, OnDestroy {
     } catch (_) { /* ignore */ }
   }
 
+  isLoading = false;
+
   constructor(
     private financeService: FinanceService,
     private authService: AuthService,
     public currencyService: CurrencyService,
-    private i18n: I18nService
+    private i18n: I18nService,
+    private toastService: ToastService
   ) {}
+
+  ngAfterViewInit(): void {
+    setTimeout(() => (this.progressReady = true), 80);
+  }
 
   ngOnInit(): void {
     // Charger le nom de l'utilisateur connecté
@@ -314,18 +336,39 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.showExpenseForm = false;
         this.newExpense = { category: 'other' };
         this.loadData();
+        this.playMoneySound();
+        this.toastService.success(this.i18n.instant('finance.expenseAdded') || 'Dépense ajoutée avec succès');
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur lors de l\'ajout de la dépense');
       }
     });
   }
 
   deleteExpense(id: string): void {
-    if (confirm('Supprimer cette dépense ?')) {
-      this.financeService.deleteExpense(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteExpenseConfirm = true;
+  }
+
+  confirmDeleteExpense(): void {
+    if (!this.itemToDelete) return;
+    this.financeService.deleteExpense(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Dépense supprimée');
+        this.showDeleteExpenseConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur lors de la suppression');
+        this.showDeleteExpenseConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteExpense(): void {
+    this.showDeleteExpenseConfirm = false;
+    this.itemToDelete = null;
   }
 
   addBudget(): void {
@@ -339,18 +382,12 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.showBudgetForm = false;
         this.newBudget = { period: 'monthly' };
         this.loadData();
+        this.toastService.success('Budget créé');
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur');
       }
     });
-  }
-
-  deleteBudget(id: string): void {
-    if (confirm('Supprimer ce budget ?')) {
-      this.financeService.deleteBudget(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
   }
 
   addSavingsGoal(): void {
@@ -365,6 +402,10 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.showSavingsForm = false;
         this.newSavingsGoal = {};
         this.loadData();
+        this.toastService.success('Objectif d\'épargne créé');
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur');
       }
     });
   }
@@ -412,16 +453,6 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.loadData();
       }
     });
-  }
-
-  deleteSavingsGoal(id: string): void {
-    if (confirm('Supprimer cet objectif d\'épargne ?')) {
-      this.financeService.deleteSavingsGoal(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
   }
 
   /** Total des dépenses par catégorie pour le mois sélectionné. */
@@ -487,18 +518,90 @@ export class FinanceComponent implements OnInit, OnDestroy {
         this.showSalaryForm = false;
         this.newSalary = { period: 'monthly' };
         this.loadData();
+        this.toastService.success('Salaire ajouté avec succès');
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur lors de l\'ajout du salaire');
       }
     });
   }
 
   deleteSalary(id: string): void {
-    if (confirm('Supprimer ce salaire ?')) {
-      this.financeService.deleteSalary(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteSalaryConfirm = true;
+  }
+
+  confirmDeleteSalary(): void {
+    if (!this.itemToDelete) return;
+    this.financeService.deleteSalary(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Salaire supprimé');
+        this.showDeleteSalaryConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur lors de la suppression');
+        this.showDeleteSalaryConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteSalary(): void {
+    this.showDeleteSalaryConfirm = false;
+    this.itemToDelete = null;
+  }
+
+  deleteBudget(id: string): void {
+    this.itemToDelete = id;
+    this.showDeleteBudgetConfirm = true;
+  }
+
+  confirmDeleteBudget(): void {
+    if (!this.itemToDelete) return;
+    this.financeService.deleteBudget(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Budget supprimé');
+        this.showDeleteBudgetConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur');
+        this.showDeleteBudgetConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteBudget(): void {
+    this.showDeleteBudgetConfirm = false;
+    this.itemToDelete = null;
+  }
+
+  deleteSavingsGoal(id: string): void {
+    this.itemToDelete = id;
+    this.showDeleteSavingsConfirm = true;
+  }
+
+  confirmDeleteSavingsGoal(): void {
+    if (!this.itemToDelete) return;
+    this.financeService.deleteSavingsGoal(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Objectif supprimé');
+        this.showDeleteSavingsConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err.message || 'Erreur');
+        this.showDeleteSavingsConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteSavingsGoal(): void {
+    this.showDeleteSavingsConfirm = false;
+    this.itemToDelete = null;
   }
 }
 

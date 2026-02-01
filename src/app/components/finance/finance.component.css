@@ -1,49 +1,209 @@
+/* ---------- Page ---------- */
 .finance-page {
-  padding: 48px 96px 96px 96px;
+  padding: 32px 24px 80px;
   width: 100%;
-  margin: 0;
+  max-width: 1100px;
+  margin: 0 auto;
   background: var(--notion-bg-secondary);
   min-height: calc(100vh - 45px);
   overflow-x: hidden;
   box-sizing: border-box;
 }
 
-@media (max-width: 1200px) {
-  .finance-page {
-    padding: 48px 48px 48px 48px;
-  }
+/* ---------- Header ---------- */
+.finance-header {
+  margin-bottom: 20px;
+}
+
+.finance-header-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.finance-header-icon {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.finance-page .finance-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--notion-text-primary);
+  margin: 0;
+  letter-spacing: -0.03em;
+  line-height: 1.2;
+}
+
+.finance-header-sub {
+  font-size: 0.95rem;
+  color: var(--notion-text-secondary);
+  margin: 0;
+}
+
+/* ---------- Month selector ---------- */
+.month-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  background: var(--notion-bg);
+  padding: 10px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--notion-border);
+  box-shadow: var(--notion-shadow-sm);
+}
+
+.month-btn {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  border-radius: 10px;
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg-tertiary);
+  color: var(--notion-text-primary);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.month-btn:hover:not(:disabled) {
+  background: var(--notion-bg-hover);
+}
+
+.month-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.month-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  min-width: 140px;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.btn-today {
+  margin-left: auto;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* ---------- Tabs ---------- */
+.finance-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 24px;
+  background: var(--notion-bg);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--notion-border);
+  box-shadow: var(--notion-shadow-sm);
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+}
+
+.finance-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.finance-tabs .tab-icon {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
+.finance-tabs button:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-text-primary);
+}
+
+.finance-tabs button.active {
+  background: var(--active-tab-bg);
+  color: var(--active-tab-color);
+  box-shadow: var(--notion-shadow-sm);
+}
+
+.finance-tabs button.active .tab-icon {
+  opacity: 1;
+}
+
+.dark-theme .finance-tabs button.active {
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.tab-content-animate {
+  animation: financeFadeInUp 0.35s ease-out;
+}
+
+@keyframes financeFadeInUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 1024px) {
-  .finance-page {
-    padding: 32px 32px 32px 32px;
+  .overview-grid {
+    grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
   .finance-page {
-    padding: 24px 16px !important;
+    padding: 24px 16px 70px !important;
   }
 
-  .finance-page h1 {
-    font-size: 28px;
-    word-break: break-word;
+  .month-selector-bar {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 12px;
   }
 
-  .tabs {
-    width: 100% !important;
-    max-width: 100%;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    flex-wrap: nowrap;
-    margin-bottom: 24px;
+  .month-selector-bar .btn-today {
+    width: 100%;
   }
 
-  .tabs button {
-    white-space: nowrap;
+  .finance-page .finance-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .finance-tabs {
+    margin-bottom: 20px;
+    padding: 4px;
+  }
+
+  .finance-tabs button {
     padding: 8px 12px;
     font-size: 13px;
-    flex-shrink: 0;
+  }
+
+  .finance-tabs .tab-icon {
+    font-size: 1rem;
   }
 
   .bank-card {
@@ -85,23 +245,32 @@
 
   .section-header {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 12px;
+    margin-bottom: 16px;
   }
 
   .section-header h2 {
-    font-size: 20px;
+    font-size: 1.15rem;
+  }
+
+  .finance-card-body {
+    padding: 14px 16px;
+    padding-left: 18px;
   }
 
   .form-row {
     grid-template-columns: 1fr !important;
   }
 
-  .expense-header,
-  .salary-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  .finance-card-top {
+    gap: 10px;
+  }
+
+  .finance-amount {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 4px;
   }
 
   .savings-actions {
@@ -115,11 +284,16 @@
 
 @media (max-width: 480px) {
   .finance-page {
-    padding: 16px 12px !important;
+    padding: 20px 14px 70px !important;
   }
 
-  .finance-page h1 {
-    font-size: 24px;
+  .finance-page .finance-header h1 {
+    font-size: 1.45rem;
+  }
+
+  .month-label {
+    min-width: 120px;
+    font-size: 1rem;
   }
 
   .bank-card {
@@ -160,113 +334,159 @@
     font-size: 12px;
   }
 
-  .card-content .amount {
-    font-size: 20px;
+  .overview-card .card-content .amount {
+    font-size: 1.1rem;
   }
 
-  .expense-amount,
-  .salary-amount {
-    font-size: 18px;
+  .finance-amount {
+    font-size: 1rem;
   }
-}
-
-.finance-page h1 {
-  font-size: 40px;
-  font-weight: 700;
-  color: var(--notion-text-primary);
-  margin-bottom: 24px;
-  letter-spacing: -0.03em;
-}
-
-/* Sélecteur de mois : gestion distincte par mois */
-.month-selector {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  flex-wrap: wrap;
-}
-
-.month-selector .btn-icon {
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  line-height: 1;
-  border-radius: var(--notion-radius);
-  border: 1px solid var(--notion-border);
-  background: var(--notion-bg);
-  color: var(--notion-text-primary);
-  cursor: pointer;
-  transition: background 0.15s ease;
-}
-
-.month-selector .btn-icon:hover {
-  background: var(--notion-bg-tertiary);
-}
-
-.month-selector .month-label {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--notion-text-primary);
-  min-width: 160px;
-  text-align: center;
-  text-transform: capitalize;
-}
-
-.month-selector .btn-today {
-  margin-left: auto;
 }
 
 .month-context {
-  font-size: 13px;
+  font-size: 0.85rem;
   color: var(--notion-text-secondary);
   margin: 0 0 16px 0;
 }
 
-.tabs {
-  display: flex;
-  gap: 2px;
-  margin-bottom: 32px;
-  background: var(--notion-bg-tertiary);
-  padding: 2px;
-  border-radius: var(--notion-radius);
-  border: 1px solid var(--notion-border);
-  width: fit-content;
-  flex-wrap: wrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
+.tab-content {
+  margin-top: 0;
 }
 
-.tabs button {
-  padding: 8px 16px;
+/* ---------- Finance list cards ---------- */
+.finance-list {
+  display: grid;
+  gap: 14px;
+}
+
+.finance-card {
+  position: relative;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--notion-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.finance-card:hover {
+  box-shadow: var(--notion-shadow-md);
+  border-color: var(--notion-border-hover);
+}
+
+.finance-card-accent {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  border-radius: 4px 0 0 4px;
+}
+
+.finance-card-salary .finance-card-accent { background: var(--notion-green); }
+.finance-card-expense .finance-card-accent { background: #ff6b6b; }
+.finance-card-budget .finance-card-accent { background: #667eea; }
+.finance-card-savings .finance-card-accent { background: var(--notion-purple); }
+
+.finance-card-body {
+  padding: 16px 18px;
+  padding-left: 20px;
+}
+
+.finance-card-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.finance-card-icon {
+  font-size: 1.4rem;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.finance-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.finance-card h4 {
+  margin: 0 0 4px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  line-height: 1.3;
+}
+
+.finance-meta {
+  font-size: 0.8rem;
+  color: var(--notion-text-secondary);
+  font-weight: 500;
+}
+
+.finance-amount {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-left: auto;
+}
+
+.finance-amount.positive {
+  color: var(--notion-green);
+}
+
+.finance-amount.negative {
+  color: #ff6b6b;
+}
+
+.finance-date {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--notion-text-tertiary);
+  margin-top: 8px;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
   border: none;
   background: transparent;
+  border-radius: 8px;
+  font-size: 1.25rem;
+  line-height: 1;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--notion-text-secondary);
-  border-radius: var(--notion-radius-sm);
-  transition: all 20ms ease-in 0s;
-  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+  color: var(--notion-text-tertiary);
 }
 
-.tabs button:hover {
-  background: rgba(0, 0, 0, 0.03);
-}
-
-.tabs button.active {
-  background: var(--notion-bg);
+.btn-icon:hover {
+  background: var(--notion-bg-hover);
   color: var(--notion-text-primary);
-  font-weight: 500;
-  box-shadow: var(--notion-shadow-sm);
 }
 
-.tab-content {
-  margin-top: 24px;
+.btn-icon-danger:hover {
+  background: var(--notion-red-bg);
+  color: var(--notion-red);
+}
+
+.section-header h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.btn-add {
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-weight: 500;
 }
 
 /* Bank Card - Realistic Credit Card Design */
@@ -495,26 +715,20 @@
 /* Overview Grid */
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-bottom: 32px;
-}
-
-@media (max-width: 768px) {
-  .overview-grid {
-    grid-template-columns: 1fr !important;
-  }
+  margin-bottom: 28px;
 }
 
 .overview-card {
   background: var(--notion-bg);
   border: 1px solid var(--notion-border);
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 14px;
+  padding: 18px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  transition: all 200ms ease-in 0s;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
   box-shadow: var(--notion-shadow-sm);
 }
 
@@ -525,7 +739,7 @@
 }
 
 .overview-card.income {
-  border-left: 4px solid #51cf66;
+  border-left: 4px solid var(--notion-green);
 }
 
 .overview-card.expenses {
@@ -540,8 +754,8 @@
   border-left-color: #ff6b6b;
 }
 
-.card-icon {
-  font-size: 32px;
+.overview-card .card-icon {
+  font-size: 1.6rem;
   width: 48px;
   height: 48px;
   display: flex;
@@ -549,34 +763,36 @@
   justify-content: center;
   background: var(--notion-bg-tertiary);
   border-radius: 12px;
+  flex-shrink: 0;
 }
 
-.card-content {
+.overview-card .card-content {
   flex: 1;
+  min-width: 0;
 }
 
-.card-content h3 {
-  margin: 0 0 8px 0;
+.overview-card .card-content h3 {
+  margin: 0 0 6px 0;
   color: var(--notion-text-secondary);
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 0.75rem;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.05em;
 }
 
-.card-content .amount {
-  font-size: 24px;
-  font-weight: 600;
+.overview-card .card-content .amount {
+  font-size: 1.25rem;
+  font-weight: 700;
   color: var(--notion-text-primary);
   margin: 0;
   line-height: 1.2;
 }
 
-.card-content .amount.positive {
-  color: #51cf66;
+.overview-card .card-content .amount.positive {
+  color: var(--notion-green);
 }
 
-.card-content .amount.negative {
+.overview-card .card-content .amount.negative {
   color: #ff6b6b;
 }
 
@@ -590,11 +806,59 @@
   box-shadow: var(--notion-shadow-sm);
 }
 
-.expenses-by-category h3 {
+.expenses-by-category.dropdown-section {
+  padding: 0;
+  overflow: hidden;
+}
+
+.expenses-by-category .category-section-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 16px 24px;
   font-size: 18px;
   font-weight: 600;
   color: var(--notion-text-primary);
-  margin: 0 0 20px 0;
+  background: var(--notion-bg);
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 20ms ease-in 0s;
+}
+
+.expenses-by-category .category-section-toggle:hover {
+  background: var(--notion-bg-hover);
+}
+
+.expenses-by-category .toggle-icon {
+  font-size: 12px;
+  color: var(--notion-text-secondary);
+  margin-left: 8px;
+}
+
+.expenses-by-category .category-dropdown-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease-out;
+}
+
+.expenses-by-category .category-dropdown-content.is-open {
+  max-height: 500px;
+}
+
+.expenses-by-category .category-dropdown-content .category-item {
+  margin: 0 24px 12px 24px;
+  padding: 12px 16px;
+}
+
+.expenses-by-category .category-dropdown-content .category-item:first-child {
+  margin-top: 12px;
+}
+
+.expenses-by-category .category-dropdown-content .category-item:last-child {
+  margin-bottom: 24px;
 }
 
 .category-list {
@@ -639,18 +903,27 @@
 }
 
 .suggestions-card {
-  background: #fff9db;
-  border: 1px solid #fcc419;
-  padding: 20px;
-  border-radius: 12px;
-  border-left: 4px solid #fcc419;
+  background: var(--notion-yellow-bg);
+  border: 1px solid var(--notion-yellow);
+  padding: 20px 24px;
+  border-radius: 14px;
+  border-left: 4px solid var(--notion-yellow);
+  box-shadow: var(--notion-shadow-sm);
 }
 
 .suggestions-card h3 {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
   color: var(--notion-text-primary);
   margin: 0 0 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.suggestion-emoji,
+.toggle-emoji {
+  font-size: 1.1rem;
 }
 
 .suggestions-card ul {
@@ -661,24 +934,17 @@
 .suggestions-card li {
   margin: 4px 0;
   color: var(--notion-text-secondary);
-  font-size: 14px;
+  font-size: 0.9rem;
   line-height: 1.5;
 }
 
-/* Section Header */
 .section-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-}
-
-.section-header h2 {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--notion-text-primary);
-  margin: 0;
-  letter-spacing: -0.02em;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 /* Form Card */
@@ -820,153 +1086,106 @@
   color: white !important;
 }
 
-/* Lists */
+/* Finance - couleur #2d2d2d en dark theme */
+.dark-theme .bank-card {
+  background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  color: #e0e0e0;
+}
+
+.dark-theme .bank-card::before {
+  background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
+}
+
+.dark-theme .bank-card.negative-balance {
+  background: linear-gradient(135deg, #3d2525 0%, #2d1e1e 100%) !important;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+.dark-theme .overview-card {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .overview-card:hover {
+  background: #353535 !important;
+}
+
+.dark-theme .overview-card .card-content h3 {
+  color: #b0b0b0;
+}
+
+.dark-theme .overview-card .card-content .amount {
+  color: #e0e0e0;
+}
+
+.dark-theme .expenses-by-category,
+.dark-theme .expenses-by-category .category-section-toggle {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.dark-theme .expenses-by-category .category-section-toggle:hover {
+  background: #353535 !important;
+}
+
+.dark-theme .expenses-by-category .category-dropdown-content .category-item {
+  color: var(--notion-text-secondary);
+}
+
+.dark-theme .suggestions-card {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .suggestions-card h3,
+.dark-theme .suggestions-card li {
+  color: #e0e0e0;
+}
+
+.dark-theme .month-selector-bar {
+  background: var(--notion-bg-tertiary);
+  border-color: var(--notion-border);
+}
+
+.dark-theme .month-btn {
+  background: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.dark-theme .month-btn:hover:not(:disabled) {
+  background: #353535;
+  color: #fff;
+}
+
 .expenses-list,
 .salaries-list,
 .budgets-list,
 .savings-goals-list {
   display: grid;
-  gap: 12px;
-}
-
-/* Expense Card */
-.expense-card,
-.salary-card {
-  background: var(--notion-bg);
-  border: 1px solid var(--notion-border);
-  padding: 16px;
-  border-radius: 12px;
-  transition: all 200ms ease-in 0s;
-  box-shadow: var(--notion-shadow-sm);
-}
-
-.expense-card:hover,
-.salary-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--notion-shadow-md);
-  background: var(--notion-bg-hover);
-}
-
-.expense-header,
-.salary-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.expense-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.expense-icon {
-  font-size: 24px;
-}
-
-.expense-header h4,
-.salary-header h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--notion-text-primary);
-}
-
-.salary-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.salary-period {
-  font-size: 12px;
-  color: var(--notion-text-secondary);
-  text-transform: capitalize;
-}
-
-.expense-amount,
-.salary-amount {
-  font-size: 20px;
-  font-weight: 600;
-}
-
-.expense-amount.negative,
-.salary-amount.negative {
-  color: #ff6b6b;
-}
-
-.salary-amount.positive {
-  color: #51cf66;
-}
-
-.expense-meta,
-.salary-meta {
-  display: flex;
-  gap: 12px;
-  margin: 8px 0;
-  align-items: center;
+  gap: 14px;
 }
 
 .category-badge {
-  padding: 4px 10px;
+  display: inline-block;
+  padding: 2px 8px;
   background: var(--notion-bg-tertiary);
   border-radius: 6px;
-  font-size: 11px;
-  font-weight: 500;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--notion-text-secondary);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.date {
-  color: var(--notion-text-tertiary);
-  font-size: 12px;
-}
-
-/* Budget Card */
-.budget-card,
-.savings-card {
-  background: var(--notion-bg);
-  border: 1px solid var(--notion-border);
-  padding: 20px;
-  border-radius: 12px;
-  transition: all 200ms ease-in 0s;
-  box-shadow: var(--notion-shadow-sm);
-}
-
-.budget-card:hover,
-.savings-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--notion-shadow-md);
-  background: var(--notion-bg-hover);
-}
-
-.budget-header,
-.savings-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.budget-header h4,
-.savings-header h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  color: var(--notion-text-primary);
-}
-
-.budget-period {
-  font-size: 12px;
-  color: var(--notion-text-secondary);
-  text-transform: capitalize;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
 }
 
 .budget-progress,
 .savings-progress {
-  margin: 16px 0;
+  margin: 12px 0 0;
 }
 
 .progress-bar {
@@ -1009,11 +1228,19 @@
 .savings-actions {
   display: flex;
   gap: 8px;
-  margin-top: 16px;
+  margin-top: 14px;
+  flex-wrap: wrap;
+}
+
+.savings-actions .btn {
+  padding: 6px 12px;
+  font-size: 13px;
+  border-radius: 8px;
 }
 
 .savings-actions input {
   flex: 1;
+  min-width: 100px;
   padding: 8px 12px;
   border: 1px solid var(--notion-border);
   border-radius: 8px;
@@ -1023,14 +1250,15 @@
 }
 
 .savings-adjust-hint {
-  font-size: 13px;
+  font-size: 0.85rem;
   color: var(--notion-text-secondary);
   margin: 0 0 16px 0;
 }
 
+.finance-meta.deadline,
 .deadline {
   color: var(--notion-text-tertiary);
-  font-size: 12px;
+  font-size: 0.75rem;
 }
 
 .empty-state {

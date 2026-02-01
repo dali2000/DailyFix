@@ -8,6 +8,7 @@
   <app-navbar *ngIf="showNavbar"></app-navbar>
   <app-sidebar *ngIf="showSidebar"></app-sidebar>
   <app-admin-sidebar *ngIf="showAdminSidebar"></app-admin-sidebar>
+  <app-toast></app-toast>
   <main class="main-content" [class.no-sidebar]="!showSidebar && !showAdminSidebar">
     <router-outlet />
   </main>

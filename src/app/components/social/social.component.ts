@@ -2,26 +2,32 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialService } from '../../services/social.service';
+import { ToastService } from '../../services/toast.service';
 import { SocialEvent, ActivitySuggestion } from '../../models/social.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { CountUpComponent } from '../shared/count-up/count-up.component';
 
 @Component({
   selector: 'app-social',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
   templateUrl: './social.component.html',
   styleUrl: './social.component.css'
 })
 export class SocialComponent implements OnInit {
   activeTab: 'events' | 'suggestions' = 'events';
-  
+
   events: SocialEvent[] = [];
   suggestions: ActivitySuggestion[] = [];
-  
+
   showEventForm = false;
   showSuggestionForm = false;
+  showDeleteEventConfirm = false;
+  itemToDelete: string | null = null;
   
   newEvent: Partial<SocialEvent> & { attendeesString?: string; dateString?: string; reminderString?: string } = { type: 'other' };
   editingEvent: SocialEvent | null = null;
@@ -30,7 +36,10 @@ export class SocialComponent implements OnInit {
   eventTypes = ['birthday', 'anniversary', 'meeting', 'party', 'other'];
   suggestionCategories = ['outdoor', 'indoor', 'cultural', 'sport', 'relaxation'];
 
-  constructor(private socialService: SocialService) {}
+  constructor(
+    private socialService: SocialService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
@@ -93,7 +102,9 @@ export class SocialComponent implements OnInit {
           this.showEventForm = false;
           this.resetEventForm();
           this.loadData();
-        }
+          this.toastService.success('Événement modifié');
+        },
+        error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
       });
     } else {
       this.socialService.addEvent(eventData).subscribe({
@@ -101,7 +112,9 @@ export class SocialComponent implements OnInit {
           this.showEventForm = false;
           this.resetEventForm();
           this.loadData();
-        }
+          this.toastService.success('Événement créé');
+        },
+        error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
       });
     }
   }
@@ -146,13 +159,29 @@ export class SocialComponent implements OnInit {
   }
 
   deleteEvent(id: string): void {
-    if (confirm('Supprimer cet événement ?')) {
-      this.socialService.deleteEvent(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteEventConfirm = true;
+  }
+
+  confirmDeleteEvent(): void {
+    if (!this.itemToDelete) return;
+    this.socialService.deleteEvent(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Événement supprimé');
+        this.showDeleteEventConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteEventConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteEvent(): void {
+    this.showDeleteEventConfirm = false;
+    this.itemToDelete = null;
   }
 
   getUpcomingEvents(): SocialEvent[] {
@@ -198,7 +227,9 @@ export class SocialComponent implements OnInit {
         this.showSuggestionForm = false;
         this.newSuggestion = { category: 'outdoor' };
         this.loadData();
-      }
+        this.toastService.success('Suggestion ajoutée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 

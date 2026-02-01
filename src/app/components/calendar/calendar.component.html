@@ -20,40 +20,46 @@
     size="md"
     (closeModal)="closeEventModal()"
   >
-    <form (ngSubmit)="saveEvent()">
+    <form #eventForm="ngForm" (ngSubmit)="saveEvent()">
       <div class="form-group">
         <label for="event-title">{{ 'calendar.eventTitle' | translate }} *</label>
-        <input id="event-title" type="text" [(ngModel)]="newEvent.title" name="title" required [placeholder]="'calendar.eventTitlePlaceholder' | translate">
+        <input id="event-title" type="text" [(ngModel)]="newEvent.title" name="title" #eventTitle="ngModel" required [placeholder]="'calendar.eventTitlePlaceholder' | translate">
+        <span class="field-error" *ngIf="eventTitle.invalid && (eventTitle.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label for="event-desc">{{ 'common.description' | translate }}</label>
-        <textarea id="event-desc" [(ngModel)]="newEvent.description" name="description" rows="3" [placeholder]="'calendar.eventDescPlaceholder' | translate"></textarea>
+        <textarea id="event-desc" [(ngModel)]="newEvent.description" name="description" #eventDesc="ngModel" rows="3" [placeholder]="'calendar.eventDescPlaceholder' | translate"></textarea>
+        <span class="field-error" *ngIf="eventDesc.invalid && (eventDesc.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'calendar.type' | translate }}</label>
-          <select [(ngModel)]="newEvent.type" name="type">
+          <select [(ngModel)]="newEvent.type" name="type" #eventType="ngModel">
             <option value="event">{{ 'calendar.eventType' | translate }}</option>
             <option value="reminder">{{ 'calendar.reminder' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="eventType.invalid && (eventType.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'calendar.color' | translate }}</label>
-          <select [(ngModel)]="newEvent.color" name="color">
+          <select [(ngModel)]="newEvent.color" name="color" #eventColor="ngModel">
             <option *ngFor="let color of eventColors" [value]="color.value">
               {{ color.labelKey | translate }}
             </option>
           </select>
+          <span class="field-error" *ngIf="eventColor.invalid && (eventColor.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'calendar.startDate' | translate }} *</label>
-          <input type="date" [(ngModel)]="newEvent.startDate" name="startDate" required>
+          <input type="date" [(ngModel)]="newEvent.startDate" name="startDate" #eventStartDate="ngModel" required>
+          <span class="field-error" *ngIf="eventStartDate.invalid && (eventStartDate.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'calendar.endDate' | translate }}</label>
-          <input type="date" [(ngModel)]="newEvent.endDate" name="endDate">
+          <input type="date" [(ngModel)]="newEvent.endDate" name="endDate" #eventEndDate="ngModel">
+          <span class="field-error" *ngIf="eventEndDate.invalid && (eventEndDate.touched || eventForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
@@ -136,15 +142,20 @@
       <div class="day-details">
         <div class="events-section">
           <h4>{{ 'calendar.eventType' | translate }} & {{ 'calendar.reminder' | translate }}</h4>
-          <div *ngIf="getEventsForDate(selectedDate || currentDate).length === 0" class="empty">
-            {{ 'common.noData' | translate }}
-          </div>
-          <div *ngFor="let event of getEventsForDate(selectedDate || currentDate)" class="event-card" [style.border-left-color]="getEventColor(event)">
+          <app-empty-state
+            *ngIf="getEventsForDate(selectedDate || currentDate).length === 0"
+            icon="📅"
+            [title]="'calendar.emptyEventsTitle' | translate"
+            [message]="'calendar.emptyEventsMessage' | translate"
+            [actionText]="'+ ' + ('calendar.newEvent' | translate)"
+            (action)="toggleEventForm()">
+          </app-empty-state>
+          <div *ngFor="let event of getEventsForDate(selectedDate || currentDate)" class="event-card event-card-animate" [style.border-left-color]="getEventColor(event)">
             <div class="event-header">
               <h5>{{ event.title }}</h5>
               <div class="event-actions" *ngIf="isCalendarEvent(event)">
-                <button class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate">✏️</button>
-                <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
+                <button type="button" class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate" [attr.aria-label]="'common.edit' | translate">✏️</button>
+                <button type="button" class="icon-btn" (click)="deleteEvent(event)" [title]="'common.delete' | translate" [attr.aria-label]="'common.delete' | translate">🗑️</button>
               </div>
             </div>
             <p *ngIf="event.description">{{ event.description }}</p>
@@ -164,10 +175,15 @@
     <h3>{{ selectedDate | date:'fullDate':'':currentLocale }}</h3>
     <div class="selected-events">
       <h4>{{ 'calendar.eventType' | translate }} & {{ 'calendar.reminder' | translate }} ({{ eventsForSelectedDate.length }})</h4>
-      <div *ngIf="eventsForSelectedDate.length === 0" class="empty">
-        {{ 'common.noData' | translate }}
-      </div>
-      <div *ngFor="let event of eventsForSelectedDate" class="event-item" [style.border-left-color]="getEventColor(event)">
+      <app-empty-state
+        *ngIf="eventsForSelectedDate.length === 0"
+        icon="📅"
+        [title]="'calendar.emptyEventsTitle' | translate"
+        [message]="'calendar.emptyEventsMessage' | translate"
+        [actionText]="'+ ' + ('calendar.newEvent' | translate)"
+        (action)="toggleEventForm()">
+      </app-empty-state>
+      <div *ngFor="let event of eventsForSelectedDate" class="event-item event-item-animate" [style.border-left-color]="getEventColor(event)">
         <div class="event-title">{{ event.title }}</div>
         <div *ngIf="event.description" class="event-description">{{ event.description }}</div>
         <div class="event-meta">
@@ -177,11 +193,21 @@
           </span>
         </div>
         <div class="event-actions" *ngIf="isCalendarEvent(event)">
-          <button class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate">✏️</button>
-          <button class="icon-btn" (click)="deleteEvent(event)" title="Supprimer">🗑️</button>
+          <button type="button" class="icon-btn" (click)="editEvent(event)" [title]="'common.edit' | translate" [attr.aria-label]="'common.edit' | translate">✏️</button>
+          <button type="button" class="icon-btn" (click)="deleteEvent(event)" [title]="'common.delete' | translate" [attr.aria-label]="'common.delete' | translate">🗑️</button>
         </div>
       </div>
     </div>
   </div>
+
+  <app-confirm-dialog
+    [isOpen]="showDeleteEventConfirm"
+    [title]="'common.delete' | translate"
+    [message]="'calendar.confirmDeleteEvent' | translate"
+    [confirmText]="'common.delete' | translate"
+    type="danger"
+    (confirmed)="confirmDeleteEvent()"
+    (cancelled)="cancelDeleteEvent()">
+  </app-confirm-dialog>
 </div>
 

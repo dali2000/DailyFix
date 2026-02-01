@@ -1,29 +1,38 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { WellnessService } from '../../services/wellness.service';
+import { ToastService } from '../../services/toast.service';
 import { JournalEntry, PersonalGoal, StressManagement } from '../../models/wellness.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { TranslatePipe } from '../../pipes/translate.pipe';
+import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
+import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
+import { CountUpComponent } from '../shared/count-up/count-up.component';
 
 @Component({
   selector: 'app-wellness',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
   templateUrl: './wellness.component.html',
   styleUrl: './wellness.component.css'
 })
-export class WellnessComponent implements OnInit {
+export class WellnessComponent implements OnInit, AfterViewInit {
   activeTab: 'journal' | 'goals' | 'stress' = 'journal';
-  
+
+  progressReady = false;
+
   journalEntries: JournalEntry[] = [];
   personalGoals: PersonalGoal[] = [];
   stressRecords: StressManagement[] = [];
-  
+
   showJournalForm = false;
   showGoalForm = false;
   showStressForm = false;
+  showDeleteEntryConfirm = false;
+  showDeleteGoalConfirm = false;
+  itemToDelete: string | null = null;
   
   newEntry: Partial<JournalEntry> = {};
   newGoal: Partial<PersonalGoal> = { category: 'personal' };
@@ -37,10 +46,17 @@ export class WellnessComponent implements OnInit {
   goalCategories = ['health', 'career', 'personal', 'financial', 'other'];
   moods = ['very-happy', 'happy', 'neutral', 'sad', 'very-sad'];
 
-  constructor(private wellnessService: WellnessService) {}
+  constructor(
+    private wellnessService: WellnessService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
     this.loadData();
+  }
+
+  ngAfterViewInit(): void {
+    setTimeout(() => (this.progressReady = true), 80);
   }
 
   ngOnDestroy(): void {
@@ -98,7 +114,9 @@ export class WellnessComponent implements OnInit {
         this.showJournalForm = false;
         this.newEntry = {};
         this.loadData();
-      }
+        this.toastService.success('Entrée ajoutée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -137,18 +155,36 @@ export class WellnessComponent implements OnInit {
         this.selectedEntry = null;
         this.newEntry = {};
         this.loadData();
-      }
+        this.toastService.success('Entrée modifiée');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
   deleteJournalEntry(id: string): void {
-    if (confirm('Supprimer cette entrée ?')) {
-      this.wellnessService.deleteJournalEntry(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteEntryConfirm = true;
+  }
+
+  confirmDeleteEntry(): void {
+    if (!this.itemToDelete) return;
+    this.wellnessService.deleteJournalEntry(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Entrée supprimée');
+        this.showDeleteEntryConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteEntryConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteEntry(): void {
+    this.showDeleteEntryConfirm = false;
+    this.itemToDelete = null;
   }
 
   // Goal methods
@@ -164,7 +200,9 @@ export class WellnessComponent implements OnInit {
         this.showGoalForm = false;
         this.newGoal = { category: 'personal' };
         this.loadData();
-      }
+        this.toastService.success('Objectif créé');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 
@@ -177,13 +215,29 @@ export class WellnessComponent implements OnInit {
   }
 
   deletePersonalGoal(id: string): void {
-    if (confirm('Supprimer cet objectif ?')) {
-      this.wellnessService.deletePersonalGoal(id).subscribe({
-        next: () => {
-          this.loadData();
-        }
-      });
-    }
+    this.itemToDelete = id;
+    this.showDeleteGoalConfirm = true;
+  }
+
+  confirmDeleteGoal(): void {
+    if (!this.itemToDelete) return;
+    this.wellnessService.deletePersonalGoal(this.itemToDelete).subscribe({
+      next: () => {
+        this.loadData();
+        this.toastService.success('Objectif supprimé');
+        this.showDeleteGoalConfirm = false;
+        this.itemToDelete = null;
+      },
+      error: (err) => {
+        this.toastService.error(err?.error?.message || err?.message || 'Erreur');
+        this.showDeleteGoalConfirm = false;
+      }
+    });
+  }
+
+  cancelDeleteGoal(): void {
+    this.showDeleteGoalConfirm = false;
+    this.itemToDelete = null;
   }
 
   getActiveGoals(): PersonalGoal[] {
@@ -211,7 +265,9 @@ export class WellnessComponent implements OnInit {
         this.showStressForm = false;
         this.newStress = { stressLevel: 5 };
         this.loadData();
-      }
+        this.toastService.success('Enregistrement ajouté');
+      },
+      error: (err) => this.toastService.error(err?.error?.message || err?.message || 'Erreur')
     });
   }
 

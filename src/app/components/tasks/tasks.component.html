@@ -47,50 +47,58 @@
     size="lg"
     (closeModal)="closeTaskModal()"
   >
-    <form (ngSubmit)="saveTask()">
+    <form #taskForm="ngForm" (ngSubmit)="saveTask()">
       <div class="form-group">
         <label for="task-title">{{ 'tasks.taskTitle' | translate }} *</label>
-        <input id="task-title" type="text" [(ngModel)]="newTask.title" name="title" required [placeholder]="'tasks.taskTitlePlaceholder' | translate">
+        <input id="task-title" type="text" [(ngModel)]="newTask.title" name="title" #taskTitle="ngModel" required [placeholder]="'tasks.taskTitlePlaceholder' | translate">
+        <span class="field-error" *ngIf="taskTitle.invalid && (taskTitle.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-group">
         <label for="task-desc">{{ 'common.description' | translate }}</label>
-        <textarea id="task-desc" [(ngModel)]="newTask.description" name="description" rows="4" [placeholder]="'tasks.taskDescPlaceholder' | translate"></textarea>
+        <textarea id="task-desc" [(ngModel)]="newTask.description" name="description" #taskDesc="ngModel" rows="4" [placeholder]="'tasks.taskDescPlaceholder' | translate"></textarea>
+        <span class="field-error" *ngIf="taskDesc.invalid && (taskDesc.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'tasks.status' | translate }}</label>
-          <select [(ngModel)]="newTask.status" name="status">
+          <select [(ngModel)]="newTask.status" name="status" #taskStatus="ngModel">
             <option value="todo">{{ 'tasks.todo' | translate }}</option>
             <option value="in-progress">{{ 'tasks.inProgress' | translate }}</option>
             <option value="in-review">{{ 'tasks.inReview' | translate }}</option>
             <option value="done">{{ 'tasks.done' | translate }}</option>
           </select>
+          <span class="field-error" *ngIf="taskStatus.invalid && (taskStatus.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'tasks.priority' | translate }}</label>
-          <select [(ngModel)]="newTask.priority" name="priority">
+          <select [(ngModel)]="newTask.priority" name="priority" #taskPriority="ngModel">
             <option *ngFor="let p of priorityOptions" [value]="p.value">
               {{ p.icon }} {{ p.labelKey | translate }}
             </option>
           </select>
+          <span class="field-error" *ngIf="taskPriority.invalid && (taskPriority.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'tasks.assignee' | translate }}</label>
-          <input type="text" [(ngModel)]="newTask.assignee" name="assignee" [placeholder]="'tasks.assigneePlaceholder' | translate">
+          <input type="text" [(ngModel)]="newTask.assignee" name="assignee" #taskAssignee="ngModel" [placeholder]="'tasks.assigneePlaceholder' | translate">
+          <span class="field-error" *ngIf="taskAssignee.invalid && (taskAssignee.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'tasks.storyPoints' | translate }}</label>
-          <input type="number" [(ngModel)]="newTask.storyPoints" name="storyPoints" min="0" max="100">
+          <input type="number" [(ngModel)]="newTask.storyPoints" name="storyPoints" #taskStoryPoints="ngModel" min="0" max="100">
+          <span class="field-error" *ngIf="taskStoryPoints.invalid && (taskStoryPoints.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label>{{ 'tasks.labels' | translate }}</label>
-          <input type="text" [(ngModel)]="newTask.labels" name="labels" [placeholder]="'tasks.labelsPlaceholder' | translate">
+          <input type="text" [(ngModel)]="newTask.labels" name="labels" #taskLabels="ngModel" [placeholder]="'tasks.labelsPlaceholder' | translate">
+          <span class="field-error" *ngIf="taskLabels.invalid && (taskLabels.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
           <label>{{ 'tasks.dueDate' | translate }}</label>
-          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate">
+          <input type="date" [(ngModel)]="newTask.dueDate" name="dueDate" #taskDueDate="ngModel">
+          <span class="field-error" *ngIf="taskDueDate.invalid && (taskDueDate.touched || taskForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
       </div>
       <div class="form-actions">
