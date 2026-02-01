@@ -222,7 +222,18 @@
     "addAmount": "Add",
     "decreaseAmount": "Decrease",
     "amountToAdd": "Amount to add",
-    "amountToDecrease": "Amount to decrease"
+    "amountToDecrease": "Amount to decrease",
+    "addCategory": "Add category",
+    "newCategoryPlaceholder": "Category name",
+    "addCategoryButton": "Add",
+    "categoryAdded": "Category added.",
+    "categoryExists": "This category already exists.",
+    "selectOrAddCategory": "Choose or add a category.",
+    "myCategories": "My custom categories",
+    "myCategoriesDesc": "Add categories to classify your expenses. They will appear in the add expense form.",
+    "removeCategory": "Remove this category",
+    "noCustomCategories": "No custom categories. Add one above.",
+    "categoryRemoved": "Category removed."
   },
   "calendar": {
     "title": "Calendar",

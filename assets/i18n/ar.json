@@ -265,7 +265,18 @@
     "salaryAdded": "الشهرية تم تسجيلها",
     "budgetCreated": "الميزانية تم إنشاءها",
     "savingsGoalCreated": "هدف التخبية تم إنشاءو",
-    "itemDeleted": "تم فسخ العنصر"
+    "itemDeleted": "تم فسخ العنصر",
+    "addCategory": "زيد نوع",
+    "newCategoryPlaceholder": "اسم النوع",
+    "addCategoryButton": "زيد",
+    "categoryAdded": "تمت إضافة النوع.",
+    "categoryExists": "هذا النوع موجود بالفعل.",
+    "selectOrAddCategory": "اختار نوع أو زيد واحد جديد.",
+    "myCategories": "أنواعي الشخصية",
+    "myCategoriesDesc": "زيد أنواع باش تصنف مصاريفك. تو تظهر في فورم المصروف.",
+    "removeCategory": "احذف هذا النوع",
+    "noCustomCategories": "ما ثمة حتى نوع شخصي. زيد واحد من فوق.",
+    "categoryRemoved": "تم حذف النوع."
   },
   "calendar": {
     "title": "الكرني",

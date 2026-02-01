@@ -227,7 +227,18 @@
     "salaryAdded": "Salaire ajouté avec succès",
     "budgetCreated": "Budget créé avec succès",
     "savingsGoalCreated": "Objectif d'épargne créé",
-    "itemDeleted": "Élément supprimé"
+    "itemDeleted": "Élément supprimé",
+    "addCategory": "Ajouter une catégorie",
+    "newCategoryPlaceholder": "Nom de la catégorie",
+    "addCategoryButton": "Ajouter",
+    "categoryAdded": "Catégorie ajoutée.",
+    "categoryExists": "Cette catégorie existe déjà.",
+    "selectOrAddCategory": "Choisissez ou ajoutez une catégorie.",
+    "myCategories": "Mes catégories personnelles",
+    "myCategoriesDesc": "Ajoutez des catégories pour classer vos dépenses. Elles apparaîtront dans le formulaire d'ajout de dépense.",
+    "removeCategory": "Retirer cette catégorie",
+    "noCustomCategories": "Aucune catégorie personnalisée. Ajoutez-en une ci-dessus.",
+    "categoryRemoved": "Catégorie retirée."
   },
   "calendar": {
     "title": "Calendrier",
