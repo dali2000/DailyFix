@@ -2,13 +2,61 @@
   <h1>{{ 'home.greeting' | translate }} {{ userName || ('common.user' | translate) }} ! 👋</h1>
   <p>{{ 'home.ready' | translate }}</p>
 
-  <!-- Conseils du jour (si profil taille/poids/genre renseigné) -->
-  <div *ngIf="showDailyAdviceCard" class="daily-advice-card">
+  <!-- Conseils du jour (en haut) : masqué si l'API IA a renvoyé une erreur -->
+  <div *ngIf="showDailyAdviceCard && !dailyAdviceError" class="daily-advice-card">
     <h3>{{ 'home.dailyAdviceTitle' | translate }}</h3>
     <p *ngIf="dailyAdviceLoading" class="daily-advice-loading">{{ 'home.dailyAdviceLoading' | translate }}</p>
-    <p *ngIf="dailyAdviceError" class="daily-advice-error">{{ dailyAdviceError | translate }}</p>
     <div *ngIf="dailyAdvice && !dailyAdviceLoading" class="daily-advice-text" [innerText]="dailyAdvice"></div>
-    <p *ngIf="!dailyAdvice && !dailyAdviceLoading && !dailyAdviceError" class="daily-advice-hint">{{ 'home.dailyAdviceHint' | translate }}</p>
+    <p *ngIf="!dailyAdvice && !dailyAdviceLoading" class="daily-advice-hint">{{ 'home.dailyAdviceHint' | translate }}</p>
+  </div>
+
+  <!-- Statistiques de l'Application -->
+  <div class="stats-section">
+    <h2>📈 {{ 'home.appStats' | translate }}</h2>
+    <div class="stats-grid">
+      <div class="stat-item">
+        <div class="stat-icon">💸</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.totalExpenses' | translate }}</div>
+          <div class="stat-value">{{ currencySymbol }}{{ totalExpenses | number:'1.0-0' }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.savingsGoals' | translate }}</div>
+          <div class="stat-value">{{ totalSavingsGoals }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">✅</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.activeGoals' | translate }}</div>
+          <div class="stat-value">{{ activeSavingsGoals }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">❤️</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.healthRecords' | translate }}</div>
+          <div class="stat-value">{{ totalHealthRecords }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">📅</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.socialEventsCount' | translate }}</div>
+          <div class="stat-value">{{ totalSocialEvents }}</div>
+        </div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon">✓</div>
+        <div class="stat-info">
+          <div class="stat-label">{{ 'home.totalTasks' | translate }}</div>
+          <div class="stat-value">{{ totalTasks }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="cards-container">
@@ -238,55 +286,6 @@
           <div *ngIf="monthlyExpenseHistory.length === 0" class="no-data">
             <p>{{ 'common.noData' | translate }}</p>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- App Statistics -->
-  <div class="stats-section">
-    <h2>📈 {{ 'home.appStats' | translate }}</h2>
-    <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-icon">💸</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.totalExpenses' | translate }}</div>
-          <div class="stat-value">{{ currencySymbol }}{{ totalExpenses | number:'1.0-0' }}</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">🎯</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.savingsGoals' | translate }}</div>
-          <div class="stat-value">{{ totalSavingsGoals }}</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">✅</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.activeGoals' | translate }}</div>
-          <div class="stat-value">{{ activeSavingsGoals }}</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">❤️</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.healthRecords' | translate }}</div>
-          <div class="stat-value">{{ totalHealthRecords }}</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">📅</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.socialEventsCount' | translate }}</div>
-          <div class="stat-value">{{ totalSocialEvents }}</div>
-        </div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-icon">✓</div>
-        <div class="stat-info">
-          <div class="stat-label">{{ 'home.totalTasks' | translate }}</div>
-          <div class="stat-value">{{ totalTasks }}</div>
         </div>
       </div>
     </div>

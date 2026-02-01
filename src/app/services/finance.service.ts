@@ -313,11 +313,48 @@ export class FinanceService {
     return this.getMonthlyBudget() - monthlyExpenses;
   }
 
+  /**
+   * Solde cumulé à la fin du mois précédent (tous les mois avant year/month).
+   * Utilisé pour reporter le "reste" d'un mois sur le suivant.
+   */
+  getCumulativeBalanceBeforeMonth(year: number, month: number): number {
+    let balance = 0;
+    // Parcourir tous les salaires et dépenses pour calculer le solde jusqu'à (year, month) exclu
+    const allMonths = new Set<string>();
+    this.salaries.forEach(s => {
+      const d = new Date(s.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() < month)) {
+        allMonths.add(key);
+      }
+    });
+    this.expenses.forEach(e => {
+      const d = new Date(e.date);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      if (d.getFullYear() < year || (d.getFullYear() === year && d.getMonth() < month)) {
+        allMonths.add(key);
+      }
+    });
+    const sortedMonths = Array.from(allMonths).sort();
+    for (const key of sortedMonths) {
+      const [y, m] = key.split('-').map(Number);
+      const sal = this.getSalaryForMonth(y, m);
+      const exp = this.getTotalExpensesForMonth(y, m);
+      balance += sal - exp;
+    }
+    return balance;
+  }
+
+  /**
+   * Reste / solde disponible pour un mois : report du mois précédent + revenus du mois - dépenses du mois.
+   * Le reste de janvier est bien pris en charge en février (et suivants).
+   */
   getRemainingBalance(year?: number, month?: number): number {
     const d = year !== undefined && month !== undefined ? { year, month } : { year: new Date().getFullYear(), month: new Date().getMonth() };
+    const previousBalance = this.getCumulativeBalanceBeforeMonth(d.year, d.month);
     const monthlySalary = this.getSalaryForMonth(d.year, d.month);
     const monthlyExpenses = this.getTotalExpensesForMonth(d.year, d.month);
-    return monthlySalary - monthlyExpenses;
+    return previousBalance + monthlySalary - monthlyExpenses;
   }
 
   getSavingsSuggestions(year?: number, month?: number): string[] {

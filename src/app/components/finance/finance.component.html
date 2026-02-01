@@ -5,7 +5,7 @@
   <div class="month-selector">
     <button type="button" class="btn btn-icon" (click)="goToPrevMonth()" [attr.aria-label]="'Mois précédent'">‹</button>
     <span class="month-label">{{ selectedMonthLabel }}</span>
-    <button type="button" class="btn btn-icon" (click)="goToNextMonth()" [attr.aria-label]="'Mois suivant'">›</button>
+    <button type="button" class="btn btn-icon" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'Mois suivant'">›</button>
     <button type="button" class="btn btn-secondary btn-today" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
   </div>
 

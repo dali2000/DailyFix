@@ -218,6 +218,14 @@ export class FinanceComponent implements OnInit, OnDestroy {
     return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
   }
 
+  /** True si le mois sélectionné est avant ou égal au mois courant (on peut aller au mois suivant). */
+  get canGoToNextMonth(): boolean {
+    const now = new Date();
+    if (this.currentYear < now.getFullYear()) return true;
+    if (this.currentYear > now.getFullYear()) return false;
+    return this.currentMonth < now.getMonth();
+  }
+
   goToPrevMonth(): void {
     if (this.currentMonth === 0) {
       this.currentMonth = 11;
