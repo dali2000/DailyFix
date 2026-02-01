@@ -150,12 +150,12 @@
   <!-- Expenses Tab -->
   <div *ngIf="activeTab === 'expenses'" class="tab-content tab-content-animate" role="tabpanel">
     <!-- Mes catégories personnelles : en premier pour être bien visible -->
-    <section class="custom-categories-section" aria-label="{{ 'finance.myCategories' | translate }}">
+    <section class="custom-categories-section" [attr.aria-label]="'finance.myCategories' | translate">
       <h3 class="custom-categories-title"><span class="custom-categories-emoji" aria-hidden="true">🏷️</span> {{ 'finance.myCategories' | translate }}</h3>
       <p class="custom-categories-desc">{{ 'finance.myCategoriesDesc' | translate }}</p>
       <div class="custom-categories-add">
         <input type="text" [(ngModel)]="categoryToAdd" [placeholder]="'finance.newCategoryPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addCustomCategory(categoryToAdd)">
-        <button type="button" class="btn btn-primary" (click)="addCustomCategory(categoryToAdd)" [disabled]="!categoryToAdd?.trim()">+ {{ 'finance.addCategoryButton' | translate }}</button>
+        <button type="button" class="btn btn-primary" (click)="addCustomCategory(categoryToAdd)" [disabled]="!categoryToAdd.trim()">+ {{ 'finance.addCategoryButton' | translate }}</button>
       </div>
       <ul class="custom-categories-list" *ngIf="customCategoryList.length > 0">
         <li *ngFor="let cat of customCategoryList" class="custom-category-item">
@@ -343,7 +343,7 @@
           </select>
           <div *ngIf="newExpense.category === addCategoryValue" class="add-category-row">
             <input type="text" [(ngModel)]="newCategoryName" name="newCategoryName" [placeholder]="'finance.newCategoryPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addCustomCategory()">
-            <button type="button" class="btn btn-secondary btn-add-cat" (click)="addCustomCategory()" [disabled]="!newCategoryName?.trim()">{{ 'finance.addCategoryButton' | translate }}</button>
+            <button type="button" class="btn btn-secondary btn-add-cat" (click)="addCustomCategory()" [disabled]="!newCategoryName.trim()">{{ 'finance.addCategoryButton' | translate }}</button>
           </div>
           <span class="field-error" *ngIf="expenseCategory.invalid && (expenseCategory.touched || expenseForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
