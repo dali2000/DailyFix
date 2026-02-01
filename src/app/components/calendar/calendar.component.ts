@@ -348,6 +348,23 @@ export class CalendarComponent implements OnInit, OnDestroy {
     return this.currentDate.getFullYear();
   }
 
+  /** Années disponibles pour le sélecteur (passé récent + futur proche) */
+  get availableYears(): number[] {
+    const currentYear = new Date().getFullYear();
+    const years: number[] = [];
+    for (let y = currentYear - 20; y <= currentYear + 5; y++) {
+      years.push(y);
+    }
+    return years;
+  }
+
+  setYear(year: number): void {
+    const y = Number(year);
+    if (isNaN(y)) return;
+    this.currentDate.setFullYear(y);
+    this.loadCalendar();
+  }
+
   getDayName(date: Date): string {
     return date.toLocaleDateString(this.dateLocale, { weekday: 'short' });
   }

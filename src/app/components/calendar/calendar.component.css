@@ -135,7 +135,8 @@
     white-space: nowrap;
   }
 
-  .year-box {
+  .year-box,
+  .year-select {
     font-size: 16px;
     padding: 2px 8px;
     border-width: 2px;
@@ -489,9 +490,11 @@
     line-height: 1.2;
   }
 
-  .year-box {
+  .year-box,
+  .year-select {
     font-size: 12px;
     padding: 2px 5px;
+    min-width: 64px;
     border-width: 2px;
     white-space: nowrap;
     flex-shrink: 0;
@@ -810,6 +813,32 @@
   text-transform: lowercase;
   font-size: 18px;
   line-height: 1.2;
+}
+
+.year-select-label {
+  font-size: 0.85em;
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  margin-right: 4px;
+}
+
+.year-select {
+  display: inline-block;
+  padding: 4px 10px;
+  background: var(--notion-bg-tertiary);
+  border: 1px solid var(--notion-border);
+  border-radius: var(--notion-radius);
+  font-weight: 500;
+  font-size: 18px;
+  color: var(--notion-text-primary);
+  cursor: pointer;
+  min-width: 80px;
+}
+
+.year-select:focus {
+  outline: none;
+  border-color: var(--focus-color, #3b82f6);
+  box-shadow: 0 0 0 2px var(--focus-glow, rgba(59, 130, 246, 0.25));
 }
 
 .year-box {
@@ -1415,10 +1444,16 @@
   color: var(--notion-text-primary);
 }
 
-.dark-theme .calendar-navigation .year-box {
+.dark-theme .calendar-navigation .year-box,
+.dark-theme .calendar-navigation .year-select {
   background: rgba(255, 255, 255, 0.08);
   border-color: var(--notion-border);
   color: var(--notion-text-primary);
+}
+
+.dark-theme .calendar-navigation .year-select option {
+  background: #2d2d2d;
+  color: #e0e0e0;
 }
 
 .dark-theme .calendar-navigation button {

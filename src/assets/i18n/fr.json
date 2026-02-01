@@ -247,6 +247,7 @@
     "startDate": "Date de début",
     "endDate": "Date de fin",
     "today": "Aujourd'hui",
+    "year": "Année",
     "sun": "Dim", "mon": "Lun", "tue": "Mar", "wed": "Mer", "thu": "Jeu", "fri": "Ven", "sat": "Sam",
     "blue": "Bleu", "green": "Vert", "orange": "Orange", "red": "Rouge", "purple": "Violet", "pink": "Rose",
     "confirmDeleteEvent": "Supprimer cet événement ?",

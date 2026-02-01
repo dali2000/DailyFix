@@ -73,7 +73,12 @@
     <button (click)="previousPeriod()" class="btn btn-primary">← {{ 'common.previous' | translate }}</button>
     <h2 class="month-year-display">
       <span class="month-name">{{ getMonthNameOnly() }}</span>
-      <span class="year-box">{{ getYear() }}</span>
+      <label class="year-select-label" for="calendar-year">{{ 'calendar.year' | translate }}</label>
+      <select id="calendar-year" class="year-select" name="yearSelect"
+        [ngModel]="getYear()" (ngModelChange)="setYear($event)"
+        [attr.aria-label]="'calendar.year' | translate">
+        <option *ngFor="let y of availableYears" [ngValue]="y">{{ y }}</option>
+      </select>
     </h2>
     <div>
       <button (click)="goToToday()" class="btn btn-primary">{{ 'calendar.today' | translate }}</button>
