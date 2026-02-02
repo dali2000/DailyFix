@@ -88,21 +88,23 @@ router.post('/expenses', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid date is required' });
     }
     const paymentStr = paymentMethod != null ? String(paymentMethod).trim() : null;
+    // PostgreSQL DECIMAL often expects string; pass primitive values for Sequelize
     const item = await Expense.create({
       userId,
-      amount: amountNum,
+      amount: String(amountNum),
       category: categoryStr,
       description: desc,
       date: dateVal,
-      paymentMethod: paymentStr || undefined
+      paymentMethod: paymentStr || null
     });
     res.status(201).json({ success: true, data: item });
   } catch (error) {
     console.error('Create expense error:', error);
     const message = error.name === 'SequelizeValidationError' && error.errors?.length
       ? error.errors.map(e => e.message).join('; ')
-      : 'Server error';
-    res.status(error.name === 'SequelizeValidationError' ? 400 : 500).json({ success: false, message });
+      : (error.message || 'Server error');
+    const status = error.name === 'SequelizeValidationError' ? 400 : 500;
+    res.status(status).json({ success: false, message });
   }
 });
 
