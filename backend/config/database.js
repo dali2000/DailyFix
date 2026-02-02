@@ -121,9 +121,52 @@ const connectDB = async () => {
     await addProfilePhotoColumnIfNeeded();
     await addHealthProfileColumnsIfNeeded();
     await addResetPasswordColumnsIfNeeded();
+    await ensureExpenseCategoryAcceptsCustom();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
+  }
+};
+
+/** Ensure expenses.category accepts any string (VARCHAR), not only ENUM values, so custom categories work. */
+const ensureExpenseCategoryAcceptsCustom = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+    if (dialect === 'postgres') {
+      const [rows] = await sequelize.query(`
+        SELECT data_type
+        FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = 'expenses' AND column_name = 'category'
+      `);
+      if (rows.length === 0) return;
+      const { data_type } = rows[0];
+      const isVarchar = data_type === 'character varying';
+      if (isVarchar) return;
+      // Column is ENUM (USER-DEFINED) or other restricted type → allow any string for custom categories
+      await sequelize.query(`
+        ALTER TABLE expenses
+        ALTER COLUMN category TYPE VARCHAR(100) USING category::text
+      `);
+      console.log('✅ expenses.category updated to VARCHAR(100) (custom categories allowed)');
+    } else if (dialect === 'mysql') {
+      const [rows] = await sequelize.query(`
+        SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'expenses' AND COLUMN_NAME = 'category'
+      `);
+      if (rows.length === 0) return;
+      const colType = (rows[0].COLUMN_TYPE || '').toLowerCase();
+      if (colType.includes('enum(')) {
+        await sequelize.query(`
+          ALTER TABLE expenses MODIFY COLUMN category VARCHAR(100) NOT NULL DEFAULT 'other'
+        `);
+        console.log('✅ expenses.category updated to VARCHAR(100) (custom categories allowed)');
+      }
+    }
+  } catch (error) {
+    if (error.message && (error.message.includes('does not exist') || error.message.includes("Unknown column"))) {
+      return;
+    }
+    console.warn('⚠️ Warning: Could not ensure expense category column:', error.message);
   }
 };
 
