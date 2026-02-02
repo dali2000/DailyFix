@@ -40,8 +40,8 @@
 
 .main-content {
   margin-left: 240px;
-  margin-top: 45px;
-  min-height: calc(100vh - 45px);
+  margin-top: 52px;
+  min-height: calc(100vh - 52px);
   background: var(--notion-bg-secondary);
   transition: margin-left 100ms ease-in 0s;
   overflow-x: hidden;
@@ -73,7 +73,7 @@
 @media (max-width: 768px) {
   .main-content {
     margin-left: 0;
-    margin-top: 45px;
+    margin-top: 52px;
   }
 }
 

@@ -1,240 +1,239 @@
 <div class="home-page">
-  <h1>{{ 'home.greeting' | translate }} {{ userName || ('common.user' | translate) }} ! 👋</h1>
-  <p>{{ 'home.ready' | translate }}</p>
+  <header class="home-hero">
+    <div class="home-hero-icon" aria-hidden="true">👋</div>
+    <div class="home-hero-text">
+      <h1 class="home-title">{{ 'home.greeting' | translate }} {{ userName || ('common.user' | translate) }} !</h1>
+      <p class="home-subtitle">{{ 'home.ready' | translate }}</p>
+    </div>
+  </header>
 
-  <!-- Conseils du jour (en haut) : masqué si l'API IA a renvoyé une erreur -->
+  <!-- Conseils du jour -->
   <div *ngIf="showDailyAdviceCard && !dailyAdviceError" class="daily-advice-card">
-    <h3>{{ 'home.dailyAdviceTitle' | translate }}</h3>
+    <div class="daily-advice-header">
+      <span class="daily-advice-icon" aria-hidden="true">💡</span>
+      <h3>{{ 'home.dailyAdviceTitle' | translate }}</h3>
+    </div>
     <p *ngIf="dailyAdviceLoading" class="daily-advice-loading">{{ 'home.dailyAdviceLoading' | translate }}</p>
     <div *ngIf="dailyAdvice && !dailyAdviceLoading" class="daily-advice-text" [innerText]="dailyAdvice"></div>
     <p *ngIf="!dailyAdvice && !dailyAdviceLoading" class="daily-advice-hint">{{ 'home.dailyAdviceHint' | translate }}</p>
   </div>
 
   <!-- Statistiques de l'Application -->
-  <div class="stats-section">
-    <h2>📈 {{ 'home.appStats' | translate }}</h2>
+  <section class="stats-section" aria-labelledby="stats-heading">
+    <h2 id="stats-heading" class="stats-section-title">
+      <span class="stats-section-icon" aria-hidden="true">📈</span>
+      {{ 'home.appStats' | translate }}
+    </h2>
     <div class="stats-grid">
-      <div class="stat-item">
-        <div class="stat-icon">💸</div>
+      <div class="stat-item stat-item--expenses">
+        <div class="stat-icon"><span aria-hidden="true">💸</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.totalExpenses' | translate }}</div>
-          <div class="stat-value">{{ currencySymbol }}{{ totalExpenses | number:'1.0-0' }}</div>
+          <span class="stat-label">{{ 'home.totalExpenses' | translate }}</span>
+          <span class="stat-value">{{ currencySymbol }}{{ totalExpenses | number:'1.0-0' }}</span>
         </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-icon">🎯</div>
+      <div class="stat-item stat-item--goals">
+        <div class="stat-icon"><span aria-hidden="true">🎯</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.savingsGoals' | translate }}</div>
-          <div class="stat-value">{{ totalSavingsGoals }}</div>
+          <span class="stat-label">{{ 'home.savingsGoals' | translate }}</span>
+          <span class="stat-value">{{ totalSavingsGoals }}</span>
         </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-icon">✅</div>
+      <div class="stat-item stat-item--active">
+        <div class="stat-icon"><span aria-hidden="true">✅</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.activeGoals' | translate }}</div>
-          <div class="stat-value">{{ activeSavingsGoals }}</div>
+          <span class="stat-label">{{ 'home.activeGoals' | translate }}</span>
+          <span class="stat-value">{{ activeSavingsGoals }}</span>
         </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-icon">❤️</div>
+      <div class="stat-item stat-item--health">
+        <div class="stat-icon"><span aria-hidden="true">❤️</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.healthRecords' | translate }}</div>
-          <div class="stat-value">{{ totalHealthRecords }}</div>
+          <span class="stat-label">{{ 'home.healthRecords' | translate }}</span>
+          <span class="stat-value">{{ totalHealthRecords }}</span>
         </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-icon">📅</div>
+      <div class="stat-item stat-item--events">
+        <div class="stat-icon"><span aria-hidden="true">📅</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.socialEventsCount' | translate }}</div>
-          <div class="stat-value">{{ totalSocialEvents }}</div>
+          <span class="stat-label">{{ 'home.socialEventsCount' | translate }}</span>
+          <span class="stat-value">{{ totalSocialEvents }}</span>
         </div>
       </div>
-      <div class="stat-item">
-        <div class="stat-icon">✓</div>
+      <div class="stat-item stat-item--tasks">
+        <div class="stat-icon"><span aria-hidden="true">✓</span></div>
         <div class="stat-info">
-          <div class="stat-label">{{ 'home.totalTasks' | translate }}</div>
-          <div class="stat-value">{{ totalTasks }}</div>
+          <span class="stat-label">{{ 'home.totalTasks' | translate }}</span>
+          <span class="stat-value">{{ totalTasks }}</span>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
   <div class="cards-container">
-    <!-- Task Card -->
-    <div class="stats-card blue">
-      <div class="card-header">
-        <span>{{ 'home.todayTasks' | translate }}</span>
-        <i class="bi bi-check2-circle"></i>
-      </div>
-      <div class="card-value">{{ todayHouseholdTasksCount + shoppingListsCount }}</div>
-      <div class="card-subtitle" *ngIf="todayHouseholdTasksCount > 0 || shoppingListsCount > 0">
-        <span *ngIf="todayHouseholdTasksCount > 0">{{ todayHouseholdTasksCount }} {{ 'home.householdTasks' | translate }}</span>
-        <span *ngIf="todayHouseholdTasksCount > 0 && shoppingListsCount > 0"> • </span>
-        <span *ngIf="shoppingListsCount > 0">{{ shoppingListsCount }} {{ 'home.shoppingLists' | translate }}</span>
-      </div>
-      <div class="card-subtitle" *ngIf="todayHouseholdTasksCount === 0 && shoppingListsCount === 0">
-        {{ 'home.noTasksOrLists' | translate }}
+    <div class="stats-card stats-card--blue">
+      <div class="stats-card-icon-wrap stats-card-icon-wrap--blue"><span class="stats-card-emoji" aria-hidden="true">✓</span></div>
+      <div class="stats-card-content">
+        <span class="stats-card-label">{{ 'home.todayTasks' | translate }}</span>
+        <span class="stats-card-value">{{ todayHouseholdTasksCount + shoppingListsCount }}</span>
+        <span class="stats-card-subtitle" *ngIf="todayHouseholdTasksCount > 0 || shoppingListsCount > 0">
+          <span *ngIf="todayHouseholdTasksCount > 0">{{ todayHouseholdTasksCount }} {{ 'home.householdTasks' | translate }}</span>
+          <span *ngIf="todayHouseholdTasksCount > 0 && shoppingListsCount > 0"> · </span>
+          <span *ngIf="shoppingListsCount > 0">{{ shoppingListsCount }} {{ 'home.shoppingLists' | translate }}</span>
+        </span>
+        <span class="stats-card-subtitle" *ngIf="todayHouseholdTasksCount === 0 && shoppingListsCount === 0">
+          {{ 'home.noTasksOrLists' | translate }}
+        </span>
       </div>
     </div>
-
-    <!-- Health Score Card -->
-    <div class="stats-card green">
-      <div class="card-header">
-        <span>{{ 'home.healthScore' | translate }}</span>
-        <i class="bi bi-heart"></i>
+    <div class="stats-card stats-card--green">
+      <div class="stats-card-icon-wrap stats-card-icon-wrap--green"><span class="stats-card-emoji" aria-hidden="true">❤️</span></div>
+      <div class="stats-card-content">
+        <span class="stats-card-label">{{ 'home.healthScore' | translate }}</span>
+        <span class="stats-card-value">{{ healthScore }}%</span>
       </div>
-      <div class="card-value">{{ healthScore }}%</div>
     </div>
-
-    <!-- Budget Card -->
-    <div class="stats-card purple">
-      <div class="card-header">
-        <span>{{ 'home.remainingBalance' | translate }}</span>
-        <i class="bi bi-currency-dollar"></i>
+    <div class="stats-card stats-card--purple">
+      <div class="stats-card-icon-wrap stats-card-icon-wrap--purple"><span class="stats-card-emoji" aria-hidden="true">💰</span></div>
+      <div class="stats-card-content">
+        <span class="stats-card-label">{{ 'home.remainingBalance' | translate }}</span>
+        <span class="stats-card-value" [class.negative]="remainingBalance < 0">{{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}</span>
       </div>
-      <div class="card-value" [class.negative]="remainingBalance < 0">{{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}</div>
     </div>
-
-    <!-- Events Card -->
-    <div class="stats-card orange">
-      <div class="card-header">
-        <span>{{ 'home.events' | translate }}</span>
-        <i class="bi bi-calendar-event"></i>
+    <div class="stats-card stats-card--orange">
+      <div class="stats-card-icon-wrap stats-card-icon-wrap--orange"><span class="stats-card-emoji" aria-hidden="true">📅</span></div>
+      <div class="stats-card-content">
+        <span class="stats-card-label">{{ 'home.events' | translate }}</span>
+        <span class="stats-card-value">{{ upcomingEventsCount }}</span>
       </div>
-      <div class="card-value">{{ upcomingEventsCount }}</div>
     </div>
   </div>
 
-  <br><br><br>
   <div class="dashboard">
-    <!-- Gestion des tâches -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon blue1">✔</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon blue1">✔</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.taskManagement' | translate }}</h3>
           <small>{{ 'home.taskManagementDesc' | translate }}</small>
         </div>
       </div>
-      <div>
-        <span>{{ 'home.completedToday' | translate }} {{ tasksCompletedToday }}/{{ totalTasks }} ({{ 'home.total' | translate }}: {{ tasksCompleted }})</span>
-        <div class="progress">
+      <div class="dash-card-body">
+        <p class="dash-card-meta">{{ 'home.completedToday' | translate }} {{ tasksCompletedToday }}/{{ totalTasks }} ({{ 'home.total' | translate }}: {{ tasksCompleted }})</p>
+        <div class="progress progress-thin">
           <div class="progress-bar" [style.width.%]="totalTasks ? (tasksCompleted / totalTasks) * 100 : 0"></div>
         </div>
-        <button (click)="navigateTo('/tasks')">{{ 'home.manageTasks' | translate }}</button>
+        <button type="button" class="dash-card-btn" (click)="navigateTo('/tasks')">{{ 'home.manageTasks' | translate }}</button>
       </div>
-    </div>
+    </article>
 
-    <!-- Suivi Santé -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon green1">❤</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon green1">❤</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.healthTracking' | translate }}</h3>
           <small>{{ 'home.healthTrackingDesc' | translate }}</small>
         </div>
       </div>
-      <p>{{ 'home.mealsToday' | translate }}: {{ todayMealsCount }} ({{ todayCalories }} kcal)</p>
-      <p>{{ 'home.waterConsumed' | translate }}: {{ todayWaterLiters | number:'1.1-1' }} L</p>
-      <p>{{ 'home.activity' | translate }}: {{ todayActivityMinutes }} min</p>
-      <p>{{ 'home.lastSleep' | translate }}: {{ lastSleepHours != null ? (lastSleepHours + 'h') : '—' }}</p>
-      <button (click)="navigateTo('/health')">{{ 'home.updateHealth' | translate }}</button>
-    </div>
+      <div class="dash-card-body">
+        <p>{{ 'home.mealsToday' | translate }}: {{ todayMealsCount }} ({{ todayCalories }} kcal)</p>
+        <p>{{ 'home.waterConsumed' | translate }}: {{ todayWaterLiters | number:'1.1-1' }} L</p>
+        <p>{{ 'home.activity' | translate }}: {{ todayActivityMinutes }} min</p>
+        <p>{{ 'home.lastSleep' | translate }}: {{ lastSleepHours != null ? (lastSleepHours + 'h') : '—' }}</p>
+        <button type="button" class="dash-card-btn" (click)="navigateTo('/health')">{{ 'home.updateHealth' | translate }}</button>
+      </div>
+    </article>
 
-    <!-- Finances -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon purple1">💲</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon purple1">💲</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.finances' | translate }}</h3>
           <small>{{ 'home.financesDesc' | translate }}</small>
         </div>
       </div>
-      <p>{{ 'home.expensesThisMonth' | translate }}: {{ currencySymbol }}{{ monthlyExpenses | number:'1.0-0' }}</p>
-      <p [class.green-text]="remainingBalance >= 0" [class.red-text]="remainingBalance < 0">
-        {{ 'home.remainingBalance' | translate }}: {{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}
-      </p>
-      <div class="progress">
-        <div class="progress-bar grey1"></div>
+      <div class="dash-card-body">
+        <p>{{ 'home.expensesThisMonth' | translate }}: {{ currencySymbol }}{{ monthlyExpenses | number:'1.0-0' }}</p>
+        <p [class.green-text]="remainingBalance >= 0" [class.red-text]="remainingBalance < 0">
+          {{ 'home.remainingBalance' | translate }}: {{ currencySymbol }}{{ remainingBalance | number:'1.0-0' }}
+        </p>
+        <div class="progress progress-thin">
+          <div class="progress-bar grey1"></div>
+        </div>
+        <button type="button" class="dash-card-btn dash-card-btn-primary" (click)="navigateTo('/finance')">{{ 'home.addExpense' | translate }}</button>
       </div>
-      <button (click)="navigateTo('/finance')">{{ 'home.addExpense' | translate }}</button>
-    </div>
+    </article>
 
-    <!-- Organisation Domestique -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon yellow1">🏠</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon yellow1">🏠</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.domesticOrg' | translate }}</h3>
           <small>{{ 'home.domesticOrgDesc' | translate }}</small>
         </div>
       </div>
-      <ul>
-        <li *ngFor="let task of upcomingHouseTasks">
-          {{task.name}} {{task.date}}
-        </li>
-      </ul>
-      <button (click)="navigateTo('/home-org')">{{ 'home.planTask' | translate }}</button>
-    </div>
+      <div class="dash-card-body">
+        <ul class="dash-card-list">
+          <li *ngFor="let task of upcomingHouseTasks">{{ task.name }} {{ task.date }}</li>
+        </ul>
+        <button type="button" class="dash-card-btn" (click)="navigateTo('/home-org')">{{ 'home.planTask' | translate }}</button>
+      </div>
+    </article>
 
-    <!-- Événements Sociaux -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon orange1">📅</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon orange1">📅</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.socialEvents' | translate }}</h3>
           <small>{{ 'home.socialEventsDesc' | translate }}</small>
         </div>
       </div>
-      <ul>
-        <li *ngFor="let event of upcomingEvents">
-          {{event.name}} {{event.date}}
-        </li>
-      </ul>
-      <button (click)="navigateTo('/social')">{{ 'home.newEvent' | translate }}</button>
-    </div>
+      <div class="dash-card-body">
+        <ul class="dash-card-list">
+          <li *ngFor="let event of upcomingEvents">{{ event.name }} {{ event.date }}</li>
+        </ul>
+        <button type="button" class="dash-card-btn" (click)="navigateTo('/social')">{{ 'home.newEvent' | translate }}</button>
+      </div>
+    </article>
 
-    <!-- Développement Personnel -->
-    <div class="card">
-      <div class="card-header">
-        <div class="icon violet1">🎯</div>
-        <div>
+    <article class="dash-card">
+      <div class="dash-card-header">
+        <div class="dash-card-icon violet1">🎯</div>
+        <div class="dash-card-heading">
           <h3>{{ 'home.personalDev' | translate }}</h3>
           <small>{{ 'home.personalDevDesc' | translate }}</small>
         </div>
       </div>
-      <ul>
-        <li *ngFor="let goal of personalGoals">
-          {{goal.name}} <span [class.done]="goal.done">✔</span>
-        </li>
-      </ul>
-      <button (click)="navigateTo('/wellness')">{{ 'home.newGoal' | translate }}</button>
-    </div>
+      <div class="dash-card-body">
+        <ul class="dash-card-list">
+          <li *ngFor="let goal of personalGoals">{{ goal.name }} <span [class.done]="goal.done">✔</span></li>
+        </ul>
+        <button type="button" class="dash-card-btn" (click)="navigateTo('/wellness')">{{ 'home.newGoal' | translate }}</button>
+      </div>
+    </article>
   </div>
 
   <!-- Charts Section -->
-  <div class="charts-section">
-    <!-- Tasks Chart -->
-    <div class="chart-card">
+  <section class="charts-section">
+    <div class="chart-card chart-card--tasks">
       <div class="chart-header">
-        <h3>📊 {{ 'home.taskProgress' | translate }}</h3>
+        <h3 class="chart-title"><span class="chart-title-icon" aria-hidden="true">📊</span> {{ 'home.taskProgress' | translate }}</h3>
       </div>
-      <div class="chart-content">
+      <div class="chart-content chart-content--split">
         <div class="task-status-chart">
           <div *ngFor="let item of taskStatusData" class="status-bar-item">
-            <div class="status-label">
-              <span>{{ item.status }}</span>
-              <span class="status-count">{{ item.count }}</span>
+            <div class="status-row">
+              <span class="status-name">{{ item.status }}</span>
+              <span class="status-meta">{{ item.count }} · {{ item.percentage | number:'1.0-0' }}%</span>
             </div>
             <div class="status-bar">
-              <div class="status-bar-fill" [style.width.%]="item.percentage" [class]="'status-' + item.status.toLowerCase().replace(' ', '-')"></div>
+              <div class="status-bar-fill" [style.width.%]="item.percentage" [class]="'status-' + item.status.toLowerCase().replace(' ', '-').replace('_', '-')"></div>
             </div>
-            <span class="status-percentage">{{ item.percentage | number:'1.0-0' }}%</span>
           </div>
         </div>
         <div class="task-progress-circle">
           <div class="progress-circle" [style.--progress]="taskProgressPercentage + '%'">
-            <svg viewBox="0 0 100 100">
+            <svg viewBox="0 0 100 100" aria-hidden="true">
               <circle cx="50" cy="50" r="45" class="progress-bg"></circle>
               <circle cx="50" cy="50" r="45" class="progress-fill" [style.stroke-dashoffset]="283 - (283 * taskProgressPercentage / 100)"></circle>
             </svg>
@@ -247,16 +246,21 @@
       </div>
     </div>
 
-    <!-- Finance Chart -->
-    <div class="chart-card">
-      <div class="chart-header">
-        <h3>💰 Dépenses par Catégorie</h3>
+    <div class="chart-card chart-card--expenses">
+      <div class="chart-header chart-header-with-month">
+        <h3 class="chart-title"><span class="chart-title-icon" aria-hidden="true">💰</span> {{ 'finance.expensesByCategory' | translate }}</h3>
+        <div class="chart-month-switcher">
+          <button type="button" class="month-btn month-prev" (click)="goToPrevExpenseChartMonth()" [attr.aria-label]="'common.previous' | translate" title="{{ 'common.previous' | translate }}">‹</button>
+          <span class="chart-month-label">{{ expenseChartMonthLabel }}</span>
+          <button type="button" class="month-btn month-next" (click)="goToNextExpenseChartMonth()" [disabled]="!canGoToNextExpenseChartMonth" [attr.aria-label]="'common.next' | translate" title="{{ 'common.next' | translate }}">›</button>
+          <button type="button" class="month-btn month-current" (click)="goToCurrentExpenseChartMonth()">{{ 'finance.thisMonth' | translate }}</button>
+        </div>
       </div>
       <div class="chart-content">
         <div class="expense-category-chart">
           <div *ngFor="let item of expenseCategoryData" class="category-bar-item">
-            <div class="category-label">
-              <span>{{ item.category }}</span>
+            <div class="category-row">
+              <span class="category-name">{{ item.category }}</span>
               <span class="category-amount">{{ currencySymbol }}{{ item.amount | number:'1.0-0' }}</span>
             </div>
             <div class="category-bar">
@@ -268,14 +272,13 @@
       </div>
     </div>
 
-    <!-- Monthly Expense History -->
-    <div class="chart-card">
+    <div class="chart-card chart-card--history">
       <div class="chart-header">
-        <h3>📈 {{ 'home.expenseEvolution' | translate }}</h3>
+        <h3 class="chart-title"><span class="chart-title-icon" aria-hidden="true">📈</span> {{ 'home.expenseEvolution' | translate }}</h3>
       </div>
       <div class="chart-content">
         <div class="expense-history-chart">
-          <div class="history-bars">
+          <div class="history-bars" *ngIf="monthlyExpenseHistory.length > 0">
             <div *ngFor="let item of monthlyExpenseHistory" class="history-bar-item">
               <div class="history-bar" [style.height.%]="getMaxExpense() > 0 ? (item.amount / getMaxExpense()) * 100 : 0">
                 <span class="history-amount">{{ currencySymbol }}{{ item.amount | number:'1.0-0' }}</span>
@@ -283,11 +286,12 @@
               <span class="history-month">{{ item.month }}</span>
             </div>
           </div>
-          <div *ngIf="monthlyExpenseHistory.length === 0" class="no-data">
+          <div *ngIf="monthlyExpenseHistory.length === 0" class="chart-no-data">
+            <span class="chart-no-data-icon" aria-hidden="true">📊</span>
             <p>{{ 'common.noData' | translate }}</p>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 </div>

@@ -1,42 +1,61 @@
 <div class="tasks-page">
-  <div class="header">
-    <h1>{{ 'tasks.title' | translate }}</h1>
-    <div class="actions">
-      <button class="btn btn-secondary" (click)="viewMode = viewMode === 'kanban' ? 'list' : 'kanban'">
-        {{ viewMode === 'kanban' ? ('📋 ' + ('tasks.listView' | translate)) : ('📊 ' + ('tasks.kanbanView' | translate)) }}
-      </button>
-      <button type="button" class="btn btn-primary" (click)="toggleAddForm()">
-        + {{ 'tasks.createTask' | translate }}
-      </button>
-      <button class="btn btn-secondary" (click)="navigateToCalendar()">📅 {{ 'nav.calendar' | translate }}</button>
+  <header class="tasks-header">
+    <div class="tasks-header-inner">
+      <div class="tasks-header-title-wrap">
+        <span class="tasks-header-icon" aria-hidden="true">✓</span>
+        <div>
+          <h1 class="tasks-title">{{ 'tasks.title' | translate }}</h1>
+          <p class="tasks-subtitle">{{ 'tasks.searchPlaceholder' | translate }}</p>
+        </div>
+      </div>
+      <div class="tasks-actions">
+        <button type="button" class="btn btn-view" (click)="viewMode = viewMode === 'kanban' ? 'list' : 'kanban'" [title]="viewMode === 'kanban' ? ('tasks.listView' | translate) : ('tasks.kanbanView' | translate)">
+          <span class="btn-view-icon">{{ viewMode === 'kanban' ? '📋' : '📊' }}</span>
+          {{ viewMode === 'kanban' ? ('tasks.listView' | translate) : ('tasks.kanbanView' | translate) }}
+        </button>
+        <button type="button" class="btn btn-secondary" (click)="navigateToCalendar()">📅 {{ 'nav.calendar' | translate }}</button>
+        <button type="button" class="btn btn-primary btn-create" (click)="toggleAddForm()">
+          <span class="btn-create-icon">+</span>{{ 'tasks.createTask' | translate }}
+        </button>
+      </div>
     </div>
-  </div>
+  </header>
 
-  <!-- Filters -->
-  <div class="filters-bar">
-    <div class="search-box">
-      <input 
-        type="text" 
-        [(ngModel)]="searchQuery" 
+  <!-- Search & Filters -->
+  <div class="search-filters-bar">
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </span>
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchQuery"
         (input)="applyFilters()"
-        [placeholder]="'tasks.searchPlaceholder' | translate">
+        [placeholder]="'tasks.searchPlaceholder' | translate"
+        aria-label="Search tasks">
     </div>
-    <div class="filter-controls">
-      <select [(ngModel)]="filter" (change)="applyFilters()">
-        <option value="all">{{ 'tasks.allStatuses' | translate }}</option>
-        <option value="todo">{{ 'tasks.todo' | translate }}</option>
-        <option value="in-progress">{{ 'tasks.inProgress' | translate }}</option>
-        <option value="in-review">{{ 'tasks.inReview' | translate }}</option>
-        <option value="done">{{ 'tasks.done' | translate }}</option>
-      </select>
-      <select [(ngModel)]="priorityFilter" (change)="applyFilters()">
-        <option value="all">{{ 'tasks.allPriorities' | translate }}</option>
-        <option value="highest">{{ 'tasks.highest' | translate }}</option>
-        <option value="high">{{ 'tasks.high' | translate }}</option>
-        <option value="medium">{{ 'tasks.medium' | translate }}</option>
-        <option value="low">{{ 'tasks.low' | translate }}</option>
-        <option value="lowest">{{ 'tasks.lowest' | translate }}</option>
-      </select>
+    <div class="filters-divider" aria-hidden="true"></div>
+    <div class="filters-row">
+      <div class="filter-item">
+        <select id="task-status-filter" [(ngModel)]="filter" (change)="applyFilters()" class="filter-select" aria-label="Filter by status">
+          <option value="all">{{ 'tasks.allStatuses' | translate }}</option>
+          <option value="todo">{{ 'tasks.todo' | translate }}</option>
+          <option value="in-progress">{{ 'tasks.inProgress' | translate }}</option>
+          <option value="in-review">{{ 'tasks.inReview' | translate }}</option>
+          <option value="done">{{ 'tasks.done' | translate }}</option>
+        </select>
+      </div>
+      <div class="filter-item">
+        <select id="task-priority-filter" [(ngModel)]="priorityFilter" (change)="applyFilters()" class="filter-select" aria-label="Filter by priority">
+          <option value="all">{{ 'tasks.allPriorities' | translate }}</option>
+          <option value="highest">{{ 'tasks.highest' | translate }}</option>
+          <option value="high">{{ 'tasks.high' | translate }}</option>
+          <option value="medium">{{ 'tasks.medium' | translate }}</option>
+          <option value="low">{{ 'tasks.low' | translate }}</option>
+          <option value="lowest">{{ 'tasks.lowest' | translate }}</option>
+        </select>
+      </div>
     </div>
   </div>
 
@@ -124,6 +143,7 @@
         <div 
           *ngFor="let task of getTasksForStatus(column.id)" 
           class="task-card"
+          [ngClass]="'task-card-priority-' + (task.priority || 'medium')"
           [attr.draggable]="true"
           (dragstart)="onDragStart(task)"
           (dragend)="onDragEnd()"

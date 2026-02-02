@@ -53,6 +53,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   expenseCategoryData: Array<{ category: string; amount: number; percentage: number }> = [];
   monthlyExpenseHistory: Array<{ month: string; amount: number }> = [];
 
+  // Mois sélectionné pour "Dépenses par Catégorie" sur la home
+  expenseChartMonth = new Date().getMonth();
+  expenseChartYear = new Date().getFullYear();
+
   // App statistics
   totalExpenses = 0;
   totalSavingsGoals = 0;
@@ -295,11 +299,29 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   loadFinanceChartData(): void {
     const now = new Date();
+    this.loadExpenseCategoryDataForMonth(this.expenseChartYear, this.expenseChartMonth);
+
+    // Monthly expense history (last 6 months)
+    this.monthlyExpenseHistory = [];
+    for (let i = 5; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthExpenses = this.financeService.getTotalExpensesForMonth(date.getFullYear(), date.getMonth());
+      this.monthlyExpenseHistory.push({
+        month: date.toLocaleDateString(this.i18n.currentLang === 'ar' ? 'ar-EG' : this.i18n.currentLang === 'en' ? 'en-US' : 'fr-FR', { month: 'short', year: 'numeric' }),
+        amount: monthExpenses
+      });
+    }
+  }
+
+  /** Dépenses par catégorie pour le mois sélectionné (home). */
+  loadExpenseCategoryDataForMonth(year: number, month: number): void {
     const expenses = this.financeService.getExpenses();
-    
-    // Expenses by category
+    const monthExpenses = expenses.filter(e => {
+      const d = new Date(e.date);
+      return d.getFullYear() === year && d.getMonth() === month;
+    });
     const categoryCounts: { [key: string]: number } = {};
-    const categories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
+    const defaultCategories = ['food', 'shopping', 'health', 'leisure', 'transport', 'bills', 'other'];
     const categoryNames: { [key: string]: string } = {
       'food': this.i18n.instant('finance.food'),
       'shopping': this.i18n.instant('finance.shopping'),
@@ -309,28 +331,61 @@ export class HomeComponent implements OnInit, OnDestroy {
       'bills': this.i18n.instant('finance.bills'),
       'other': this.i18n.instant('finance.other')
     };
-
-    expenses.forEach(expense => {
-      categoryCounts[expense.category] = (categoryCounts[expense.category] || 0) + expense.amount;
+    monthExpenses.forEach(expense => {
+      const amount = typeof expense.amount === 'number' ? expense.amount : parseFloat(String(expense.amount)) || 0;
+      categoryCounts[expense.category] = (categoryCounts[expense.category] || 0) + amount;
     });
+    const totalForMonth = monthExpenses.reduce((sum, e) => sum + (typeof e.amount === 'number' ? e.amount : parseFloat(String(e.amount)) || 0), 0);
+    const categoryKeys = [...defaultCategories, ...Object.keys(categoryCounts).filter(c => !defaultCategories.includes(c))];
+    this.expenseCategoryData = categoryKeys
+      .filter(cat => (categoryCounts[cat] || 0) > 0)
+      .map(cat => ({
+        category: categoryNames[cat] || cat,
+        amount: categoryCounts[cat] || 0,
+        percentage: totalForMonth > 0 ? ((categoryCounts[cat] || 0) / totalForMonth) * 100 : 0
+      }));
+  }
 
-    const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
-    this.expenseCategoryData = categories.map(cat => ({
-      category: categoryNames[cat],
-      amount: categoryCounts[cat] || 0,
-      percentage: totalExpenses > 0 ? ((categoryCounts[cat] || 0) / totalExpenses) * 100 : 0
-    })).filter(item => item.amount > 0);
+  get expenseChartMonthLabel(): string {
+    const date = new Date(this.expenseChartYear, this.expenseChartMonth, 1);
+    const localeMap: { [key: string]: string } = { fr: 'fr-FR', en: 'en-US', ar: 'ar-EG' };
+    const locale = localeMap[this.i18n.currentLang] || 'fr-FR';
+    return date.toLocaleDateString(locale, { month: 'long', year: 'numeric' });
+  }
 
-    // Monthly expense history (last 6 months)
-    this.monthlyExpenseHistory = [];
-    for (let i = 5; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthExpenses = this.financeService.getTotalExpensesForMonth(date.getFullYear(), date.getMonth());
-      this.monthlyExpenseHistory.push({
-        month: date.toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }),
-        amount: monthExpenses
-      });
+  get canGoToNextExpenseChartMonth(): boolean {
+    const now = new Date();
+    if (this.expenseChartYear < now.getFullYear()) return true;
+    if (this.expenseChartYear > now.getFullYear()) return false;
+    return this.expenseChartMonth < now.getMonth();
+  }
+
+  goToPrevExpenseChartMonth(): void {
+    if (this.expenseChartMonth === 0) {
+      this.expenseChartMonth = 11;
+      this.expenseChartYear--;
+    } else {
+      this.expenseChartMonth--;
     }
+    this.loadExpenseCategoryDataForMonth(this.expenseChartYear, this.expenseChartMonth);
+  }
+
+  goToNextExpenseChartMonth(): void {
+    if (!this.canGoToNextExpenseChartMonth) return;
+    if (this.expenseChartMonth === 11) {
+      this.expenseChartMonth = 0;
+      this.expenseChartYear++;
+    } else {
+      this.expenseChartMonth++;
+    }
+    this.loadExpenseCategoryDataForMonth(this.expenseChartYear, this.expenseChartMonth);
+  }
+
+  goToCurrentExpenseChartMonth(): void {
+    const now = new Date();
+    this.expenseChartYear = now.getFullYear();
+    this.expenseChartMonth = now.getMonth();
+    this.loadExpenseCategoryDataForMonth(this.expenseChartYear, this.expenseChartMonth);
   }
 
   loadAppStatistics(): void {

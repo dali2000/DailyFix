@@ -222,7 +222,7 @@
   /* Dropdown en position fixe, centré à l'écran pour rester entièrement visible sur tablette */
   .notifications-dropdown {
     position: fixed;
-    top: 45px;
+    top: 52px;
     left: 50%;
     transform: translateX(-50%);
     right: auto;
@@ -259,7 +259,7 @@
   /* Sur mobile : centré à l'écran, toujours visible */
   .notifications-dropdown {
     position: fixed;
-    top: 45px;
+    top: 52px;
     left: 50%;
     transform: translateX(-50%);
     right: auto;

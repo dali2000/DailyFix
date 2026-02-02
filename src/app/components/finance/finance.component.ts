@@ -82,8 +82,47 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     return Array.from(known);
   }
 
+  /** Catégories avec un montant > 0 uniquement (pour l’affichage). */
+  get expenseCategoriesForOverviewNonZero(): string[] {
+    return this.expenseCategoriesForOverview.filter(cat => this.getExpensesByCategory(cat) > 0);
+  }
+
   expensesByCategoryExpanded = false;
-  
+
+  /** Catégories repliées dans l’onglet Dépenses (liste déroulante par catégorie). */
+  expandedExpenseCategories = new Set<string>();
+
+  /** Dépenses du mois regroupées par catégorie (pour l’onglet Dépenses). */
+  getExpensesGroupedByCategory(): { category: string; categoryName: string; expenses: Expense[]; total: number }[] {
+    const byCategory = new Map<string, Expense[]>();
+    for (const e of this.expensesForMonth) {
+      const list = byCategory.get(e.category) || [];
+      list.push(e);
+      byCategory.set(e.category, list);
+    }
+    return Array.from(byCategory.entries())
+      .map(([category, expenses]) => ({
+        category,
+        categoryName: this.getCategoryName(category),
+        expenses: expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+        total: expenses.reduce((sum, ex) => sum + this.parseAmount(ex.amount), 0)
+      }))
+      .sort((a, b) => b.total - a.total);
+  }
+
+  isExpenseCategoryExpanded(category: string): boolean {
+    return this.expandedExpenseCategories.has(category);
+  }
+
+  toggleExpenseCategory(category: string): void {
+    if (this.expandedExpenseCategories.has(category)) {
+      this.expandedExpenseCategories.delete(category);
+    } else {
+      this.expandedExpenseCategories.add(category);
+    }
+    this.expandedExpenseCategories = new Set(this.expandedExpenseCategories);
+  }
+
   // Confirm dialogs
   showDeleteExpenseConfirm = false;
   showDeleteSalaryConfirm = false;
@@ -548,6 +587,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         return d.getFullYear() === this.currentYear && d.getMonth() === this.currentMonth && e.category === category;
       })
       .reduce((sum, e) => sum + this.parseAmount(e.amount), 0);
+  }
+
+  /** Pourcentage des dépenses d'une catégorie par rapport au total du mois (0–100). */
+  getExpenseCategoryPercent(category: string): number {
+    if (this.monthlyExpenses <= 0) return 0;
+    const amount = this.getExpensesByCategory(category);
+    return Math.min(100, (amount / this.monthlyExpenses) * 100);
   }
 
   getCategoryName(category: string): string {

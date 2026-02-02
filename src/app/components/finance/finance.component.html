@@ -89,17 +89,27 @@
     </div>
 
     <div class="expenses-by-category dropdown-section">
-      <button type="button" class="category-section-toggle" (click)="expensesByCategoryExpanded = !expensesByCategoryExpanded" [attr.aria-expanded]="expensesByCategoryExpanded" [attr.aria-controls]="'category-content'" [attr.aria-label]="'finance.expensesByCategory' | translate">
-        <span class="toggle-title"><span class="toggle-emoji">📊</span> {{ 'finance.expensesByCategory' | translate }}</span>
-        <span class="toggle-icon" aria-hidden="true">{{ expensesByCategoryExpanded ? '▼' : '▶' }}</span>
-      </button>
+      <div class="category-section-header">
+        <button type="button" class="category-section-toggle" (click)="expensesByCategoryExpanded = !expensesByCategoryExpanded" [attr.aria-expanded]="expensesByCategoryExpanded" [attr.aria-controls]="'category-content'" [attr.aria-label]="'finance.expensesByCategory' | translate">
+          <span class="toggle-title"><span class="toggle-emoji">📊</span> {{ 'finance.expensesByCategory' | translate }} — {{ selectedMonthLabel }}</span>
+          <span class="toggle-icon" aria-hidden="true">{{ expensesByCategoryExpanded ? '▼' : '▶' }}</span>
+        </button>
+        <div class="category-month-switcher" (click)="$event.stopPropagation()">
+          <button type="button" class="month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate" title="{{ 'common.previous' | translate }}">‹</button>
+          <button type="button" class="month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate" title="{{ 'common.next' | translate }}">›</button>
+          <button type="button" class="btn btn-secondary btn-month-current" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
+        </div>
+      </div>
       <div id="category-content" class="category-dropdown-content" [class.is-open]="expensesByCategoryExpanded" [attr.aria-hidden]="!expensesByCategoryExpanded">
-        <div *ngFor="let category of expenseCategoriesForOverview" class="category-item">
-          <div class="category-info">
-            <span class="category-icon">{{ getCategoryIcon(category) }}</span>
+        <div *ngFor="let category of expenseCategoriesForOverviewNonZero" class="category-item category-item-with-bar">
+          <div class="category-item-row">
             <span class="category-name">{{ getCategoryName(category) }}</span>
+            <span class="category-amount">{{ getExpensesByCategory(category) | number:'1.2-2' }} {{ currencySymbol }}</span>
+            <span class="category-percent">{{ getExpenseCategoryPercent(category) | number:'1.0-0' }}%</span>
           </div>
-          <span class="category-amount">{{ getExpensesByCategory(category) | number:'1.2-2' }} {{ currencySymbol }}</span>
+          <div class="category-progress-bar">
+            <div class="category-progress-fill" [style.width.%]="progressReady ? getExpenseCategoryPercent(category) : 0" role="progressbar" [attr.aria-valuenow]="getExpenseCategoryPercent(category)" aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -155,31 +165,41 @@
       <button type="button" class="btn btn-primary btn-add" (click)="openExpenseForm()">+ {{ 'finance.addExpense' | translate }}</button>
     </div>
 
-    <div class="finance-list expenses-list">
-      <div *ngFor="let expense of expensesForMonth.slice().reverse()" class="finance-card expense-card finance-card-expense">
-        <div class="finance-card-accent"></div>
-        <div class="finance-card-body">
-          <div class="finance-card-top">
-            <span class="finance-card-icon">{{ getCategoryIcon(expense.category) }}</span>
-            <div class="finance-card-main">
-              <h4>{{ expense.description }}</h4>
-              <span class="category-badge">{{ getCategoryName(expense.category) }}</span>
+    <div class="expenses-by-category-list" *ngIf="getExpensesGroupedByCategory().length > 0">
+      <div *ngFor="let group of getExpensesGroupedByCategory()" class="expense-category-group">
+        <button type="button" class="expense-category-group-toggle" (click)="toggleExpenseCategory(group.category)" [attr.aria-expanded]="isExpenseCategoryExpanded(group.category)">
+          <span class="group-toggle-icon" aria-hidden="true">{{ isExpenseCategoryExpanded(group.category) ? '▼' : '▶' }}</span>
+          <span class="group-toggle-icon-emoji">{{ getCategoryIcon(group.category) }}</span>
+          <span class="group-toggle-title">{{ group.categoryName }}</span>
+          <span class="group-toggle-meta">{{ group.expenses.length }} {{ 'finance.expenses' | translate }}</span>
+          <span class="group-toggle-total">{{ group.total | number:'1.2-2' }} {{ currencySymbol }}</span>
+        </button>
+        <div class="expense-category-group-content" *ngIf="isExpenseCategoryExpanded(group.category)">
+          <div *ngFor="let expense of group.expenses" class="finance-card expense-card finance-card-expense">
+            <div class="finance-card-accent"></div>
+            <div class="finance-card-body">
+              <div class="finance-card-top">
+                <span class="finance-card-icon">{{ getCategoryIcon(expense.category) }}</span>
+                <div class="finance-card-main">
+                  <h4>{{ expense.description }}</h4>
+                  <small class="finance-date">{{ expense.date | date:'short' }}</small>
+                </div>
+                <span class="finance-amount negative">{{ expense.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
+                <button type="button" class="btn-icon btn-icon-danger" (click)="deleteExpense(expense.id)" [attr.aria-label]="'common.delete' | translate">×</button>
+              </div>
             </div>
-            <span class="finance-amount negative">{{ expense.amount | number:'1.2-2' }} {{ currencySymbol }}</span>
-            <button type="button" class="btn-icon btn-icon-danger" (click)="deleteExpense(expense.id)" [attr.aria-label]="'common.delete' | translate">×</button>
           </div>
-          <small class="finance-date">{{ expense.date | date:'short' }}</small>
         </div>
       </div>
-      <app-empty-state 
-        *ngIf="expensesForMonth.length === 0"
-        icon="💸"
-        [title]="'finance.noExpense' | translate"
-        [message]="'finance.noExpenseMessage' | translate"
-        [actionText]="'+ ' + ('finance.addExpense' | translate)"
-        (action)="openExpenseForm()">
-      </app-empty-state>
     </div>
+    <app-empty-state 
+      *ngIf="expensesForMonth.length === 0"
+      icon="💸"
+      [title]="'finance.noExpense' | translate"
+      [message]="'finance.noExpenseMessage' | translate"
+      [actionText]="'+ ' + ('finance.addExpense' | translate)"
+      (action)="openExpenseForm()">
+    </app-empty-state>
   </div>
 
   <!-- Budget Tab -->

@@ -1,10 +1,13 @@
 <div class="settings-page">
   <div class="settings-container">
-    <h1>{{ 'settings.title' | translate }}</h1>
+    <header class="settings-header">
+      <h1 class="settings-title">{{ 'settings.title' | translate }}</h1>
+      <p class="settings-desc">{{ 'settings.profileDesc' | translate }}</p>
+    </header>
 
     <!-- Section Profil -->
     <section class="settings-section profile-section">
-      <h2>{{ 'settings.profile' | translate }}</h2>
+      <h2 class="section-heading">{{ 'settings.profile' | translate }}</h2>
       <p class="section-desc">{{ 'settings.profileDesc' | translate }}</p>
 
       <div class="profile-card">
@@ -71,8 +74,8 @@
     </section>
 
     <!-- Section Apparence -->
-    <section class="settings-section">
-      <h2>{{ 'settings.appearance' | translate }}</h2>
+    <section class="settings-section section-appearance">
+      <h2 class="section-heading">{{ 'settings.appearance' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">
@@ -159,7 +162,7 @@
 
     <!-- Section Mes catégories personnelles (dépenses) -->
     <section class="settings-section custom-categories-section" [attr.aria-label]="'finance.myCategories' | translate">
-      <h2><span class="custom-categories-emoji" aria-hidden="true">🏷️</span> {{ 'finance.myCategories' | translate }}</h2>
+      <h2 class="section-heading"><span class="section-emoji" aria-hidden="true">🏷️</span> {{ 'finance.myCategories' | translate }}</h2>
       <p class="section-desc">{{ 'finance.myCategoriesDesc' | translate }}</p>
       <div class="custom-categories-add">
         <input type="text" [(ngModel)]="categoryToAdd" [placeholder]="'finance.newCategoryPlaceholder' | translate" (keydown.enter)="$event.preventDefault(); addCustomCategory()">
@@ -176,8 +179,8 @@
     </section>
 
     <!-- Section Portefeuille -->
-    <section class="settings-section settings-section-wallet">
-      <h2>{{ 'settings.wallet' | translate }}</h2>
+    <section class="settings-section section-wallet">
+      <h2 class="section-heading">{{ 'settings.wallet' | translate }}</h2>
 
       <div class="setting-item">
         <div class="setting-info">
@@ -200,8 +203,8 @@
     </section>
 
     <!-- Section Compte -->
-    <section class="settings-section">
-      <h2>{{ 'settings.account' | translate }}</h2>
+    <section class="settings-section section-account">
+      <h2 class="section-heading">{{ 'settings.account' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">
@@ -225,8 +228,8 @@
     </section>
 
     <!-- Section À propos -->
-    <section class="settings-section">
-      <h2>{{ 'settings.about' | translate }}</h2>
+    <section class="settings-section section-about">
+      <h2 class="section-heading">{{ 'settings.about' | translate }}</h2>
       
       <div class="setting-item">
         <div class="setting-info">

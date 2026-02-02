@@ -4,7 +4,7 @@
   max-width: 1100px;
   margin: 0 auto;
   background: var(--notion-bg-secondary);
-  min-height: calc(100vh - 45px);
+  min-height: calc(100vh - 52px);
   overflow-x: hidden;
   box-sizing: border-box;
 }
