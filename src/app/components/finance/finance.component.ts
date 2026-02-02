@@ -354,8 +354,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         if (nameFromForm !== undefined) {
           this.categoryToAdd = '';
         } else {
-          this.newExpense = { ...this.newExpense, category: name };
+          // Use the exact name from API so it matches the new option in the select
+          const categoryName = result?.data?.name ?? name;
           this.newCategoryName = '';
+          // Defer so the select options (expenseCategories) are updated first, then set the value
+          setTimeout(() => {
+            this.newExpense = { ...this.newExpense, category: categoryName };
+          }, 0);
         }
         this.toastService.success(this.i18n.instant('finance.categoryAdded') || 'Catégorie ajoutée.');
       },
@@ -419,7 +424,8 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         this.toastService.success(this.i18n.instant('finance.expenseAdded') || 'Dépense ajoutée avec succès');
       },
       error: (err) => {
-        this.toastService.error(err.message || 'Erreur lors de l\'ajout de la dépense');
+        const msg = err?.error?.message || err?.message || 'Erreur lors de l\'ajout de la dépense';
+        this.toastService.error(msg);
       }
     });
   }

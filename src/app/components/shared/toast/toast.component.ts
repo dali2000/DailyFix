@@ -10,8 +10,7 @@ import { ToastService, Toast } from '../../../services/toast.service';
     <div class="toast-container">
       <div *ngFor="let toast of toasts$ | async" 
            class="toast" 
-           [class]="'toast-' + toast.type"
-           [@slideIn]>
+           [class]="'toast-' + toast.type">
         <span class="toast-icon">{{ getIcon(toast.type) }}</span>
         <span class="toast-message">{{ toast.message }}</span>
         <button class="toast-close" (click)="close(toast.id)" aria-label="Close">&times;</button>
