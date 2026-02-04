@@ -242,7 +242,16 @@
     "statsForThisCard": "Solde, revenus et dépenses de cette carte uniquement.",
     "selectCardToView": "Choisissez une carte pour voir son solde et ses dépenses.",
     "viewAllCards": "Choisir une carte",
-    "tapToChangeCard": "Appuyez pour voir toutes les cartes"
+    "tapToChangeCard": "Appuyez pour voir toutes les cartes",
+    "noCardsTitle": "Aucune carte",
+    "noCardsDesc": "Ajoutez une carte dans le portefeuille pour afficher votre solde et suivre vos dépenses ici.",
+    "goToWallet": "Ouvrir le portefeuille",
+    "currencyEUR": "Euro",
+    "currencyUSD": "Dollar américain",
+    "currencyGBP": "Livre sterling",
+    "currencyCAD": "Dollar canadien",
+    "currencyTND": "Dinar tunisien",
+    "currencySymbolTND": "DT"
   },
   "calendar": {
     "title": "Calendrier",

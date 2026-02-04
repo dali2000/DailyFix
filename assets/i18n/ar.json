@@ -303,7 +303,16 @@
     "statsForThisCard": "الرصيد والمدخول والمصاريف لهذه البطاقة فقط.",
     "selectCardToView": "اختر بطاقة لرؤية رصيدها ومصاريفها.",
     "viewAllCards": "اختر بطاقة",
-    "tapToChangeCard": "اضغط لعرض كل البطاقات"
+    "tapToChangeCard": "اضغط لعرض كل البطاقات",
+    "noCardsTitle": "لا توجد بطاقة",
+    "noCardsDesc": "أضف بطاقة في المحفظة لعرض رصيدك وتتبع مصروفاتك هنا.",
+    "goToWallet": "فتح المحفظة",
+    "currencyEUR": "يورو",
+    "currencyUSD": "دولار أمريكي",
+    "currencyGBP": "جنيه إسترليني",
+    "currencyCAD": "دولار كندي",
+    "currencyTND": "دينار تونسي",
+    "currencySymbolTND": "د.ت"
   },
   "calendar": {
     "title": "الكرني",

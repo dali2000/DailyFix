@@ -242,7 +242,16 @@
     "statsForThisCard": "Balance, income and expenses for this card only.",
     "selectCardToView": "Select a card to see its balance and expenses.",
     "viewAllCards": "Choose a card",
-    "tapToChangeCard": "Tap to view all cards"
+    "tapToChangeCard": "Tap to view all cards",
+    "noCardsTitle": "No card",
+    "noCardsDesc": "Add a card in your wallet to display your balance and track expenses here.",
+    "goToWallet": "Open wallet",
+    "currencyEUR": "Euro",
+    "currencyUSD": "US Dollar",
+    "currencyGBP": "British Pound",
+    "currencyCAD": "Canadian Dollar",
+    "currencyTND": "Tunisian Dinar",
+    "currencySymbolTND": "TND"
   },
   "calendar": {
     "title": "Calendar",
