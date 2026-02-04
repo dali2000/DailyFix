@@ -5,6 +5,7 @@ export interface Expense {
   description: string;
   date: Date;
   paymentMethod?: string;
+  walletCardId?: number | string | null;
 }
 
 export interface Budget {
@@ -29,6 +30,7 @@ export interface Salary {
   period: 'monthly' | 'yearly';
   date: Date;
   description?: string;
+  walletCardId?: number | string | null;
 }
 
 export interface ExpenseCategory {

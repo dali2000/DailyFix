@@ -134,8 +134,29 @@ export class FinanceService {
     return this.expensesCache$;
   }
 
-  addExpense(expense: Omit<Expense, 'id'>): Observable<Expense> {
-    return this.apiService.post<ApiResponse<Expense>>('/finance/expenses', expense).pipe(
+  /** Load expenses for a given card (or all if cardId is null). Updates service state for getTotalExpensesForMonth etc. */
+  getExpensesForCard(cardId: string | null): Observable<Expense[]> {
+    const params = cardId != null ? { walletCardId: cardId } : undefined;
+    return this.apiService.get<ApiResponse<Expense[]>>('/finance/expenses', params).pipe(
+      map(response => (response.data || []).map(e => ({
+        ...e,
+        id: e.id.toString(),
+        date: new Date(e.date),
+        amount: this.parseAmount((e as any).amount)
+      }))),
+      tap(expenses => {
+        this.expenses = expenses;
+        this.expensesCache$ = null;
+      })
+    );
+  }
+
+  addExpense(expense: Omit<Expense, 'id'> & { walletCardId?: string | number | null }): Observable<Expense> {
+    const body = { ...expense };
+    if (expense.walletCardId != null) {
+      (body as any).walletCardId = typeof expense.walletCardId === 'string' ? parseInt(expense.walletCardId, 10) : expense.walletCardId;
+    }
+    return this.apiService.post<ApiResponse<Expense>>('/finance/expenses', body).pipe(
       map(response => response.data!),
       tap(newExpense => {
         this.expenses.push({ ...newExpense, id: newExpense.id.toString(), date: new Date(newExpense.date) });
@@ -308,8 +329,29 @@ export class FinanceService {
     return this.salariesCache$;
   }
 
-  addSalary(salary: Omit<Salary, 'id'>): Observable<Salary> {
-    return this.apiService.post<ApiResponse<Salary>>('/finance/salaries', salary).pipe(
+  /** Load salaries for a given card (or all if cardId is null). Updates service state for getSalaryForMonth etc. */
+  getSalariesForCard(cardId: string | null): Observable<Salary[]> {
+    const params = cardId != null ? { walletCardId: cardId } : undefined;
+    return this.apiService.get<ApiResponse<Salary[]>>('/finance/salaries', params).pipe(
+      map(response => (response.data || []).map(s => ({
+        ...s,
+        id: s.id.toString(),
+        date: new Date(s.date),
+        amount: this.parseAmount((s as any).amount)
+      }))),
+      tap(salaries => {
+        this.salaries = salaries;
+        this.salariesCache$ = null;
+      })
+    );
+  }
+
+  addSalary(salary: Omit<Salary, 'id'> & { walletCardId?: string | number | null }): Observable<Salary> {
+    const body = { ...salary };
+    if (salary.walletCardId != null) {
+      (body as any).walletCardId = typeof salary.walletCardId === 'string' ? parseInt(salary.walletCardId, 10) : salary.walletCardId;
+    }
+    return this.apiService.post<ApiResponse<Salary>>('/finance/salaries', body).pipe(
       map(response => response.data!),
       tap(newSalary => {
         this.salaries.push({ ...newSalary, id: newSalary.id.toString(), date: new Date(newSalary.date) });

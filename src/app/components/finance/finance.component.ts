@@ -195,7 +195,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       }
     });
     
-    this.loadData();
+    this.loadWalletCardsAndData();
   }
 
   ngOnDestroy(): void {
@@ -219,19 +219,25 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     return Number.isNaN(n) ? 0 : n;
   }
 
-  loadData(): void {
-    // Charger toutes les données depuis l'API (normaliser les montants en nombres)
-    this.financeService.getExpensesObservable().subscribe({
+  /** Load data. When cardId is set, expenses and salaries are filtered for that card (per-card stats). */
+  loadData(cardId?: string | number | null): void {
+    const cid = cardId ?? this.selectedCard?.id ?? null;
+    const idStr = cid != null ? String(cid) : null;
+
+    this.financeService.getExpensesForCard(idStr).subscribe({
       next: (expenses) => {
-        this.expenses = expenses.map((e: any) => ({
-          ...e,
-          id: e.id.toString(),
-          date: new Date(e.date),
-          amount: this.parseAmount(e.amount)
-        }));
+        this.expenses = expenses;
         this.updateOverview();
       },
-      error: (error) => console.error('Error loading expenses:', error)
+      error: (err) => console.error('Error loading expenses:', err)
+    });
+
+    this.financeService.getSalariesForCard(idStr).subscribe({
+      next: (salaries) => {
+        this.salaries = salaries;
+        this.updateOverview();
+      },
+      error: (err) => console.error('Error loading salaries:', err)
     });
 
     this.financeService.getBudgetsObservable().subscribe({
@@ -261,31 +267,22 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       error: (error) => console.error('Error loading savings goals:', error)
     });
 
-    this.financeService.getSalariesObservable().subscribe({
-      next: (salaries) => {
-        this.salaries = salaries.map((s: any) => ({
-          ...s,
-          id: s.id.toString(),
-          date: new Date(s.date),
-          amount: this.parseAmount(s.amount)
-        }));
-        this.updateOverview();
-      },
-      error: (error) => console.error('Error loading salaries:', error)
-    });
-
     this.financeService.getCustomCategoriesObservable().subscribe({
       next: (list) => {
         this.customCategoryList = list.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id : parseInt(String(c.id), 10) }));
       },
       error: (err) => console.error('Error loading categories:', err)
     });
+  }
 
+  /** Load wallet cards then load expenses/salaries for the selected card. */
+  private loadWalletCardsAndData(): void {
     this.walletCardsSubscription = this.financeService.getWalletCardsObservable().subscribe({
       next: (list) => {
         this.walletCards = list;
         const defaultCard = this.financeService.getDefaultWalletCard();
         this.selectedCard = defaultCard;
+        this.loadData(this.selectedCard?.id ?? null);
       },
       error: (err) => console.error('Error loading wallet cards:', err)
     });
@@ -464,17 +461,19 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       return;
     }
     const date = this.newExpense.date ? new Date(this.newExpense.date) : new Date(this.currentYear, this.currentMonth, 1);
+    const cardId = this.selectedCard?.id != null ? String(this.selectedCard.id) : null;
     this.financeService.addExpense({
       amount: this.newExpense.amount!,
       category: this.newExpense.category || 'other',
       description: this.newExpense.description!,
       date,
-      paymentMethod: this.newExpense.paymentMethod
+      paymentMethod: this.newExpense.paymentMethod,
+      walletCardId: cardId
     }).subscribe({
       next: () => {
         this.showExpenseForm = false;
         this.newExpense = { category: 'other' };
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.playMoneySound();
         this.toastService.success(this.i18n.instant('finance.expenseAdded') || 'Dépense ajoutée avec succès');
       },
@@ -494,7 +493,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.itemToDelete) return;
     this.financeService.deleteExpense(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Dépense supprimée');
         this.showDeleteExpenseConfirm = false;
         this.itemToDelete = null;
@@ -521,7 +520,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       next: () => {
         this.showBudgetForm = false;
         this.newBudget = { period: 'monthly' };
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Budget créé');
       },
       error: (err) => {
@@ -541,7 +540,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       next: () => {
         this.showSavingsForm = false;
         this.newSavingsGoal = {};
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Objectif d\'épargne créé');
       },
       error: (err) => {
@@ -555,7 +554,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (goal) {
       this.financeService.updateSavingsGoal(id, { currentAmount: amount }).subscribe({
         next: () => {
-          this.loadData();
+          this.loadData(this.selectedCard?.id ?? null);
         }
       });
     }
@@ -590,7 +589,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     this.financeService.updateSavingsGoal(this.savingsAdjustGoal.id, { currentAmount: newAmount }).subscribe({
       next: () => {
         this.closeSavingsAdjustModal();
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
       }
     });
   }
@@ -654,17 +653,19 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   addSalary(): void {
     if (!this.newSalary.amount) return;
     const date = this.newSalary.date ? new Date(this.newSalary.date) : new Date(this.currentYear, this.currentMonth, 1);
+    const cardId = this.selectedCard?.id != null ? String(this.selectedCard.id) : null;
     this.financeService.addSalary({
       amount: this.newSalary.amount!,
       period: this.newSalary.period || 'monthly',
       date,
-      description: this.newSalary.description
+      description: this.newSalary.description,
+      walletCardId: cardId
     }).subscribe({
       next: () => {
         this.playMoneySound();
         this.showSalaryForm = false;
         this.newSalary = { period: 'monthly' };
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Salaire ajouté avec succès');
       },
       error: (err) => {
@@ -682,7 +683,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.itemToDelete) return;
     this.financeService.deleteSalary(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Salaire supprimé');
         this.showDeleteSalaryConfirm = false;
         this.itemToDelete = null;
@@ -708,7 +709,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.itemToDelete) return;
     this.financeService.deleteBudget(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Budget supprimé');
         this.showDeleteBudgetConfirm = false;
         this.itemToDelete = null;
@@ -734,7 +735,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (!this.itemToDelete) return;
     this.financeService.deleteSavingsGoal(this.itemToDelete).subscribe({
       next: () => {
-        this.loadData();
+        this.loadData(this.selectedCard?.id ?? null);
         this.toastService.success('Objectif supprimé');
         this.showDeleteSavingsConfirm = false;
         this.itemToDelete = null;
@@ -770,6 +771,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
   selectCard(card: WalletCard): void {
     this.selectedCard = card;
+    this.loadData(card.id);
   }
 }
 

@@ -122,9 +122,50 @@ const connectDB = async () => {
     await addHealthProfileColumnsIfNeeded();
     await addResetPasswordColumnsIfNeeded();
     await ensureExpenseCategoryAcceptsCustom();
+    await addWalletCardIdColumnsIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
+  }
+};
+
+/** Add wallet_card_id to expenses and salaries for per-card stats. */
+const addWalletCardIdColumnsIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+    const tables = [
+      { table: 'expenses', column: 'wallet_card_id' },
+      { table: 'salaries', column: 'wallet_card_id' }
+    ];
+    for (const { table, column } of tables) {
+      if (dialect === 'postgres') {
+        const [rows] = await sequelize.query(`
+          SELECT column_name FROM information_schema.columns
+          WHERE table_schema = 'public' AND table_name = $1 AND column_name = $2
+        `, { replacements: [table, column] });
+        if (rows.length > 0) continue;
+        await sequelize.query(`
+          ALTER TABLE ${table} ADD COLUMN ${column} INTEGER NULL
+        `);
+        console.log(`✅ Column "${column}" added to ${table}`);
+      } else if (dialect === 'mysql') {
+        const [rows] = await sequelize.query(`
+          SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+          WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?
+        `, { replacements: [table, column] });
+        if (rows.length > 0) continue;
+        await sequelize.query(`
+          ALTER TABLE ${table} ADD COLUMN ${column} INT NULL
+        `);
+        console.log(`✅ Column "${column}" added to ${table}`);
+      }
+    }
+  } catch (error) {
+    if (error.message && (error.message.includes('already exists') || error.message.includes('duplicate column') || error.message.includes('Duplicate column'))) {
+      console.log('✅ wallet_card_id columns already exist');
+    } else {
+      console.warn('⚠️ Warning: Could not add wallet_card_id columns:', error.message);
+    }
   }
 };
 

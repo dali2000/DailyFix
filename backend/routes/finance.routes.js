@@ -89,14 +89,21 @@ router.post('/expenses', protect, async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid date is required' });
     }
     const paymentStr = paymentMethod != null ? String(paymentMethod).trim() : null;
-    // PostgreSQL DECIMAL often expects string; pass primitive values for Sequelize
+    let walletCardId = req.body.walletCardId != null ? parseInt(String(req.body.walletCardId), 10) : null;
+    if (walletCardId != null && !Number.isNaN(walletCardId)) {
+      const card = await WalletCard.findOne({ where: { id: walletCardId, userId } });
+      if (!card) walletCardId = null;
+    } else {
+      walletCardId = null;
+    }
     const item = await Expense.create({
       userId,
       amount: String(amountNum),
       category: categoryStr,
       description: desc,
       date: dateVal,
-      paymentMethod: paymentStr || null
+      paymentMethod: paymentStr || null,
+      walletCardId: walletCardId || null
     });
     res.status(201).json({ success: true, data: item });
   } catch (error) {
@@ -109,11 +116,16 @@ router.post('/expenses', protect, async (req, res) => {
   }
 });
 
-// Expense GET/PUT/DELETE via generic CRUD; POST is overridden above so we only register GET/PUT/DELETE for expenses
+// Expense GET: optional ?walletCardId= to filter by card
 router.get('/expenses', protect, async (req, res) => {
   try {
+    const where = { userId: req.user.id };
+    const cardId = req.query.walletCardId != null ? parseInt(String(req.query.walletCardId), 10) : null;
+    if (cardId != null && !Number.isNaN(cardId)) {
+      where.walletCardId = cardId;
+    }
     const items = await Expense.findAll({
-      where: { userId: req.user.id },
+      where,
       order: [['date', 'DESC']]
     });
     res.json({ success: true, count: items.length, data: items });
@@ -133,6 +145,10 @@ router.put('/expenses/:id', protect, async (req, res) => {
     if (description != null) updates.description = String(description).trim();
     if (date != null) updates.date = date instanceof Date ? date : new Date(date);
     if (paymentMethod !== undefined) updates.paymentMethod = paymentMethod ? String(paymentMethod).trim() : null;
+    if (req.body.walletCardId !== undefined) {
+      const cardId = req.body.walletCardId != null ? parseInt(String(req.body.walletCardId), 10) : null;
+      updates.walletCardId = (cardId != null && !Number.isNaN(cardId)) ? cardId : null;
+    }
     await item.update(updates);
     await item.reload();
     res.json({ success: true, data: item });
@@ -153,10 +169,98 @@ router.delete('/expenses/:id', protect, async (req, res) => {
   }
 });
 
-// Other resources: generic CRUD (Budget, SavingsGoal, Salary)
+// Salaries: custom GET/POST to support walletCardId (per-card stats)
+router.get('/salaries', protect, async (req, res) => {
+  try {
+    const where = { userId: req.user.id };
+    const cardId = req.query.walletCardId != null ? parseInt(String(req.query.walletCardId), 10) : null;
+    if (cardId != null && !Number.isNaN(cardId)) {
+      where.walletCardId = cardId;
+    }
+    const items = await Salary.findAll({
+      where,
+      order: [['date', 'DESC']]
+    });
+    res.json({ success: true, count: items.length, data: items });
+  } catch (error) {
+    console.error('Get salaries error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.post('/salaries', protect, async (req, res) => {
+  try {
+    const userId = typeof req.user.id === 'number' ? req.user.id : parseInt(String(req.user.id), 10);
+    const { amount, period, date, description, walletCardId: bodyCardId } = req.body;
+    const amountNum = amount != null ? Number(amount) : NaN;
+    if (Number.isNaN(amountNum) || amountNum < 0) {
+      return res.status(400).json({ success: false, message: 'Valid amount is required' });
+    }
+    const periodVal = (period === 'yearly' ? 'yearly' : 'monthly');
+    const dateVal = date != null ? (date instanceof Date ? date : new Date(date)) : new Date();
+    if (Number.isNaN(dateVal.getTime())) {
+      return res.status(400).json({ success: false, message: 'Valid date is required' });
+    }
+    let walletCardId = bodyCardId != null ? parseInt(String(bodyCardId), 10) : null;
+    if (walletCardId != null && !Number.isNaN(walletCardId)) {
+      const card = await WalletCard.findOne({ where: { id: walletCardId, userId } });
+      if (!card) walletCardId = null;
+    } else {
+      walletCardId = null;
+    }
+    const item = await Salary.create({
+      userId,
+      amount: String(amountNum),
+      period: periodVal,
+      date: dateVal,
+      description: description != null ? String(description).trim() : null,
+      walletCardId: walletCardId || null
+    });
+    res.status(201).json({ success: true, data: item });
+  } catch (error) {
+    console.error('Create salary error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.put('/salaries/:id', protect, async (req, res) => {
+  try {
+    const item = await Salary.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!item) return res.status(404).json({ success: false, message: 'Salary not found' });
+    const { amount, period, date, description, walletCardId: bodyCardId } = req.body;
+    const updates = {};
+    if (amount != null) updates.amount = String(Number(amount));
+    if (period !== undefined) updates.period = period === 'yearly' ? 'yearly' : 'monthly';
+    if (date != null) updates.date = date instanceof Date ? date : new Date(date);
+    if (description !== undefined) updates.description = description ? String(description).trim() : null;
+    if (bodyCardId !== undefined) {
+      const cardId = bodyCardId != null ? parseInt(String(bodyCardId), 10) : null;
+      updates.walletCardId = (cardId != null && !Number.isNaN(cardId)) ? cardId : null;
+    }
+    await item.update(updates);
+    await item.reload();
+    res.json({ success: true, data: item });
+  } catch (error) {
+    console.error('Update salary error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.delete('/salaries/:id', protect, async (req, res) => {
+  try {
+    const item = await Salary.findOne({ where: { id: req.params.id, userId: req.user.id } });
+    if (!item) return res.status(404).json({ success: false, message: 'Salary not found' });
+    await item.destroy();
+    res.json({ success: true, message: 'Salary deleted' });
+  } catch (error) {
+    console.error('Delete salary error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Other resources: generic CRUD (Budget, SavingsGoal)
 createCRUDRoutes(Budget, 'budgets', [['createdAt', 'DESC']]);
 createCRUDRoutes(SavingsGoal, 'savings-goals', [['createdAt', 'DESC']]);
-createCRUDRoutes(Salary, 'salaries', [['date', 'DESC']]);
 
 // Catégories personnalisées (GET, POST avec findOrCreate, DELETE)
 router.get('/categories', protect, async (req, res) => {
