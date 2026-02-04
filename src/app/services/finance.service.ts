@@ -569,6 +569,7 @@ export class FinanceService {
       expiryDate: card.expiryDate,
       rib: card.rib ?? undefined,
       currency: card.currency ?? undefined,
+      color: card.color ?? undefined,
       isDefault: card.isDefault
     }).pipe(
       map(response => response.data!),
@@ -588,7 +589,7 @@ export class FinanceService {
     );
   }
 
-  updateWalletCard(id: string, updates: Partial<Pick<WalletCard, 'name' | 'holderName' | 'cardNumber' | 'expiryDate' | 'rib' | 'currency' | 'isDefault'>>): Observable<WalletCard> {
+  updateWalletCard(id: string, updates: Partial<Pick<WalletCard, 'name' | 'holderName' | 'cardNumber' | 'expiryDate' | 'rib' | 'currency' | 'color' | 'isDefault'>>): Observable<WalletCard> {
     return this.apiService.put<ApiResponse<WalletCard>>(`/finance/wallet-cards/${id}`, updates).pipe(
       map(response => response.data!),
       tap(updated => {

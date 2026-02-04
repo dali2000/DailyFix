@@ -258,6 +258,11 @@ const WalletCard = sequelize.define('WalletCard', {
     allowNull: true,
     comment: 'Currency for this card e.g. EUR, USD'
   },
+  color: {
+    type: DataTypes.STRING(30),
+    allowNull: true,
+    comment: 'Card color key e.g. violet, blue, green for gradient display'
+  },
   isDefault: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,

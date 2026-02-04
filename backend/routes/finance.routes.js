@@ -329,7 +329,7 @@ router.get('/wallet-cards', protect, async (req, res) => {
 router.post('/wallet-cards', protect, async (req, res) => {
   try {
     const userId = typeof req.user.id === 'number' ? req.user.id : parseInt(String(req.user.id), 10);
-    const { name, holderName, cardNumber, expiryDate, rib, currency, isDefault } = req.body;
+    const { name, holderName, cardNumber, expiryDate, rib, currency, color, isDefault } = req.body;
     const holder = (holderName != null ? String(holderName).trim() : '') || '';
     const number = (cardNumber != null ? String(cardNumber).trim() : '') || '';
     const expiry = (expiryDate != null ? String(expiryDate).trim() : '') || '';
@@ -338,6 +338,7 @@ router.post('/wallet-cards', protect, async (req, res) => {
     }
     const cardName = name != null ? String(name).trim() : null;
     const cardCurrency = currency != null ? String(currency).trim() : null;
+    const cardColor = color != null ? String(color).trim() : null;
     const isFirst = (await WalletCard.count({ where: { userId } })) === 0;
     const item = await WalletCard.create({
       userId,
@@ -347,6 +348,7 @@ router.post('/wallet-cards', protect, async (req, res) => {
       expiryDate: expiry,
       rib: rib != null ? String(rib).trim() : null,
       currency: cardCurrency || null,
+      color: cardColor || null,
       isDefault: isFirst || Boolean(isDefault)
     });
     if (isFirst || isDefault) {
@@ -371,7 +373,7 @@ router.put('/wallet-cards/:id', protect, async (req, res) => {
     if (!item) {
       return res.status(404).json({ success: false, message: 'Wallet card not found' });
     }
-    const { name, holderName, cardNumber, expiryDate, rib, currency, isDefault } = req.body;
+    const { name, holderName, cardNumber, expiryDate, rib, currency, color, isDefault } = req.body;
     const updates = {};
     if (name !== undefined) updates.name = name != null ? String(name).trim() : null;
     if (holderName !== undefined) updates.holderName = String(holderName).trim();
@@ -379,6 +381,7 @@ router.put('/wallet-cards/:id', protect, async (req, res) => {
     if (expiryDate !== undefined) updates.expiryDate = String(expiryDate).trim();
     if (rib !== undefined) updates.rib = rib != null ? String(rib).trim() : null;
     if (currency !== undefined) updates.currency = currency != null ? String(currency).trim() : null;
+    if (color !== undefined) updates.color = color != null ? String(color).trim() : null;
     if (isDefault === true) {
       await WalletCard.update({ isDefault: false }, { where: { userId: req.user.id } });
       updates.isDefault = true;

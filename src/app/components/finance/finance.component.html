@@ -38,33 +38,50 @@
     <!-- Bank Card (from wallet or fallback) – each card has its own balance and expenses -->
     <div class="bank-card-wrapper" *ngIf="walletCards.length >= 1">
       <p class="finance-card-context" *ngIf="selectedCard">{{ 'finance.statsForThisCard' | translate }}</p>
-      <div class="bank-card-selector" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
-        <button type="button" *ngFor="let card of walletCards" class="bank-card-tab" [class.active]="selectedCard?.id === card.id" (click)="selectCard(card)" [attr.aria-selected]="selectedCard?.id === card.id">
-          <span class="bank-card-tab-name">{{ card.name || card.holderName }} •••• {{ (card.cardNumber | slice:-4) }}</span>
-          <span class="bank-card-tab-currency" *ngIf="card.currency">{{ card.currency }}</span>
-        </button>
+      <!-- Apple Wallet style: stacked cards – clicked card comes to front (z-index) -->
+      <div class="wallet-stack" *ngIf="walletCards.length > 1" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
+        <div class="wallet-stack-peeks">
+          <ng-container *ngFor="let card of walletCards">
+            <div *ngIf="selectedCard?.id !== card.id" (click)="selectCard(card)" class="wallet-peek" [style.background]="getCardGradient(card)" tabindex="0" role="tab">
+              <span class="wallet-peek-name">{{ card.name || card.holderName }}</span>
+              <span class="wallet-peek-last4">•••• {{ (card.cardNumber | slice:-4) }}</span>
+            </div>
+          </ng-container>
+        </div>
+        <div class="bank-card bank-card-front" [class.card-transitioning]="cardTransitioning" [class.negative-balance]="remainingBalance < 0" [style.background]="cardGradient">
+          <div class="card-chip"></div>
+          <div class="card-header-row">
+            <div class="card-logo">{{ displayCardName }}</div>
+            <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrency }}</div>
+          </div>
+          <div class="card-number">{{ displayCardNumber }}</div>
+          <div class="card-details">
+            <div class="card-expiry-section">
+              <div class="card-label">{{ 'finance.expires' | translate }}</div>
+              <div class="card-expiry">{{ displayExpiry }}</div>
+            </div>
+          </div>
+          <div class="card-balance">
+            <div class="balance-label">{{ 'finance.availableBalance' | translate }}</div>
+            <div class="balance-amount animate-number" [class.negative]="remainingBalance < 0">
+              <app-count-up [value]="remainingBalance" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="800"></app-count-up>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="bank-card" [class.negative-balance]="remainingBalance < 0">
+    <div class="bank-card" [class.negative-balance]="remainingBalance < 0" [style.background]="cardGradient" *ngIf="walletCards.length === 1">
       <div class="card-chip"></div>
       <div class="card-header-row">
-        <div class="card-logo">DailyFix</div>
-        <div class="card-currency-badge">{{ currencySymbol }} {{ displayCardCurrency }}</div>
+        <div class="card-logo">{{ displayCardName }}</div>
+        <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrency }}</div>
       </div>
       <div class="card-number">{{ displayCardNumber }}</div>
       <div class="card-details">
-        <div class="card-name-section">
-          <div class="card-label">{{ 'finance.holder' | translate }}</div>
-          <div class="card-name">{{ displayCardHolder }}</div>
-        </div>
         <div class="card-expiry-section">
           <div class="card-label">{{ 'finance.expires' | translate }}</div>
           <div class="card-expiry">{{ displayExpiry }}</div>
         </div>
-      </div>
-      <div class="card-rib-section">
-        <div class="card-label">RIB</div>
-        <div class="card-rib">{{ displayRib }}</div>
       </div>
       <div class="card-balance">
         <div class="balance-label">{{ 'finance.availableBalance' | translate }}</div>

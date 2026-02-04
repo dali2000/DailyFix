@@ -19,6 +19,19 @@ export const LANGUAGES = [
   { code: 'ar', label: 'العربية (تونس)' }
 ];
 
+/** Card color presets (keys must match Finance CARD_COLORS). */
+export const CARD_COLOR_OPTIONS: Array<{ key: string; gradient: string }> = [
+  { key: 'violet', gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
+  { key: 'blue', gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)' },
+  { key: 'green', gradient: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)' },
+  { key: 'orange', gradient: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)' },
+  { key: 'red', gradient: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' },
+  { key: 'teal', gradient: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)' },
+  { key: 'indigo', gradient: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)' },
+  { key: 'pink', gradient: 'linear-gradient(135deg, #db2777 0%, #be185d 100%)' },
+  { key: 'black', gradient: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)' }
+];
+
 @Component({
   selector: 'app-settings',
   standalone: true,
@@ -44,9 +57,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   walletCards: WalletCard[] = [];
   showAddCardModal = false;
   showEditCardModal = false;
-  newCard: Partial<WalletCard> = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '', currency: '' };
+  newCard: Partial<WalletCard> = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '', currency: '', color: 'violet' };
   editCard: WalletCard | null = null;
   editCardForm: Partial<WalletCard> = {};
+  readonly cardColorOptions = CARD_COLOR_OPTIONS;
   private themeSubscription?: Subscription;
   private userSubscription?: Subscription;
   private currencySubscription?: Subscription;
@@ -271,7 +285,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       cardNumber: '',
       expiryDate: '',
       rib: '',
-      currency: this.selectedCurrencyCode || 'EUR'
+      currency: this.selectedCurrencyCode || 'EUR',
+      color: 'violet'
     };
     this.showAddCardModal = true;
   }
@@ -289,7 +304,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       cardNumber: card.cardNumber,
       expiryDate: card.expiryDate,
       rib: card.rib ?? '',
-      currency: card.currency ?? ''
+      currency: card.currency ?? '',
+      color: card.color ?? 'violet'
     };
     this.showEditCardModal = true;
   }
@@ -315,7 +331,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       cardNumber: number,
       expiryDate: expiry,
       rib: (this.editCardForm.rib || '').trim() || undefined,
-      currency: (this.editCardForm.currency || '').trim() || undefined
+      currency: (this.editCardForm.currency || '').trim() || undefined,
+      color: (this.editCardForm.color || '').trim() || undefined
     }).subscribe({
       next: () => {
         this.closeEditCardModal();
@@ -341,6 +358,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       expiryDate: expiry,
       rib: (this.newCard.rib || '').trim() || undefined,
       currency: (this.newCard.currency || '').trim() || undefined,
+      color: (this.newCard.color || '').trim() || undefined,
       isDefault: this.walletCards.length === 0
     }).subscribe({
       next: () => {

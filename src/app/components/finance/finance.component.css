@@ -485,21 +485,26 @@
   font-weight: 500;
 }
 
-/* Bank Card - Realistic Credit Card Design */
+/* Bank Card - iPhone Wallet style */
 .bank-card {
   width: 100%;
-  max-width: 500px;
-  min-height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 16px;
-  padding: 16px;
+  max-width: 400px;
+  aspect-ratio: 1.586 / 1;
+  min-height: 200px;
+  background: linear-gradient(145deg, #667eea 0%, #764ba2 100%);
+  border-radius: 22px;
+  padding: 20px 22px;
   margin: 0 auto 32px auto;
-  color: white;
-  box-shadow: 0 20px 60px rgba(102, 126, 234, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  color: rgba(255, 255, 255, 0.98);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.07),
+    0 10px 20px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
   position: relative;
   overflow: hidden;
-  font-family: 'Courier New', monospace;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
@@ -514,8 +519,9 @@
 @media (max-width: 1024px) {
   .bank-card {
     max-width: 100%;
-    min-height: 170px;
-    padding: 14px;
+    min-height: 190px;
+    padding: 18px 20px;
+    border-radius: 20px;
   }
 }
 
@@ -523,46 +529,121 @@
   margin-bottom: 12px;
 }
 
-.bank-card-selector {
+/* Apple Wallet style: stacked cards – clicked card comes to front (z-index) */
+.wallet-stack {
+  position: relative;
+  max-width: 400px;
+  margin: 0 auto 0 auto;
+}
+
+.wallet-stack-peeks {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.bank-card-tab {
-  display: inline-flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  padding: 8px 14px;
-  border-radius: 10px;
-  border: 1px solid var(--notion-border);
-  background: var(--notion-bg-tertiary);
-  color: var(--notion-text-secondary);
-  font-size: 13px;
+  align-items: center;
+  gap: 0;
+  padding-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Selected card in front (on top of peeks) */
+.bank-card-front {
+  position: relative;
+  z-index: 2;
+  margin-top: -8px;
+  margin-bottom: 32px;
+}
+
+/* Animation de transition entre cartes */
+.bank-card-front.card-transitioning {
+  animation: cardTransition 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes cardTransition {
+  from {
+    opacity: 0.88;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.wallet-peek {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto -12px auto;
+  height: 48px;
+  border-radius: 22px 22px 0 0;
+  padding: 10px 20px 12px 20px;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+  color: rgba(255, 255, 255, 0.98);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(0, 0, 0, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  position: relative;
+  overflow: hidden;
 }
 
-.bank-card-tab:hover {
-  background: var(--notion-bg-hover);
-  color: var(--notion-text-primary);
+.wallet-peek::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  border-radius: inherit;
 }
 
-.bank-card-tab.active {
-  background: var(--notion-blue, #3b82f6);
-  border-color: var(--notion-blue, #3b82f6);
-  color: white;
+.wallet-peek:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
-.bank-card-tab-name {
-  font-weight: 500;
+.wallet-peek:focus {
+  outline: none;
 }
 
-.bank-card-tab-currency {
-  font-size: 11px;
-  opacity: 0.85;
+.wallet-peek:focus-visible {
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.5),
+    0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-peek-name {
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  position: relative;
+  z-index: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wallet-peek-last4 {
+  font-size: 11px;
+  font-weight: 500;
+  opacity: 0.9;
+  letter-spacing: 0.05em;
+  font-family: "SF Mono", "Monaco", "Courier New", monospace;
+  position: relative;
+  z-index: 1;
 }
 
 .bank-card-hint {
@@ -593,8 +674,11 @@
 }
 
 .bank-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 25px 70px rgba(102, 126, 234, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 @media (max-width: 768px) {
@@ -610,14 +694,22 @@
 }
 
 .bank-card.negative-balance {
-  background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
-  box-shadow: 0 20px 60px rgba(255, 107, 107, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  background: linear-gradient(145deg, #ff6b6b 0%, #ee5a5a 100%);
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.07),
+    0 10px 20px rgba(255, 107, 107, 0.2),
+    0 0 0 1px rgba(0, 0, 0, 0.04),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
 }
 
 .bank-card.negative-balance:hover {
-  box-shadow: 0 25px 70px rgba(255, 107, 107, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+  box-shadow:
+    0 12px 24px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
+/* Wallet-style glossy overlay */
 .bank-card::before {
   content: '';
   position: absolute;
@@ -625,94 +717,83 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.08) 0%, transparent 35%);
   pointer-events: none;
-  border-radius: 20px;
+  border-radius: inherit;
 }
 
-@media (max-width: 768px) {
-  .bank-card::before {
-    border-radius: 16px;
-  }
-}
-
-@media (max-width: 480px) {
-  .bank-card::before {
-    border-radius: 12px;
-  }
-}
-
-/* Card Chip */
+/* Card Chip - Wallet style (compact) */
 .card-chip {
-  width: 40px;
-  height: 30px;
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  border-radius: 6px;
+  width: 36px;
+  height: 28px;
+  background: linear-gradient(145deg, #e8d5a3 0%, #d4c078 100%);
+  border-radius: 8px;
   position: relative;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  margin-bottom: 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .card-chip::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, transparent 100%);
-  border-radius: 4px;
+  top: 6px;
+  left: 6px;
+  right: 6px;
+  bottom: 6px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.35) 0%, transparent 60%);
+  border-radius: 5px;
 }
 
-/* Card header: logo + currency */
+/* Card header: name + currency (Wallet style) */
 .card-header-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 18px;
   position: relative;
   z-index: 1;
 }
 
 .card-logo {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 1px;
-  opacity: 0.95;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  opacity: 0.98;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 .card-currency-badge {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   opacity: 0.95;
-  padding: 4px 10px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 8px;
-  backdrop-filter: blur(4px);
+  padding: 5px 10px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 10px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-/* Card Number */
+/* Card Number - Wallet style (spaced, clean) */
 .card-number {
-  font-size: 18px;
-  font-weight: 600;
-  letter-spacing: 2px;
-  margin-bottom: 12px;
-  font-family: 'Courier New', monospace;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  margin-bottom: 16px;
+  font-family: "SF Mono", "Monaco", "Courier New", monospace;
   position: relative;
   z-index: 1;
+  opacity: 0.98;
 }
 
-/* Card Details */
+/* Card Details - Holder & Expiry */
 .card-details {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   position: relative;
   z-index: 1;
 }
@@ -721,81 +802,83 @@
 .card-expiry-section {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .card-label {
   font-size: 10px;
-  opacity: 0.8;
+  opacity: 0.75;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 500;
+  letter-spacing: 0.08em;
+  font-weight: 600;
 }
 
 .card-name {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
+  opacity: 0.98;
 }
 
 .card-expiry {
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 600;
-  letter-spacing: 1px;
+  letter-spacing: 0.04em;
+  opacity: 0.98;
 }
 
 /* RIB Section */
 .card-rib-section {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   position: relative;
   z-index: 1;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 10px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
   flex-shrink: 0;
 }
 
 .card-rib {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 1.5px;
-  font-family: 'Courier New', monospace;
+  letter-spacing: 0.06em;
+  font-family: "SF Mono", "Monaco", "Courier New", monospace;
   margin-top: 4px;
   word-break: break-all;
   line-height: 1.4;
-  opacity: 0.95;
+  opacity: 0.9;
 }
 
-/* Balance Section */
+/* Balance Section - Wallet style (prominent) */
 .card-balance {
   position: relative;
   z-index: 1;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
   margin-top: auto;
   flex-shrink: 0;
 }
 
 .balance-label {
-  font-size: 11px;
-  opacity: 0.9;
+  font-size: 10px;
+  opacity: 0.8;
   text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  font-weight: 500;
+  letter-spacing: 0.08em;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .balance-amount {
-  font-size: 28px;
-  font-weight: 700;
-  letter-spacing: -0.5px;
-  line-height: 1;
-  font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Helvetica, Arial, sans-serif;
 }
 
 .balance-amount.negative {
-  color: #ffeb3b;
-  text-shadow: 0 2px 8px rgba(255, 235, 59, 0.3);
+  color: rgba(255, 255, 255, 0.95);
+  opacity: 0.98;
 }
 
 /* Overview Grid */
@@ -1454,20 +1537,18 @@
 
 /* Finance - couleur #2d2d2d en dark theme */
 .dark-theme .bank-card {
-  background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-  color: #e0e0e0;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.2),
+    0 10px 20px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.98);
 }
 
 .dark-theme .bank-card::before {
-  background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.04) 0%, transparent 50%);
-}
-
-.dark-theme .bank-card.negative-balance {
-  background: linear-gradient(135deg, #3d2525 0%, #2d1e1e 100%) !important;
-  border-color: rgba(255, 107, 107, 0.3);
+  background:
+    linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.05) 0%, transparent 35%);
 }
 
 .dark-theme .overview-card {

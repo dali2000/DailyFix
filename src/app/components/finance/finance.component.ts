@@ -15,6 +15,19 @@ import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.
 import { CountUpComponent } from '../shared/count-up/count-up.component';
 import { RouterLink } from '@angular/router';
 
+/** Preset gradient backgrounds for wallet cards (key = stored value in DB). */
+const CARD_COLORS: Record<string, string> = {
+  violet: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+  blue: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+  green: 'linear-gradient(135deg, #16a34a 0%, #15803d 100%)',
+  orange: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)',
+  red: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+  teal: 'linear-gradient(135deg, #0d9488 0%, #0f766e 100%)',
+  indigo: 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)',
+  pink: 'linear-gradient(135deg, #db2777 0%, #be185d 100%)',
+  black: 'linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%)'
+};
+
 @Component({
   selector: 'app-finance',
   standalone: true,
@@ -752,6 +765,26 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     this.itemToDelete = null;
   }
 
+  /** Card name shown on the card (replaces DailyFix). */
+  get displayCardName(): string {
+    if (this.selectedCard?.name) return this.selectedCard.name;
+    if (this.selectedCard?.holderName) return this.selectedCard.holderName;
+    return 'DailyFix';
+  }
+
+  /** Gradient background for the bank card from selected card color. */
+  get cardGradient(): string {
+    if (this.remainingBalance < 0) return 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)';
+    const key = this.selectedCard?.color ?? 'violet';
+    return (CARD_COLORS as Record<string, string>)[key] ?? CARD_COLORS['violet'];
+  }
+
+  /** Gradient for a given wallet card (for switcher strips). */
+  getCardGradient(card: WalletCard): string {
+    const key = card?.color ?? 'violet';
+    return (CARD_COLORS as Record<string, string>)[key] ?? CARD_COLORS['violet'];
+  }
+
   /** Displayed bank card: selected wallet card or fallback (user name + default values). */
   get displayCardHolder(): string {
     return this.selectedCard?.holderName ?? this.userName;
@@ -769,14 +802,24 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     return this.selectedCard?.rib ?? this.rib;
   }
 
-  /** Currency code displayed on the card (e.g. EUR, USD). */
+  /** Currency code displayed on the card (e.g. EUR, USD) – code only, not symbol. */
   get displayCardCurrency(): string {
-    return this.selectedCard?.currency ?? this.currencyService.getSelectedCurrencyCode() ?? 'EUR';
+    const code = this.selectedCard?.currency ?? this.currencyService.getSelectedCurrencyCode() ?? 'EUR';
+    return code || 'EUR';
   }
 
+  /** Active pendant l'animation de transition entre cartes */
+  cardTransitioning = false;
+
   selectCard(card: WalletCard): void {
+    if (this.selectedCard?.id === card.id) return;
     this.selectedCard = card;
     this.loadData(card.id);
+    this.cardTransitioning = false;
+    setTimeout(() => {
+      this.cardTransitioning = true;
+      setTimeout(() => (this.cardTransitioning = false), 350);
+    }, 0);
   }
 }
 

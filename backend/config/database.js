@@ -125,6 +125,7 @@ const connectDB = async () => {
     await addWalletCardIdColumnsIfNeeded();
     await addWalletCardNameColumnIfNeeded();
     await addWalletCardCurrencyColumnIfNeeded();
+    await addWalletCardColorColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -213,6 +214,39 @@ const addWalletCardCurrencyColumnIfNeeded = async () => {
       console.log('✅ wallet_cards.currency already exists');
     } else {
       console.error('❌ Could not add currency to wallet_cards:', msg);
+    }
+  }
+};
+
+/** Add color column to wallet_cards if missing (card gradient color key). */
+const addWalletCardColorColumnIfNeeded = async () => {
+  const dialect = sequelize.getDialect();
+  const table = 'wallet_cards';
+  const column = 'color';
+  try {
+    if (dialect === 'postgres') {
+      await sequelize.query(
+        `ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${column}" VARCHAR(30) NULL`
+      );
+      console.log(`✅ Column "${column}" ensured on ${table}`);
+    } else if (dialect === 'mysql') {
+      const [rows] = await sequelize.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${table}' AND COLUMN_NAME = '${column}'
+      `);
+      if (rows.length > 0) {
+        console.log(`✅ Column "${column}" already exists on ${table}`);
+        return;
+      }
+      await sequelize.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` VARCHAR(30) NULL`);
+      console.log(`✅ Column "${column}" added to ${table}`);
+    }
+  } catch (error) {
+    const msg = error.message || '';
+    if (msg.includes('already exists') || msg.includes('duplicate column') || msg.includes('Duplicate column name')) {
+      console.log('✅ wallet_cards.color already exists');
+    } else {
+      console.error('❌ Could not add color to wallet_cards:', msg);
     }
   }
 };

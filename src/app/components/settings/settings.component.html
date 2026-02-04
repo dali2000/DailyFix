@@ -267,6 +267,12 @@
             <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
           </select>
         </div>
+        <div class="form-group">
+          <label>{{ 'settings.cardColor' | translate }}</label>
+          <div class="card-color-picker" role="group" [attr.aria-label]="'settings.cardColor' | translate">
+            <button type="button" *ngFor="let opt of cardColorOptions" class="card-color-swatch" [style.background]="opt.gradient" [class.selected]="newCard.color === opt.key" (click)="newCard.color = opt.key" [attr.aria-pressed]="newCard.color === opt.key" [attr.title]="opt.key"></button>
+          </div>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeAddCardModal()">{{ 'common.cancel' | translate }}</button>
           <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
@@ -302,6 +308,12 @@
           <select id="edit-card-currency" class="form-input" [(ngModel)]="editCardForm.currency" name="editCurrency">
             <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
           </select>
+        </div>
+        <div class="form-group">
+          <label>{{ 'settings.cardColor' | translate }}</label>
+          <div class="card-color-picker" role="group" [attr.aria-label]="'settings.cardColor' | translate">
+            <button type="button" *ngFor="let opt of cardColorOptions" class="card-color-swatch" [style.background]="opt.gradient" [class.selected]="editCardForm.color === opt.key" (click)="editCardForm.color = opt.key" [attr.aria-pressed]="editCardForm.color === opt.key" [attr.title]="opt.key"></button>
+          </div>
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeEditCardModal()">{{ 'common.cancel' | translate }}</button>
