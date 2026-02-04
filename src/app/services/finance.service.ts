@@ -625,14 +625,23 @@ export class FinanceService {
 
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
+      // Do NOT load expenses/salaries here without card filter – they would overwrite per-card data.
+      // Expenses and salaries are loaded per card in Finance (loadData) and for default card in Home.
       forkJoin({
-        expenses: this.getExpensesObservable(),
         budgets: this.getBudgetsObservable(),
         savingsGoals: this.getSavingsGoalsObservable(),
-        salaries: this.getSalariesObservable(),
         categories: this.getCustomCategoriesObservable(),
         walletCards: this.getWalletCardsObservable()
       }).subscribe({
+        next: () => {
+          // Load default card's data so Home and other consumers see a balance (per-card)
+          const defaultCard = this.getDefaultWalletCard();
+          const cardId = defaultCard?.id != null ? String(defaultCard.id) : null;
+          if (cardId) {
+            this.getExpensesForCard(cardId).subscribe({ error: () => {} });
+            this.getSalariesForCard(cardId).subscribe({ error: () => {} });
+          }
+        },
         error: (err) => console.error('Error loading finance data:', err)
       });
     } else {

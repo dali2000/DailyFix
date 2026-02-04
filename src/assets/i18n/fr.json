@@ -238,7 +238,9 @@
     "myCategoriesDesc": "Ajoutez des catégories pour classer vos dépenses. Elles apparaîtront dans le formulaire d'ajout de dépense.",
     "removeCategory": "Retirer cette catégorie",
     "noCustomCategories": "Aucune catégorie personnalisée. Ajoutez-en une ci-dessus.",
-    "categoryRemoved": "Catégorie retirée."
+    "categoryRemoved": "Catégorie retirée.",
+    "statsForThisCard": "Solde, revenus et dépenses de cette carte uniquement.",
+    "selectCardToView": "Choisissez une carte pour voir son solde et ses dépenses."
   },
   "calendar": {
     "title": "Calendrier",

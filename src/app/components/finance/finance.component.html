@@ -35,9 +35,10 @@
   <!-- Overview Tab -->
   <div *ngIf="activeTab === 'overview'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
-    <!-- Bank Card (from wallet or fallback) -->
-    <div class="bank-card-wrapper" *ngIf="walletCards.length > 1">
-      <div class="bank-card-selector" role="tablist" aria-label="Select card">
+    <!-- Bank Card (from wallet or fallback) – each card has its own balance and expenses -->
+    <div class="bank-card-wrapper" *ngIf="walletCards.length >= 1">
+      <p class="finance-card-context" *ngIf="selectedCard">{{ 'finance.statsForThisCard' | translate }}</p>
+      <div class="bank-card-selector" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
         <button type="button" *ngFor="let card of walletCards" class="bank-card-tab" [class.active]="selectedCard?.id === card.id" (click)="selectCard(card)" [attr.aria-selected]="selectedCard?.id === card.id">
           {{ card.holderName }} •••• {{ (card.cardNumber | slice:-4) }}
         </button>
@@ -70,6 +71,7 @@
     </div>
     <p *ngIf="walletCards.length === 0" class="bank-card-hint">{{ 'settings.noCards' | translate }} <a routerLink="/settings">{{ 'settings.wallet' | translate }}</a>.</p>
 
+    <p *ngIf="selectedCard" class="overview-context-card">{{ 'finance.statsForThisCard' | translate }}</p>
     <div class="overview-grid">
       <div class="overview-card income">
         <div class="card-icon">💵</div>

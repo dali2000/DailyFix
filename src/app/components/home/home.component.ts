@@ -171,18 +171,44 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.healthService.getSleepRecordsObservable().subscribe({ next: updateHealthSummary });
     this.healthService.getWaterIntakesObservable().subscribe({ next: updateHealthSummary });
 
-    // Finance - les données sont déjà chargées par le service
-    this.financeService.getExpensesObservable().subscribe({
+    // Finance – charger les données de la carte par défaut (éviter de charger tout et écraser le filtre par carte)
+    const updateHomeFinance = () => {
+      const now = new Date();
+      this.monthlyBudget = this.financeService.getMonthlyBudget();
+      this.monthlyExpenses = this.financeService.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
+      this.remainingBudget = this.financeService.getRemainingBudget();
+      this.monthlySalary = this.financeService.getMonthlySalary();
+      this.remainingBalance = this.financeService.getRemainingBalance();
+      this.loadFinanceChartData();
+      this.loadAppStatistics();
+    };
+    this.financeService.getWalletCardsObservable().subscribe({
       next: () => {
-        const now = new Date();
-        this.monthlyBudget = this.financeService.getMonthlyBudget();
-        this.monthlyExpenses = this.financeService.getTotalExpensesForMonth(now.getFullYear(), now.getMonth());
-        this.remainingBudget = this.financeService.getRemainingBudget();
-        this.monthlySalary = this.financeService.getMonthlySalary();
-        this.remainingBalance = this.financeService.getRemainingBalance();
-        this.loadFinanceChartData();
-        this.loadAppStatistics();
-      }
+        const defaultCard = this.financeService.getDefaultWalletCard();
+        const cardId = defaultCard?.id != null ? String(defaultCard.id) : null;
+        if (cardId) {
+          this.financeService.getExpensesForCard(cardId).subscribe({
+            next: () => {
+              this.financeService.getSalariesForCard(cardId).subscribe({
+                next: () => updateHomeFinance(),
+                error: () => updateHomeFinance()
+              });
+            },
+            error: () => updateHomeFinance()
+          });
+        } else {
+          this.financeService.getExpensesForCard(null).subscribe({
+            next: () => {
+              this.financeService.getSalariesForCard(null).subscribe({
+                next: () => updateHomeFinance(),
+                error: () => updateHomeFinance()
+              });
+            },
+            error: () => updateHomeFinance()
+          });
+        }
+      },
+      error: () => updateHomeFinance()
     });
 
     // Home tasks - les données sont déjà chargées par le service

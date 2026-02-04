@@ -570,6 +570,18 @@
   text-decoration: underline;
 }
 
+.finance-card-context,
+.overview-context-card {
+  font-size: 13px;
+  color: var(--notion-text-secondary);
+  margin: 0 0 10px 0;
+  font-style: italic;
+}
+
+.overview-context-card {
+  margin-bottom: 16px;
+}
+
 .bank-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 25px 70px rgba(102, 126, 234, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
