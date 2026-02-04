@@ -2,7 +2,11 @@ const express = require('express');
 const router = express.Router();
 const { Op } = require('sequelize');
 const { Expense, Budget, SavingsGoal, Salary, ExpenseCategory, WalletCard } = require('../models/Finance.model');
+const { sequelize } = require('../config/database');
 const { protect } = require('../middleware/auth.middleware');
+
+// DB column name for wallet card (PostgreSQL uses snake_case)
+const WALLET_CARD_ID_COL = 'wallet_card_id';
 
 // Helper function for CRUD operations (order: e.g. [['date', 'DESC']] or [['createdAt', 'DESC']])
 const createCRUDRoutes = (Model, resourceName, order = [['createdAt', 'DESC']]) => {
@@ -116,14 +120,13 @@ router.post('/expenses', protect, async (req, res) => {
   }
 });
 
-// Expense GET: optional ?walletCardId= to filter by card
+// Expense GET: optional ?walletCardId= to filter by card (use DB column wallet_card_id)
 router.get('/expenses', protect, async (req, res) => {
   try {
-    const where = { userId: req.user.id };
     const cardId = req.query.walletCardId != null ? parseInt(String(req.query.walletCardId), 10) : null;
-    if (cardId != null && !Number.isNaN(cardId)) {
-      where.walletCardId = cardId;
-    }
+    const where = cardId != null && !Number.isNaN(cardId)
+      ? { [Op.and]: [ { userId: req.user.id }, sequelize.where(sequelize.col(WALLET_CARD_ID_COL), cardId) ] }
+      : { userId: req.user.id };
     const items = await Expense.findAll({
       where,
       order: [['date', 'DESC']]
@@ -169,14 +172,13 @@ router.delete('/expenses/:id', protect, async (req, res) => {
   }
 });
 
-// Salaries: custom GET/POST to support walletCardId (per-card stats)
+// Salaries: custom GET/POST to support walletCardId (per-card stats, use DB column wallet_card_id)
 router.get('/salaries', protect, async (req, res) => {
   try {
-    const where = { userId: req.user.id };
     const cardId = req.query.walletCardId != null ? parseInt(String(req.query.walletCardId), 10) : null;
-    if (cardId != null && !Number.isNaN(cardId)) {
-      where.walletCardId = cardId;
-    }
+    const where = cardId != null && !Number.isNaN(cardId)
+      ? { [Op.and]: [ { userId: req.user.id }, sequelize.where(sequelize.col(WALLET_CARD_ID_COL), cardId) ] }
+      : { userId: req.user.id };
     const items = await Salary.findAll({
       where,
       order: [['date', 'DESC']]
