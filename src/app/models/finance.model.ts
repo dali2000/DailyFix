@@ -37,4 +37,3 @@ export interface ExpenseCategory {
   userId?: number;
   createdAt?: string;
 }
-
