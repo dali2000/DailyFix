@@ -294,7 +294,9 @@
     "myCategoriesDesc": "زيد أنواع باش تصنف مصاريفك. تو تظهر في فورم المصروف.",
     "removeCategory": "احذف هذا النوع",
     "noCustomCategories": "ما ثمة حتى نوع شخصي. زيد واحد من فوق.",
-    "categoryRemoved": "تم حذف النوع."
+    "categoryRemoved": "تم حذف النوع.",
+    "statsForThisCard": "الرصيد والمدخول والمصاريف لهذه البطاقة فقط.",
+    "selectCardToView": "اختر بطاقة لرؤية رصيدها ومصاريفها."
   },
   "calendar": {
     "title": "الكرني",

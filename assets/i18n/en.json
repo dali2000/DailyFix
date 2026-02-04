@@ -238,7 +238,9 @@
     "myCategoriesDesc": "Add categories to classify your expenses. They will appear in the add expense form.",
     "removeCategory": "Remove this category",
     "noCustomCategories": "No custom categories. Add one above.",
-    "categoryRemoved": "Category removed."
+    "categoryRemoved": "Category removed.",
+    "statsForThisCard": "Balance, income and expenses for this card only.",
+    "selectCardToView": "Select a card to see its balance and expenses."
   },
   "calendar": {
     "title": "Calendar",
