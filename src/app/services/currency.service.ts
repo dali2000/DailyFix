@@ -64,6 +64,13 @@ export class CurrencyService {
     return c?.symbol ?? '€';
   }
 
+  /** Symbol for a given currency code (e.g. for per-card currency). */
+  getSymbolForCode(code: string | null | undefined): string {
+    if (!code) return this.getSymbol();
+    const c = this.getCurrencyByCode(code);
+    return c?.symbol ?? '€';
+  }
+
   /** Rate to convert from base (stored) currency to selected display currency. */
   getRate(): number {
     const c = this.getCurrencyByCode(this.selectedCurrencySubject.value);

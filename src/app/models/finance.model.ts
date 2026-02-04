@@ -47,6 +47,7 @@ export interface WalletCard {
   cardNumber: string;
   expiryDate: string;
   rib?: string | null;
+  currency?: string | null;
   isDefault: boolean;
   createdAt?: string;
 }

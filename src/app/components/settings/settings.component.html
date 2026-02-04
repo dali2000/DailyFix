@@ -218,7 +218,10 @@
             <span class="wallet-card-title">{{ card.name || card.holderName }}</span>
             <span class="wallet-card-holder" *ngIf="card.name">{{ card.holderName }}</span>
             <span class="wallet-card-number">{{ maskCardNumber(card.cardNumber) }}</span>
-            <span class="wallet-card-expiry">{{ card.expiryDate }}</span>
+            <span class="wallet-card-meta">
+              <span class="wallet-card-expiry">{{ card.expiryDate }}</span>
+              <span class="wallet-card-currency" *ngIf="card.currency">{{ card.currency }}</span>
+            </span>
             <span *ngIf="card.isDefault" class="wallet-card-badge">{{ 'settings.defaultCard' | translate }}</span>
           </div>
           <div class="wallet-card-actions">
@@ -258,6 +261,12 @@
           <label for="card-rib">{{ 'settings.cardRib' | translate }}</label>
           <input id="card-rib" type="text" [(ngModel)]="newCard.rib" name="rib" [placeholder]="'settings.cardRibPlaceholder' | translate">
         </div>
+        <div class="form-group">
+          <label for="card-currency">{{ 'settings.cardCurrency' | translate }}</label>
+          <select id="card-currency" class="form-input" [(ngModel)]="newCard.currency" name="currency">
+            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
+          </select>
+        </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeAddCardModal()">{{ 'common.cancel' | translate }}</button>
           <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
@@ -287,6 +296,12 @@
         <div class="form-group">
           <label for="edit-card-rib">{{ 'settings.cardRib' | translate }}</label>
           <input id="edit-card-rib" type="text" [(ngModel)]="editCardForm.rib" name="editRib" [placeholder]="'settings.cardRibPlaceholder' | translate">
+        </div>
+        <div class="form-group">
+          <label for="edit-card-currency">{{ 'settings.cardCurrency' | translate }}</label>
+          <select id="edit-card-currency" class="form-input" [(ngModel)]="editCardForm.currency" name="editCurrency">
+            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
+          </select>
         </div>
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeEditCardModal()">{{ 'common.cancel' | translate }}</button>

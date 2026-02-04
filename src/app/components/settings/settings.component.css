@@ -93,11 +93,27 @@
   font-size: 13px;
 }
 
-.wallet-card-number,
-.wallet-card-expiry {
+.wallet-card-number {
   font-size: 13px;
   color: var(--notion-text-secondary);
   font-family: ui-monospace, monospace;
+}
+
+.wallet-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--notion-text-secondary);
+}
+
+.wallet-card-expiry {
+  font-family: ui-monospace, monospace;
+}
+
+.wallet-card-currency {
+  font-weight: 500;
+  color: var(--notion-text-primary);
 }
 
 .wallet-card-badge {

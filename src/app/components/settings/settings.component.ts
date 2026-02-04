@@ -44,7 +44,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
   walletCards: WalletCard[] = [];
   showAddCardModal = false;
   showEditCardModal = false;
-  newCard: Partial<WalletCard> = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+  newCard: Partial<WalletCard> = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '', currency: '' };
   editCard: WalletCard | null = null;
   editCardForm: Partial<WalletCard> = {};
   private themeSubscription?: Subscription;
@@ -265,7 +265,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   openAddCardModal(): void {
-    this.newCard = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+    this.newCard = {
+      name: '',
+      holderName: '',
+      cardNumber: '',
+      expiryDate: '',
+      rib: '',
+      currency: this.selectedCurrencyCode || 'EUR'
+    };
     this.showAddCardModal = true;
   }
 
@@ -281,7 +288,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       holderName: card.holderName,
       cardNumber: card.cardNumber,
       expiryDate: card.expiryDate,
-      rib: card.rib ?? ''
+      rib: card.rib ?? '',
+      currency: card.currency ?? ''
     };
     this.showEditCardModal = true;
   }
@@ -306,7 +314,8 @@ export class SettingsComponent implements OnInit, OnDestroy {
       holderName: holder,
       cardNumber: number,
       expiryDate: expiry,
-      rib: (this.editCardForm.rib || '').trim() || undefined
+      rib: (this.editCardForm.rib || '').trim() || undefined,
+      currency: (this.editCardForm.currency || '').trim() || undefined
     }).subscribe({
       next: () => {
         this.closeEditCardModal();
@@ -331,6 +340,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       cardNumber: number,
       expiryDate: expiry,
       rib: (this.newCard.rib || '').trim() || undefined,
+      currency: (this.newCard.currency || '').trim() || undefined,
       isDefault: this.walletCards.length === 0
     }).subscribe({
       next: () => {

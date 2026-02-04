@@ -447,7 +447,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get currencySymbol(): string {
-    return this.currencyService.getSymbol();
+    return this.currencyService.getSymbolForCode(this.selectedCard?.currency ?? undefined);
   }
 
   convertAmount(amount: number | null | undefined): number {
@@ -767,6 +767,11 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
   get displayRib(): string {
     return this.selectedCard?.rib ?? this.rib;
+  }
+
+  /** Currency code displayed on the card (e.g. EUR, USD). */
+  get displayCardCurrency(): string {
+    return this.selectedCard?.currency ?? this.currencyService.getSelectedCurrencyCode() ?? 'EUR';
   }
 
   selectCard(card: WalletCard): void {

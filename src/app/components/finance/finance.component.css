@@ -233,8 +233,6 @@
   }
 
   .card-logo {
-    top: 20px;
-    right: 20px;
     font-size: 14px;
   }
 
@@ -316,8 +314,6 @@
   }
 
   .card-logo {
-    top: 16px;
-    right: 16px;
     font-size: 12px;
   }
 
@@ -534,6 +530,10 @@
 }
 
 .bank-card-tab {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
   padding: 8px 14px;
   border-radius: 10px;
   border: 1px solid var(--notion-border);
@@ -553,6 +553,16 @@
   background: var(--notion-blue, #3b82f6);
   border-color: var(--notion-blue, #3b82f6);
   color: white;
+}
+
+.bank-card-tab-name {
+  font-weight: 500;
+}
+
+.bank-card-tab-currency {
+  font-size: 11px;
+  opacity: 0.85;
+  font-weight: 600;
 }
 
 .bank-card-hint {
@@ -656,16 +666,33 @@
   border-radius: 4px;
 }
 
-/* Card Logo */
+/* Card header: logo + currency */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+}
+
 .card-logo {
-  position: absolute;
-  top: 16px;
-  right: 16px;
   font-size: 14px;
   font-weight: 700;
   letter-spacing: 1px;
   opacity: 0.95;
   font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+
+.card-currency-badge {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  opacity: 0.95;
+  padding: 4px 10px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
 }
 
 /* Card Number */

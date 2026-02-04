@@ -86,7 +86,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   ) {}
 
   get currencySymbol(): string {
-    return this.currencyService.getSymbol();
+    const defaultCard = this.financeService.getDefaultWalletCard();
+    return this.currencyService.getSymbolForCode(defaultCard?.currency ?? undefined);
   }
 
   ngOnInit(): void {
