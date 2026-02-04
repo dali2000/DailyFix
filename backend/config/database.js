@@ -129,7 +129,7 @@ const connectDB = async () => {
   }
 };
 
-/** Add wallet_card_id to expenses and salaries for per-card stats. */
+/** Add wallet_card_id to expenses and salaries for per-card stats, then create indexes. */
 const addWalletCardIdColumnsIfNeeded = async () => {
   const dialect = sequelize.getDialect();
   const tables = ['expenses', 'salaries'];
@@ -153,6 +153,30 @@ const addWalletCardIdColumnsIfNeeded = async () => {
         console.log(`✅ Column "${column}" already exists on ${table}`);
       } else {
         console.warn(`⚠️ Warning: Could not add ${column} to ${table}:`, msg);
+      }
+    }
+  }
+  // Create indexes on wallet_card_id (raw SQL so we use the real column name, not the attribute name)
+  for (const table of tables) {
+    try {
+      const indexName = `${table}_wallet_card_id_idx`;
+      if (dialect === 'postgres') {
+        await sequelize.query(
+          `CREATE INDEX IF NOT EXISTS "${indexName}" ON "${table}" ("${column}")`
+        );
+        console.log(`✅ Index "${indexName}" on ${table}(${column})`);
+      } else if (dialect === 'mysql') {
+        await sequelize.query(
+          `CREATE INDEX \`${indexName}\` ON \`${table}\` (\`${column}\`)`
+        );
+        console.log(`✅ Index "${indexName}" on ${table}(${column})`);
+      }
+    } catch (error) {
+      const msg = error.message || '';
+      if (msg.includes('already exists') || msg.includes('duplicate')) {
+        console.log(`✅ Index on ${table}.${column} already exists`);
+      } else {
+        console.warn(`⚠️ Warning: Could not add index on ${table}.${column}:`, msg);
       }
     }
   }

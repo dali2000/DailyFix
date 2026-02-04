@@ -50,7 +50,8 @@ const Expense = sequelize.define('Expense', {
 }, {
   tableName: 'expenses',
   timestamps: true,
-  indexes: [{ fields: ['userId'] }, { fields: ['walletCardId'] }]
+  indexes: [{ fields: ['userId'] }]
+  // No index on walletCardId: Sequelize would use attribute name "walletCardId" but column is "wallet_card_id"
 });
 
 // Budget Model
@@ -182,7 +183,8 @@ const Salary = sequelize.define('Salary', {
 }, {
   tableName: 'salaries',
   timestamps: true,
-  indexes: [{ fields: ['userId'] }, { fields: ['walletCardId'] }]
+  indexes: [{ fields: ['userId'] }]
+  // No index on walletCardId: Sequelize would use attribute name "walletCardId" but column is "wallet_card_id"
 });
 
 // Expense Category (catégories personnalisées par utilisateur)
