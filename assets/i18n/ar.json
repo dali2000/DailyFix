@@ -123,7 +123,7 @@
     "cardExpiry": "الانتهاء",
     "cardName": "اسم البطاقة",
     "cardNamePlaceholder": "مثلاً: شخصية، شغل",
-    "cardCurrency": "عملة البطاقة",
+    "cardCurrency": "عملة البطاقة", "cardColor": "لون البطاقة",
     "cardRib": "الريب",
     "cardRibPlaceholder": "FR76 1234...",
     "editCard": "تعديل البطاقة",
