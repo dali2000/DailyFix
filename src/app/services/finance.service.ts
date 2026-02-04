@@ -535,14 +535,15 @@ export class FinanceService {
     );
   }
 
-  /** Normalize API wallet card to WalletCard (id string, isDefault/color/currency from raw). */
+  /** Normalize API wallet card to WalletCard (id, isDefault, color, currency from raw or dataValues). */
   private normalizeWalletCard(c: WalletCard): WalletCard {
     const raw = c as unknown as Record<string, unknown>;
-    const id = typeof c.id === 'number' ? c.id.toString() : c.id;
-    const isDefault = Boolean(raw['isDefault']);
-    const colorVal = raw['color'];
+    const data = (raw && typeof raw['dataValues'] === 'object' ? raw['dataValues'] : raw) as Record<string, unknown>;
+    const id = typeof c.id === 'number' ? c.id.toString() : String(c.id ?? '');
+    const isDefault = Boolean(data['isDefault'] ?? raw['isDefault']);
+    const colorVal = data['color'] ?? raw['color'];
     const color = colorVal == null ? null : (String(colorVal).trim() || null);
-    const currencyVal = raw['currency'];
+    const currencyVal = data['currency'] ?? raw['currency'];
     const currency = currencyVal == null ? null : (String(currencyVal).trim() || null);
     return { ...c, id, isDefault, color, currency };
   }

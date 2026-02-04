@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
@@ -185,7 +185,8 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     private authService: AuthService,
     public currencyService: CurrencyService,
     private i18n: I18nService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngAfterViewInit(): void {
@@ -294,8 +295,9 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       next: (list) => {
         this.walletCards = list;
         const defaultCard = this.financeService.getDefaultWalletCard();
-        this.selectedCard = defaultCard;
+        this.selectedCard = defaultCard ?? null;
         this.loadData(this.selectedCard?.id ?? null);
+        this.cdr.detectChanges();
       },
       error: (err) => console.error('Error loading wallet cards:', err)
     });

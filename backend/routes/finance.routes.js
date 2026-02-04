@@ -320,7 +320,8 @@ router.get('/wallet-cards', protect, async (req, res) => {
       order: [['isDefault', 'DESC'], ['createdAt', 'ASC']],
       attributes: ['id', 'userId', 'name', 'holderName', 'cardNumber', 'expiryDate', 'rib', 'currency', 'color', 'isDefault', 'createdAt', 'updatedAt']
     });
-    res.json({ success: true, count: items.length, data: items });
+    const data = items.map(row => (typeof row.toJSON === 'function' ? row.toJSON() : row));
+    res.json({ success: true, count: data.length, data });
   } catch (error) {
     console.error('Get wallet-cards error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
