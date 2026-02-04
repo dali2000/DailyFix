@@ -427,10 +427,9 @@ export class FinanceService {
   getSalariesForMonth(year: number, month: number): Salary[] {
     return this.salaries.filter(s => {
       const salaryDate = new Date(s.date);
-      if (s.period === 'monthly') {
-        return salaryDate.getFullYear() === year && salaryDate.getMonth() === month;
-      }
-      return s.period === 'yearly' && salaryDate.getFullYear() === year;
+      const isMonthly = s.period === 'monthly' && salaryDate.getFullYear() === year && salaryDate.getMonth() === month;
+      const isYearly = s.period === 'yearly' && salaryDate.getFullYear() === year;
+      return isMonthly || isYearly;
     });
   }
 
@@ -536,6 +535,18 @@ export class FinanceService {
     );
   }
 
+  /** Normalize API wallet card to WalletCard (id string, isDefault/color/currency from raw). */
+  private normalizeWalletCard(c: WalletCard): WalletCard {
+    const raw = c as unknown as Record<string, unknown>;
+    const id = typeof c.id === 'number' ? c.id.toString() : c.id;
+    const isDefault = Boolean(raw['isDefault']);
+    const colorVal = raw['color'];
+    const color = colorVal == null ? null : (String(colorVal).trim() || null);
+    const currencyVal = raw['currency'];
+    const currency = currencyVal == null ? null : (String(currencyVal).trim() || null);
+    return { ...c, id, isDefault, color, currency };
+  }
+
   // Wallet cards
   getWalletCards(): WalletCard[] {
     return this.walletCards.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id.toString() : c.id }));
@@ -544,11 +555,7 @@ export class FinanceService {
   getWalletCardsObservable(): Observable<WalletCard[]> {
     if (!this.walletCardsCache$) {
       this.walletCardsCache$ = this.apiService.get<ApiResponse<WalletCard[]>>('/finance/wallet-cards').pipe(
-        map(response => (response.data || []).map(c => ({
-          ...c,
-          id: typeof c.id === 'number' ? c.id.toString() : c.id,
-          isDefault: Boolean((c as any).isDefault)
-        }))),
+        map(response => (response.data || []).map(c => this.normalizeWalletCard(c))),
         tap(cards => { this.walletCards = cards; }),
         shareReplay(1)
       );
@@ -574,11 +581,7 @@ export class FinanceService {
     }).pipe(
       map(response => response.data!),
       tap(newCard => {
-        const normalized = {
-          ...newCard,
-          id: typeof newCard.id === 'number' ? newCard.id.toString() : newCard.id,
-          isDefault: Boolean((newCard as any).isDefault)
-        };
+        const normalized = this.normalizeWalletCard(newCard);
         if (!this.walletCards.some(c => String(c.id) === String(normalized.id))) {
           this.walletCards = [...this.walletCards, normalized];
         } else {
@@ -593,11 +596,7 @@ export class FinanceService {
     return this.apiService.put<ApiResponse<WalletCard>>(`/finance/wallet-cards/${id}`, updates).pipe(
       map(response => response.data!),
       tap(updated => {
-        const normalized = {
-          ...updated,
-          id: typeof updated.id === 'number' ? updated.id.toString() : updated.id,
-          isDefault: Boolean((updated as any).isDefault)
-        };
+        const normalized = this.normalizeWalletCard(updated);
         this.walletCards = this.walletCards.map(c => String(c.id) === String(id) ? normalized : c);
         if (updates.isDefault === true) {
           this.walletCards = this.walletCards.map(c => ({

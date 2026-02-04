@@ -301,7 +301,9 @@
     "noCustomCategories": "ما ثمة حتى نوع شخصي. زيد واحد من فوق.",
     "categoryRemoved": "تم حذف النوع.",
     "statsForThisCard": "الرصيد والمدخول والمصاريف لهذه البطاقة فقط.",
-    "selectCardToView": "اختر بطاقة لرؤية رصيدها ومصاريفها."
+    "selectCardToView": "اختر بطاقة لرؤية رصيدها ومصاريفها.",
+    "viewAllCards": "اختر بطاقة",
+    "tapToChangeCard": "اضغط لعرض كل البطاقات"
   },
   "calendar": {
     "title": "الكرني",

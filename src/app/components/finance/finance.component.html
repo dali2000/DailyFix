@@ -38,9 +38,9 @@
     <!-- Bank Card (from wallet or fallback) – each card has its own balance and expenses -->
     <div class="bank-card-wrapper" *ngIf="walletCards.length >= 1">
       <p class="finance-card-context" *ngIf="selectedCard">{{ 'finance.statsForThisCard' | translate }}</p>
-      <!-- Apple Wallet style: stacked cards – clicked card comes to front (z-index) -->
-      <div class="wallet-stack" *ngIf="walletCards.length > 1" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
-        <div class="wallet-stack-peeks">
+      <!-- Stack comme sur l’image : carte devant + bandeaux derrière. Clic sur la carte = les bandeaux s’ouvrent un peu pour afficher les autres infos. -->
+      <div class="wallet-stack" [class.wallet-stack-opened]="showCardList" *ngIf="walletCards.length > 1" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
+        <div class="wallet-stack-peeks" [class.wallet-stack-peeks-opened]="showCardList">
           <ng-container *ngFor="let card of walletCards">
             <div *ngIf="selectedCard?.id !== card.id" (click)="selectCard(card)" class="wallet-peek" [style.background]="getCardGradient(card)" tabindex="0" role="tab">
               <span class="wallet-peek-name">{{ card.name || card.holderName }}</span>
@@ -48,7 +48,7 @@
             </div>
           </ng-container>
         </div>
-        <div class="bank-card bank-card-front" [class.card-transitioning]="cardTransitioning" [class.negative-balance]="remainingBalance < 0" [style.background]="cardGradient">
+        <div class="bank-card bank-card-front bank-card-front-tappable" (click)="toggleCardList()" (keydown.enter)="toggleCardList()" (keydown.space)="toggleCardList()" tabindex="0" role="button" [attr.aria-label]="'finance.viewAllCards' | translate" [class.card-transitioning]="cardTransitioning" [class.negative-balance]="remainingBalance < 0" [style.background]="getFrontCardGradient()">
           <div class="card-chip"></div>
           <div class="card-header-row">
             <div class="card-logo">{{ displayCardName }}</div>
@@ -67,10 +67,12 @@
               <app-count-up [value]="remainingBalance" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="800"></app-count-up>
             </div>
           </div>
+          <span class="card-brand" aria-hidden="true">VISA</span>
+          <span class="bank-card-front-hint">{{ 'finance.tapToChangeCard' | translate }}</span>
         </div>
       </div>
     </div>
-    <div class="bank-card" [class.negative-balance]="remainingBalance < 0" [style.background]="cardGradient" *ngIf="walletCards.length === 1">
+    <div class="bank-card" [class.negative-balance]="remainingBalance < 0" [style.background]="getFrontCardGradient()" *ngIf="walletCards.length === 1">
       <div class="card-chip"></div>
       <div class="card-header-row">
         <div class="card-logo">{{ displayCardName }}</div>
@@ -89,6 +91,7 @@
           <app-count-up [value]="remainingBalance" format="1.2-2" [suffix]="' ' + currencySymbol" [duration]="800"></app-count-up>
         </div>
       </div>
+      <span class="card-brand" aria-hidden="true">VISA</span>
     </div>
     <p *ngIf="walletCards.length === 0" class="bank-card-hint">{{ 'settings.noCards' | translate }} <a routerLink="/settings">{{ 'settings.wallet' | translate }}</a>.</p>
 

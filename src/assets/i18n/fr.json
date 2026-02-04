@@ -240,7 +240,9 @@
     "noCustomCategories": "Aucune catégorie personnalisée. Ajoutez-en une ci-dessus.",
     "categoryRemoved": "Catégorie retirée.",
     "statsForThisCard": "Solde, revenus et dépenses de cette carte uniquement.",
-    "selectCardToView": "Choisissez une carte pour voir son solde et ses dépenses."
+    "selectCardToView": "Choisissez une carte pour voir son solde et ses dépenses.",
+    "viewAllCards": "Choisir une carte",
+    "tapToChangeCard": "Appuyez pour voir toutes les cartes"
   },
   "calendar": {
     "title": "Calendrier",

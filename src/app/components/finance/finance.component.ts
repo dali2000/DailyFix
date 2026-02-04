@@ -779,9 +779,16 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     return (CARD_COLORS as Record<string, string>)[key] ?? CARD_COLORS['violet'];
   }
 
-  /** Gradient for a given wallet card (for switcher strips). */
-  getCardGradient(card: WalletCard): string {
-    const key = card?.color ?? 'violet';
+  /** Gradient for the front card – always uses selected card color (for correct update on switch). */
+  getFrontCardGradient(): string {
+    if (this.remainingBalance < 0) return 'linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%)';
+    return this.getCardGradient(this.selectedCard ?? undefined);
+  }
+
+  /** Gradient for a given wallet card (for switcher strips and front card). */
+  getCardGradient(card: WalletCard | null | undefined): string {
+    const raw = card?.color != null ? String(card.color).trim() : '';
+    const key = raw || 'violet';
     return (CARD_COLORS as Record<string, string>)[key] ?? CARD_COLORS['violet'];
   }
 
@@ -811,9 +818,31 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Active pendant l'animation de transition entre cartes */
   cardTransitioning = false;
 
+  /** true = liste des cartes affichée (style Wallet iPhone, clic sur la carte devant) */
+  showCardList = false;
+
+  /** Ouvre un peu les bandeaux pour afficher les autres cartes. */
+  openCardList(): void {
+    this.showCardList = true;
+  }
+
+  /** Ferme l’ouverture des bandeaux. */
+  closeCardList(): void {
+    this.showCardList = false;
+  }
+
+  /** Clic sur la carte devant : ouvre un peu les bandeaux ou les referme. */
+  toggleCardList(): void {
+    this.showCardList = !this.showCardList;
+  }
+
   selectCard(card: WalletCard): void {
-    if (this.selectedCard?.id === card.id) return;
+    if (this.selectedCard?.id === card.id) {
+      this.showCardList = false;
+      return;
+    }
     this.selectedCard = card;
+    this.showCardList = false;
     this.loadData(card.id);
     this.cardTransitioning = false;
     setTimeout(() => {

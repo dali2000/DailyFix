@@ -317,7 +317,8 @@ router.get('/wallet-cards', protect, async (req, res) => {
   try {
     const items = await WalletCard.findAll({
       where: { userId: req.user.id },
-      order: [['isDefault', 'DESC'], ['createdAt', 'ASC']]
+      order: [['isDefault', 'DESC'], ['createdAt', 'ASC']],
+      attributes: ['id', 'userId', 'name', 'holderName', 'cardNumber', 'expiryDate', 'rib', 'currency', 'color', 'isDefault', 'createdAt', 'updatedAt']
     });
     res.json({ success: true, count: items.length, data: items });
   } catch (error) {

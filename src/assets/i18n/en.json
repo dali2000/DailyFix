@@ -240,7 +240,9 @@
     "noCustomCategories": "No custom categories. Add one above.",
     "categoryRemoved": "Category removed.",
     "statsForThisCard": "Balance, income and expenses for this card only.",
-    "selectCardToView": "Select a card to see its balance and expenses."
+    "selectCardToView": "Select a card to see its balance and expenses.",
+    "viewAllCards": "Choose a card",
+    "tapToChangeCard": "Tap to view all cards"
   },
   "calendar": {
     "title": "Calendar",
