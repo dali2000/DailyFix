@@ -186,21 +186,15 @@ const addWalletCardIdColumnsIfNeeded = async () => {
 
 /** Add currency column to wallet_cards if missing (each card has its own currency). */
 const addWalletCardCurrencyColumnIfNeeded = async () => {
+  const dialect = sequelize.getDialect();
+  const table = 'wallet_cards';
+  const column = 'currency';
   try {
-    const dialect = sequelize.getDialect();
-    const table = 'wallet_cards';
-    const column = 'currency';
     if (dialect === 'postgres') {
-      const [rows] = await sequelize.query(`
-        SELECT column_name FROM information_schema.columns
-        WHERE table_schema = 'public' AND table_name = '${table}' AND column_name = '${column}'
-      `);
-      if (rows.length > 0) {
-        console.log(`✅ Column "${column}" already exists on ${table}`);
-        return;
-      }
-      await sequelize.query(`ALTER TABLE "${table}" ADD COLUMN "${column}" VARCHAR(10) NULL`);
-      console.log(`✅ Column "${column}" added to ${table}`);
+      await sequelize.query(
+        `ALTER TABLE "${table}" ADD COLUMN IF NOT EXISTS "${column}" VARCHAR(10) NULL`
+      );
+      console.log(`✅ Column "${column}" ensured on ${table}`);
     } else if (dialect === 'mysql') {
       const [rows] = await sequelize.query(`
         SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
@@ -218,7 +212,7 @@ const addWalletCardCurrencyColumnIfNeeded = async () => {
     if (msg.includes('already exists') || msg.includes('duplicate column') || msg.includes('Duplicate column name')) {
       console.log('✅ wallet_cards.currency already exists');
     } else {
-      console.warn('⚠️ Warning: Could not add currency to wallet_cards:', msg);
+      console.error('❌ Could not add currency to wallet_cards:', msg);
     }
   }
 };
