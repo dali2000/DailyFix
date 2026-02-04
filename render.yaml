@@ -1,0 +1,23 @@
+# Config Render : backend + frontend
+# Backend : rootDir backend (ou utiliser backend/render.yaml)
+# Frontend : build Angular puis servir avec node server.js (pas ng serve)
+
+services:
+  - type: web
+    name: dailyfix-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    rootDir: backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+
+  - type: web
+    name: dailyfix-frontend
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build -- --configuration production
+    startCommand: node server.js
+    # rootDir vide = racine du repo (où sont server.js et dist après build)
