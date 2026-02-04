@@ -81,6 +81,19 @@ export class SettingsComponent implements OnInit, OnDestroy {
     return this.currencyService.currencies;
   }
 
+  /** Clé i18n pour le libellé d'une devise (ex. finance.currencyTND). */
+  getCurrencyLabelKey(code: string): string {
+    const known = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
+    return known.includes(code) ? `finance.currency${code}` : code;
+  }
+
+  /** Symbole de la devise affiché (traduit pour TND selon la langue). */
+  getDisplayCurrencySymbol(code: string): string {
+    if (code === 'TND') return this.i18n.instant('finance.currencySymbolTND') || 'د.ت';
+    const c = this.currencyService.getCurrencyByCode(code);
+    return c?.symbol ?? code;
+  }
+
   get userInitials(): string {
     if (!this.currentUser?.fullName) return '?';
     const parts = String(this.currentUser.fullName).trim().split(/\s+/);

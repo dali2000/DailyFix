@@ -460,7 +460,16 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   get currencySymbol(): string {
-    return this.currencyService.getSymbolForCode(this.selectedCard?.currency ?? undefined);
+    const code = this.selectedCard?.currency ?? this.currencyService.getSelectedCurrencyCode() ?? undefined;
+    if (code === 'TND') return this.i18n.instant('finance.currencySymbolTND') || 'د.ت';
+    return this.currencyService.getSymbolForCode(code);
+  }
+
+  /** Clé i18n pour le libellé de la devise affichée sur la carte (ex. finance.currencyTND). */
+  get displayCardCurrencyLabel(): string {
+    const code = this.displayCardCurrency || 'EUR';
+    const known = ['EUR', 'USD', 'GBP', 'CAD', 'TND'];
+    return known.includes(code) ? `finance.currency${code}` : code;
   }
 
   convertAmount(amount: number | null | undefined): number {

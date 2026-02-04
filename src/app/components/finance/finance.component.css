@@ -817,6 +817,72 @@
   text-decoration: underline;
 }
 
+/* Bloc « aucune carte » – design soigné */
+.finance-no-cards {
+  max-width: 400px;
+  margin: 0 auto 32px auto;
+  padding: 32px 24px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 20px;
+  box-shadow: var(--notion-shadow-sm);
+  text-align: center;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.finance-no-cards:hover {
+  box-shadow: var(--notion-shadow-md);
+  border-color: var(--notion-border-hover);
+}
+
+.finance-no-cards-icon {
+  font-size: 48px;
+  line-height: 1;
+  margin-bottom: 16px;
+  opacity: 0.9;
+}
+
+.finance-no-cards-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  margin: 0 0 10px 0;
+  letter-spacing: -0.02em;
+}
+
+.finance-no-cards-desc {
+  font-size: 14px;
+  color: var(--notion-text-secondary);
+  line-height: 1.5;
+  margin: 0 0 20px 0;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.finance-no-cards-btn {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  background: var(--notion-blue, #3b82f6);
+  border-radius: 12px;
+  text-decoration: none;
+  transition: background 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.35);
+}
+
+.finance-no-cards-btn:hover {
+  background: var(--notion-blue-hover, #2563eb);
+  transform: translateY(-1px);
+}
+
+.finance-no-cards-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.4);
+}
+
 .finance-card-context,
 .overview-context-card {
   font-size: 13px;
@@ -1690,31 +1756,23 @@
   color: white !important;
 }
 
-/* Finance - couleur #2d2d2d en dark theme */
-.dark-theme .bank-card {
-  box-shadow:
-    0 4px 6px rgba(0, 0, 0, 0.2),
-    0 10px 20px rgba(0, 0, 0, 0.25),
-    0 0 0 1px rgba(255, 255, 255, 0.06),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.98);
+/* Cartes bancaires : aucun style dark-theme appliqué (même apparence en clair et en sombre) */
+
+.dark-theme .finance-no-cards {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-.dark-theme .bank-card::before {
-  background:
-    linear-gradient(165deg, rgba(255, 255, 255, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.05) 0%, transparent 35%);
+.dark-theme .finance-no-cards:hover {
+  border-color: rgba(255, 255, 255, 0.15);
 }
 
-.dark-theme .bank-card-front,
-.dark-theme .bank-card-front .card-logo,
-.dark-theme .bank-card-front .card-currency-badge,
-.dark-theme .bank-card-front .card-number,
-.dark-theme .bank-card-front .card-label,
-.dark-theme .bank-card-front .card-expiry,
-.dark-theme .bank-card-front .balance-label,
-.dark-theme .bank-card-front .balance-amount {
-  color: rgba(255, 255, 255, 0.98) !important;
+.dark-theme .finance-no-cards-title {
+  color: #e0e0e0;
+}
+
+.dark-theme .finance-no-cards-desc {
+  color: #b0b0b0;
 }
 
 .dark-theme .overview-card {

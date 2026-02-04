@@ -52,7 +52,7 @@
           <div class="card-chip"></div>
           <div class="card-header-row">
             <div class="card-logo">{{ displayCardName }}</div>
-            <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrency }}</div>
+            <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrencyLabel | translate }}</div>
           </div>
           <div class="card-number">{{ displayCardNumber }}</div>
           <div class="card-details">
@@ -76,7 +76,7 @@
       <div class="card-chip"></div>
       <div class="card-header-row">
         <div class="card-logo">{{ displayCardName }}</div>
-        <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrency }}</div>
+        <div class="card-currency-badge" *ngIf="displayCardCurrency">{{ displayCardCurrencyLabel | translate }}</div>
       </div>
       <div class="card-number">{{ displayCardNumber }}</div>
       <div class="card-details">
@@ -93,7 +93,12 @@
       </div>
       <span class="card-brand" aria-hidden="true">VISA</span>
     </div>
-    <p *ngIf="walletCards.length === 0" class="bank-card-hint">{{ 'settings.noCards' | translate }} <a routerLink="/settings">{{ 'settings.wallet' | translate }}</a>.</p>
+    <div *ngIf="walletCards.length === 0" class="finance-no-cards">
+      <div class="finance-no-cards-icon" aria-hidden="true">💳</div>
+      <h2 class="finance-no-cards-title">{{ 'finance.noCardsTitle' | translate }}</h2>
+      <p class="finance-no-cards-desc">{{ 'finance.noCardsDesc' | translate }}</p>
+      <a routerLink="/settings" class="finance-no-cards-btn" role="button">{{ 'finance.goToWallet' | translate }}</a>
+    </div>
 
     <p *ngIf="selectedCard" class="overview-context-card">{{ 'finance.statsForThisCard' | translate }}</p>
     <div class="overview-grid">

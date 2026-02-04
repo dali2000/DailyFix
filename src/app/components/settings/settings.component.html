@@ -195,7 +195,7 @@
             (ngModelChange)="onCurrencyChange($event)"
           >
             <option *ngFor="let c of currencies" [value]="c.code">
-              {{ c.label }} ({{ c.symbol }})
+              {{ getCurrencyLabelKey(c.code) | translate }} ({{ getDisplayCurrencySymbol(c.code) }})
             </option>
           </select>
         </div>
@@ -220,7 +220,7 @@
             <span class="wallet-card-number">{{ maskCardNumber(card.cardNumber) }}</span>
             <span class="wallet-card-meta">
               <span class="wallet-card-expiry">{{ card.expiryDate }}</span>
-              <span class="wallet-card-currency" *ngIf="card.currency">{{ card.currency }}</span>
+              <span class="wallet-card-currency" *ngIf="card.currency">{{ getCurrencyLabelKey(card.currency) | translate }}</span>
             </span>
             <span *ngIf="card.isDefault" class="wallet-card-badge">{{ 'settings.defaultCard' | translate }}</span>
           </div>
@@ -264,7 +264,7 @@
         <div class="form-group">
           <label for="card-currency">{{ 'settings.cardCurrency' | translate }}</label>
           <select id="card-currency" class="form-input" [(ngModel)]="newCard.currency" name="currency">
-            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
+            <option *ngFor="let c of currencies" [value]="c.code">{{ getCurrencyLabelKey(c.code) | translate }} ({{ getDisplayCurrencySymbol(c.code) }})</option>
           </select>
         </div>
         <div class="form-group">
@@ -306,7 +306,7 @@
         <div class="form-group">
           <label for="edit-card-currency">{{ 'settings.cardCurrency' | translate }}</label>
           <select id="edit-card-currency" class="form-input" [(ngModel)]="editCardForm.currency" name="editCurrency">
-            <option *ngFor="let c of currencies" [value]="c.code">{{ c.label }} ({{ c.symbol }})</option>
+            <option *ngFor="let c of currencies" [value]="c.code">{{ getCurrencyLabelKey(c.code) | translate }} ({{ getDisplayCurrencySymbol(c.code) }})</option>
           </select>
         </div>
         <div class="form-group">
