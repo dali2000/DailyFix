@@ -81,10 +81,16 @@
   gap: 2px;
 }
 
-.wallet-card-holder {
+.wallet-card-title {
   font-weight: 600;
   color: var(--notion-text-primary);
   font-size: 14px;
+}
+
+.wallet-card-holder {
+  font-weight: 500;
+  color: var(--notion-text-secondary);
+  font-size: 13px;
 }
 
 .wallet-card-number,

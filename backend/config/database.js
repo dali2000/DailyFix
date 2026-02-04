@@ -123,6 +123,7 @@ const connectDB = async () => {
     await addResetPasswordColumnsIfNeeded();
     await ensureExpenseCategoryAcceptsCustom();
     await addWalletCardIdColumnsIfNeeded();
+    await addWalletCardNameColumnIfNeeded();
   } catch (error) {
     console.error('❌ PostgreSQL connection error:', error);
     process.exit(1);
@@ -178,6 +179,45 @@ const addWalletCardIdColumnsIfNeeded = async () => {
       } else {
         console.warn(`⚠️ Warning: Could not add index on ${table}.${column}:`, msg);
       }
+    }
+  }
+};
+
+/** Add name column to wallet_cards if missing (friendly name for the card). */
+const addWalletCardNameColumnIfNeeded = async () => {
+  try {
+    const dialect = sequelize.getDialect();
+    const table = 'wallet_cards';
+    const column = 'name';
+    if (dialect === 'postgres') {
+      const [rows] = await sequelize.query(`
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = 'public' AND table_name = '${table}' AND column_name = '${column}'
+      `);
+      if (rows.length > 0) {
+        console.log(`✅ Column "${column}" already exists on ${table}`);
+        return;
+      }
+      await sequelize.query(`ALTER TABLE "${table}" ADD COLUMN "${column}" VARCHAR(100) NULL`);
+      console.log(`✅ Column "${column}" added to ${table}`);
+    } else if (dialect === 'mysql') {
+      const [rows] = await sequelize.query(`
+        SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+        WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = '${table}' AND COLUMN_NAME = '${column}'
+      `);
+      if (rows.length > 0) {
+        console.log(`✅ Column "${column}" already exists on ${table}`);
+        return;
+      }
+      await sequelize.query(`ALTER TABLE \`${table}\` ADD COLUMN \`${column}\` VARCHAR(100) NULL`);
+      console.log(`✅ Column "${column}" added to ${table}`);
+    }
+  } catch (error) {
+    const msg = error.message || '';
+    if (msg.includes('already exists') || msg.includes('duplicate column') || msg.includes('Duplicate column name')) {
+      console.log('✅ wallet_cards.name already exists');
+    } else {
+      console.warn('⚠️ Warning: Could not add name to wallet_cards:', msg);
     }
   }
 };

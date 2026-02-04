@@ -43,7 +43,10 @@ export class SettingsComponent implements OnInit, OnDestroy {
   categoryToAdd = '';
   walletCards: WalletCard[] = [];
   showAddCardModal = false;
-  newCard: Partial<WalletCard> = { holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+  showEditCardModal = false;
+  newCard: Partial<WalletCard> = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+  editCard: WalletCard | null = null;
+  editCardForm: Partial<WalletCard> = {};
   private themeSubscription?: Subscription;
   private userSubscription?: Subscription;
   private currencySubscription?: Subscription;
@@ -262,13 +265,56 @@ export class SettingsComponent implements OnInit, OnDestroy {
   }
 
   openAddCardModal(): void {
-    this.newCard = { holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+    this.newCard = { name: '', holderName: '', cardNumber: '', expiryDate: '', rib: '' };
     this.showAddCardModal = true;
   }
 
   closeAddCardModal(): void {
     this.showAddCardModal = false;
     this.newCard = {};
+  }
+
+  openEditCardModal(card: WalletCard): void {
+    this.editCard = card;
+    this.editCardForm = {
+      name: card.name ?? '',
+      holderName: card.holderName,
+      cardNumber: card.cardNumber,
+      expiryDate: card.expiryDate,
+      rib: card.rib ?? ''
+    };
+    this.showEditCardModal = true;
+  }
+
+  closeEditCardModal(): void {
+    this.showEditCardModal = false;
+    this.editCard = null;
+    this.editCardForm = {};
+  }
+
+  saveEditCard(): void {
+    if (!this.editCard?.id) return;
+    const holder = (this.editCardForm.holderName || '').trim();
+    const number = (this.editCardForm.cardNumber || '').trim();
+    const expiry = (this.editCardForm.expiryDate || '').trim();
+    if (!holder || !number || !expiry) {
+      this.toastService.warning(this.i18n.instant('settings.walletCardRequired') || 'Holder, card number and expiry are required.');
+      return;
+    }
+    this.financeService.updateWalletCard(String(this.editCard.id), {
+      name: (this.editCardForm.name || '').trim() || undefined,
+      holderName: holder,
+      cardNumber: number,
+      expiryDate: expiry,
+      rib: (this.editCardForm.rib || '').trim() || undefined
+    }).subscribe({
+      next: () => {
+        this.closeEditCardModal();
+        this.walletCards = this.financeService.getWalletCards();
+        this.toastService.success(this.i18n.instant('settings.walletCardUpdated') || 'Card updated.');
+      },
+      error: err => this.toastService.error(err?.error?.message || 'Error')
+    });
   }
 
   addWalletCard(): void {
@@ -280,6 +326,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
       return;
     }
     this.financeService.addWalletCard({
+      name: (this.newCard.name || '').trim() || undefined,
       holderName: holder,
       cardNumber: number,
       expiryDate: expiry,

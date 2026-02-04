@@ -329,16 +329,18 @@ router.get('/wallet-cards', protect, async (req, res) => {
 router.post('/wallet-cards', protect, async (req, res) => {
   try {
     const userId = typeof req.user.id === 'number' ? req.user.id : parseInt(String(req.user.id), 10);
-    const { holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
+    const { name, holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
     const holder = (holderName != null ? String(holderName).trim() : '') || '';
     const number = (cardNumber != null ? String(cardNumber).trim() : '') || '';
     const expiry = (expiryDate != null ? String(expiryDate).trim() : '') || '';
     if (!holder || !number || !expiry) {
       return res.status(400).json({ success: false, message: 'Holder name, card number and expiry are required' });
     }
+    const cardName = name != null ? String(name).trim() : null;
     const isFirst = (await WalletCard.count({ where: { userId } })) === 0;
     const item = await WalletCard.create({
       userId,
+      name: cardName || null,
       holderName: holder,
       cardNumber: number,
       expiryDate: expiry,
@@ -367,8 +369,9 @@ router.put('/wallet-cards/:id', protect, async (req, res) => {
     if (!item) {
       return res.status(404).json({ success: false, message: 'Wallet card not found' });
     }
-    const { holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
+    const { name, holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
     const updates = {};
+    if (name !== undefined) updates.name = name != null ? String(name).trim() : null;
     if (holderName !== undefined) updates.holderName = String(holderName).trim();
     if (cardNumber !== undefined) updates.cardNumber = String(cardNumber).trim();
     if (expiryDate !== undefined) updates.expiryDate = String(expiryDate).trim();

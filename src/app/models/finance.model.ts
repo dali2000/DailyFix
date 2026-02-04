@@ -42,6 +42,7 @@ export interface ExpenseCategory {
 
 export interface WalletCard {
   id: string | number;
+  name?: string | null;
   holderName: string;
   cardNumber: string;
   expiryDate: string;

@@ -230,6 +230,11 @@ const WalletCard = sequelize.define('WalletCard', {
       key: 'id'
     }
   },
+  name: {
+    type: DataTypes.STRING(100),
+    allowNull: true,
+    comment: 'Friendly name for the card e.g. Carte perso, Carte pro'
+  },
   holderName: {
     type: DataTypes.STRING(255),
     allowNull: false

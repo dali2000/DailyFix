@@ -40,7 +40,7 @@
       <p class="finance-card-context" *ngIf="selectedCard">{{ 'finance.statsForThisCard' | translate }}</p>
       <div class="bank-card-selector" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
         <button type="button" *ngFor="let card of walletCards" class="bank-card-tab" [class.active]="selectedCard?.id === card.id" (click)="selectCard(card)" [attr.aria-selected]="selectedCard?.id === card.id">
-          {{ card.holderName }} •••• {{ (card.cardNumber | slice:-4) }}
+          {{ card.name || card.holderName }} •••• {{ (card.cardNumber | slice:-4) }}
         </button>
       </div>
     </div>

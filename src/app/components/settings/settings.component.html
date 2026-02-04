@@ -215,12 +215,16 @@
       <ul class="wallet-cards-list" *ngIf="walletCards.length > 0">
         <li *ngFor="let card of walletCards" class="wallet-card-item">
           <div class="wallet-card-preview">
-            <span class="wallet-card-holder">{{ card.holderName }}</span>
+            <span class="wallet-card-title">{{ card.name || card.holderName }}</span>
+            <span class="wallet-card-holder" *ngIf="card.name">{{ card.holderName }}</span>
             <span class="wallet-card-number">{{ maskCardNumber(card.cardNumber) }}</span>
             <span class="wallet-card-expiry">{{ card.expiryDate }}</span>
             <span *ngIf="card.isDefault" class="wallet-card-badge">{{ 'settings.defaultCard' | translate }}</span>
           </div>
           <div class="wallet-card-actions">
+            <button type="button" class="btn btn-small btn-secondary" (click)="openEditCardModal(card)">
+              {{ 'settings.editCard' | translate }}
+            </button>
             <button type="button" class="btn btn-small btn-secondary" *ngIf="!card.isDefault" (click)="setDefaultCard(card)">
               {{ 'settings.setDefault' | translate }}
             </button>
@@ -234,6 +238,10 @@
     <!-- Add card modal -->
     <app-modal *ngIf="showAddCardModal" [title]="'settings.addCard' | translate" size="sm" (closeModal)="closeAddCardModal()">
       <form (ngSubmit)="addWalletCard()">
+        <div class="form-group">
+          <label for="card-name">{{ 'settings.cardName' | translate }}</label>
+          <input id="card-name" type="text" [(ngModel)]="newCard.name" name="name" [placeholder]="'settings.cardNamePlaceholder' | translate">
+        </div>
         <div class="form-group">
           <label for="card-holder">{{ 'settings.cardHolder' | translate }} *</label>
           <input id="card-holder" type="text" [(ngModel)]="newCard.holderName" name="holderName" [placeholder]="'settings.cardHolderPlaceholder' | translate" required>
@@ -253,6 +261,36 @@
         <div class="form-actions">
           <button type="button" class="btn btn-secondary" (click)="closeAddCardModal()">{{ 'common.cancel' | translate }}</button>
           <button type="submit" class="btn btn-primary">{{ 'common.add' | translate }}</button>
+        </div>
+      </form>
+    </app-modal>
+
+    <!-- Edit card modal -->
+    <app-modal *ngIf="showEditCardModal && editCard" [title]="'settings.editCard' | translate" size="sm" (closeModal)="closeEditCardModal()">
+      <form (ngSubmit)="saveEditCard()">
+        <div class="form-group">
+          <label for="edit-card-name">{{ 'settings.cardName' | translate }}</label>
+          <input id="edit-card-name" type="text" [(ngModel)]="editCardForm.name" name="editName" [placeholder]="'settings.cardNamePlaceholder' | translate">
+        </div>
+        <div class="form-group">
+          <label for="edit-card-holder">{{ 'settings.cardHolder' | translate }} *</label>
+          <input id="edit-card-holder" type="text" [(ngModel)]="editCardForm.holderName" name="editHolderName" [placeholder]="'settings.cardHolderPlaceholder' | translate" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-card-number">{{ 'settings.cardNumber' | translate }} *</label>
+          <input id="edit-card-number" type="text" [(ngModel)]="editCardForm.cardNumber" name="editCardNumber" [placeholder]="'settings.cardNumberPlaceholder' | translate" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-card-expiry">{{ 'settings.cardExpiry' | translate }} *</label>
+          <input id="edit-card-expiry" type="text" [(ngModel)]="editCardForm.expiryDate" name="editExpiryDate" placeholder="MM/YY" required>
+        </div>
+        <div class="form-group">
+          <label for="edit-card-rib">{{ 'settings.cardRib' | translate }}</label>
+          <input id="edit-card-rib" type="text" [(ngModel)]="editCardForm.rib" name="editRib" [placeholder]="'settings.cardRibPlaceholder' | translate">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="closeEditCardModal()">{{ 'common.cancel' | translate }}</button>
+          <button type="submit" class="btn btn-primary">{{ 'common.save' | translate }}</button>
         </div>
       </form>
     </app-modal>
