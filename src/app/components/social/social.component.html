@@ -109,7 +109,7 @@
               <p>{{ suggestion.description }}</p>
               <div class="suggestion-meta">
                 <span *ngIf="suggestion.estimatedCost !== undefined">
-                  💰 <app-count-up [value]="suggestion.estimatedCost" [duration]="500"></app-count-up> €
+                  💰 <app-count-up [value]="suggestion.estimatedCost" [duration]="500"></app-count-up> {{ currencySymbol }}
                 </span>
                 <span *ngIf="suggestion.estimatedDuration">
                   ⏱️ <app-count-up [value]="suggestion.estimatedDuration" [duration]="500"></app-count-up> min
@@ -188,7 +188,7 @@
           <span class="field-error" *ngIf="suggestionCategory.invalid && (suggestionCategory.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>
         <div class="form-group">
-          <label>{{ 'common.amount' | translate }} (€)</label>
+          <label>{{ 'common.amount' | translate }} ({{ currencySymbol }})</label>
           <input type="number" [(ngModel)]="newSuggestion.estimatedCost" name="cost" #suggestionCost="ngModel">
           <span class="field-error" *ngIf="suggestionCost.invalid && (suggestionCost.touched || suggestionForm.submitted)">{{ 'validation.required' | translate }}</span>
         </div>

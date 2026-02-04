@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SocialService } from '../../services/social.service';
 import { ToastService } from '../../services/toast.service';
+import { CurrencyService } from '../../services/currency.service';
+import { I18nService } from '../../services/i18n.service';
+import { FinanceService } from '../../services/finance.service';
 import { SocialEvent, ActivitySuggestion } from '../../models/social.model';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
@@ -38,8 +41,18 @@ export class SocialComponent implements OnInit {
 
   constructor(
     private socialService: SocialService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private currencyService: CurrencyService,
+    private i18n: I18nService,
+    private financeService: FinanceService
   ) {}
+
+  get currencySymbol(): string {
+    const defaultCard = this.financeService.getDefaultWalletCard();
+    const code = defaultCard?.currency ?? this.currencyService.getSelectedCurrencyCode() ?? undefined;
+    if (code === 'TND') return this.i18n.instant('finance.currencySymbolTND') || 'د.ت';
+    return this.currencyService.getSymbolForCode(code);
+  }
 
   ngOnInit(): void {
     this.loadData();
