@@ -18,12 +18,14 @@
     <p *ngIf="!dailyAdvice && !dailyAdviceLoading" class="daily-advice-hint">{{ 'home.dailyAdviceHint' | translate }}</p>
   </div>
 
-  <!-- Statistiques de l'Application -->
-  <section class="stats-section" aria-labelledby="stats-heading">
-    <h2 id="stats-heading" class="stats-section-title">
+  <!-- Statistiques de l'Application (liste déroulante) -->
+  <section class="stats-section stats-section-dropdown" aria-labelledby="stats-heading">
+    <button type="button" class="stats-section-toggle" (click)="toggleStatsSection()" [attr.aria-expanded]="statsSectionExpanded" [attr.aria-controls]="'stats-content'" id="stats-heading">
       <span class="stats-section-icon" aria-hidden="true">📈</span>
-      {{ 'home.appStats' | translate }}
-    </h2>
+      <span class="stats-section-title-text">{{ 'home.appStats' | translate }}</span>
+      <span class="stats-section-chevron" aria-hidden="true">{{ statsSectionExpanded ? '▼' : '▶' }}</span>
+    </button>
+    <div id="stats-content" class="stats-section-content" [class.stats-section-content-open]="statsSectionExpanded" [attr.aria-hidden]="!statsSectionExpanded">
     <div class="stats-grid">
       <div class="stat-item stat-item--expenses">
         <div class="stat-icon"><span aria-hidden="true">💸</span></div>
@@ -68,8 +70,17 @@
         </div>
       </div>
     </div>
+    </div>
   </section>
 
+  <!-- Vue d'ensemble (4 cartes) en liste déroulante -->
+  <section class="overview-section overview-section-dropdown" aria-labelledby="overview-heading">
+    <button type="button" class="overview-section-toggle" (click)="toggleOverviewSection()" [attr.aria-expanded]="overviewSectionExpanded" [attr.aria-controls]="'overview-content'" id="overview-heading">
+      <span class="overview-section-icon" aria-hidden="true">📋</span>
+      <span class="overview-section-title-text">{{ 'home.overviewSection' | translate }}</span>
+      <span class="overview-section-chevron" aria-hidden="true">{{ overviewSectionExpanded ? '▼' : '▶' }}</span>
+    </button>
+    <div id="overview-content" class="overview-section-content" [class.overview-section-content-open]="overviewSectionExpanded" [attr.aria-hidden]="!overviewSectionExpanded">
   <div class="cards-container">
     <div class="stats-card stats-card--blue">
       <div class="stats-card-icon-wrap stats-card-icon-wrap--blue"><span class="stats-card-emoji" aria-hidden="true">✓</span></div>
@@ -108,6 +119,8 @@
       </div>
     </div>
   </div>
+    </div>
+  </section>
 
   <div class="dashboard">
     <article class="dash-card">

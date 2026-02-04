@@ -47,56 +47,92 @@
 .month-selector-bar {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 24px;
   background: var(--notion-bg);
-  padding: 10px 16px;
-  border-radius: 14px;
+  padding: 12px 18px;
+  border-radius: 16px;
   border: 1px solid var(--notion-border);
-  box-shadow: var(--notion-shadow-sm);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.month-selector-center {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.month-selector-bar:focus-within {
+  border-color: var(--notion-border-hover, rgba(0, 0, 0, 0.12));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
 .month-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   line-height: 1;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--notion-border);
   background: var(--notion-bg-tertiary);
   color: var(--notion-text-primary);
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  font-weight: 500;
 }
 
 .month-btn:hover:not(:disabled) {
   background: var(--notion-bg-hover);
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  border-color: var(--notion-border-hover, rgba(0, 0, 0, 0.1));
+}
+
+.month-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.month-btn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--notion-blue, #3b82f6);
 }
 
 .month-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
+  transform: none;
 }
 
 .month-label {
-  font-size: 1.1rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: var(--notion-text-primary);
-  min-width: 140px;
+  min-width: 160px;
   text-align: center;
   text-transform: capitalize;
+  letter-spacing: -0.02em;
+  line-height: 1.3;
 }
 
 .btn-today {
-  margin-left: auto;
-  padding: 8px 16px;
-  border-radius: 10px;
-  font-weight: 500;
+  position: absolute;
+  right: 18px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: background 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.month-selector-bar .btn-today:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* ---------- Tabs ---------- */
@@ -181,12 +217,22 @@
 
   .month-selector-bar {
     flex-wrap: wrap;
-    gap: 8px;
-    padding: 10px 12px;
+    gap: 10px;
+    padding: 12px 14px;
+    justify-content: center;
+  }
+
+  .month-selector-center {
+    width: 100%;
+    justify-content: center;
+    order: 1;
   }
 
   .month-selector-bar .btn-today {
+    position: static;
     width: 100%;
+    order: 2;
+    margin-top: 4px;
   }
 
   .finance-page .finance-header h1 {
@@ -281,6 +327,24 @@
   }
 }
 
+/* Dépenses par catégorie tlp : ajustements responsive */
+@media (max-width: 992px) {
+  .expenses-by-category.category-tlp-format .category-tlp-toggle {
+    font-size: 13px;
+  }
+
+  .expenses-by-category .category-month-row.category-tlp-bar {
+    padding: 8px 12px;
+    padding-right: 90px; /* réserver espace pour "Ce mois" */
+    margin-top: 6px;
+  }
+
+  .expenses-by-category .category-month-row .category-month-label {
+    font-size: 13px;
+    min-width: 120px;
+  }
+}
+
 @media (max-width: 480px) {
   .finance-page {
     padding: 20px 14px 70px !important;
@@ -290,9 +354,59 @@
     font-size: 1.45rem;
   }
 
+  .month-selector-bar {
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .month-selector-center {
+    gap: 8px;
+  }
+
+  .month-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
   .month-label {
-    min-width: 120px;
+    min-width: 100px;
+    font-size: 0.95rem;
+  }
+
+  .month-selector-bar .btn-today {
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .expenses-by-category .category-section-toggle.category-tlp-toggle {
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+
+  .expenses-by-category .category-month-row .category-month-btn {
+    width: 32px;
+    height: 32px;
     font-size: 1rem;
+  }
+
+  .expenses-by-category .category-month-row .category-month-label {
+    font-size: 12px;
+  }
+
+  .expenses-by-category .category-month-row.category-tlp-bar {
+    padding-right: 80px;
+    min-height: 48px;
+  }
+
+  .expenses-by-category .category-month-row .category-month-label {
+    min-width: 100px;
+  }
+
+  .expenses-by-category .category-month-row .category-btn-current {
+    right: 10px;
+    padding: 6px 10px;
+    font-size: 12px;
   }
 
   .bank-card {
@@ -884,14 +998,16 @@
 
 .finance-card-context,
 .overview-context-card {
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--notion-text-secondary);
-  margin: 0 0 10px 0;
-  font-style: italic;
+  margin: 0 0 14px 0;
+  font-style: normal;
+  letter-spacing: 0.01em;
+  line-height: 1.45;
 }
 
 .overview-context-card {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .bank-card:hover {
@@ -1104,55 +1220,81 @@
 /* Overview Grid */
 .overview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
 }
 
 .overview-card {
   background: var(--notion-bg);
   border: 1px solid var(--notion-border);
-  border-radius: 14px;
-  padding: 18px;
+  border-radius: 16px;
+  padding: 20px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  box-shadow: var(--notion-shadow-sm);
+  gap: 16px;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
 }
 
 .overview-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--notion-shadow-md);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 8px rgba(0, 0, 0, 0.04);
   background: var(--notion-bg-hover);
+  border-color: var(--notion-border-hover, rgba(0, 0, 0, 0.08));
 }
 
 .overview-card.income {
-  border-left: 4px solid var(--notion-green);
+  border-left: 4px solid #10b981;
+  --overview-accent: #10b981;
 }
 
 .overview-card.expenses {
-  border-left: 4px solid #ff6b6b;
+  border-left: 4px solid #ef4444;
+  --overview-accent: #ef4444;
 }
 
 .overview-card.balance {
-  border-left: 4px solid #4dabf7;
+  border-left: 4px solid #3b82f6;
+  --overview-accent: #3b82f6;
 }
 
 .overview-card.balance.negative {
-  border-left-color: #ff6b6b;
+  border-left-color: #ef4444;
+  --overview-accent: #ef4444;
 }
 
 .overview-card .card-icon {
-  font-size: 1.6rem;
-  width: 48px;
-  height: 48px;
+  font-size: 1.75rem;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   background: var(--notion-bg-tertiary);
-  border-radius: 12px;
+  border-radius: 14px;
   flex-shrink: 0;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.overview-card.income .card-icon {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.overview-card.expenses .card-icon {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.overview-card.balance .card-icon {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.overview-card.balance.negative .card-icon {
+  background: rgba(239, 68, 68, 0.12);
+}
+
+.overview-card:hover .card-icon {
+  transform: scale(1.05);
 }
 
 .overview-card .card-content {
@@ -1161,28 +1303,30 @@
 }
 
 .overview-card .card-content h3 {
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
   color: var(--notion-text-secondary);
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
 }
 
 .overview-card .card-content .amount {
-  font-size: 1.25rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--notion-text-primary);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
 }
 
 .overview-card .card-content .amount.positive {
-  color: var(--notion-green);
+  color: #059669;
 }
 
 .overview-card .card-content .amount.negative {
-  color: #ff6b6b;
+  color: #dc2626;
 }
 
 /* Expenses by Category */
@@ -1200,61 +1344,158 @@
   overflow: hidden;
 }
 
-.expenses-by-category .category-section-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  padding: 0 24px 0 0;
+.expenses-by-category.category-tlp-format.dropdown-section {
+  padding: 12px 16px 0;
 }
 
-.expenses-by-category .category-section-toggle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex: 1;
-  min-width: 0;
-  padding: 16px 24px;
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--notion-text-primary);
-  background: var(--notion-bg);
-  border: none;
-  border-radius: 12px;
-  cursor: pointer;
-  text-align: left;
-  transition: background 20ms ease-in 0s;
+/* Format tlp : barre titre (ouvrir/fermer) */
+.expenses-by-category.category-tlp-format .category-section-header {
+  display: block;
+  padding: 0;
+  min-height: 0;
 }
 
-.expenses-by-category .category-month-switcher {
+.expenses-by-category .category-section-toggle.category-tlp-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  letter-spacing: -0.02em;
+  text-align: left;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  position: static;
 }
 
-.expenses-by-category .category-month-switcher .month-btn {
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  font-size: 18px;
+.expenses-by-category .category-section-toggle.category-tlp-toggle:hover {
+  background: var(--notion-bg-hover);
+  border-color: var(--notion-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.expenses-by-category .category-section-toggle.category-tlp-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--notion-blue, #3b82f6);
+}
+
+.expenses-by-category .category-tlp-title {
+  flex: 1;
+}
+
+.expenses-by-category .category-tlp-icon {
+  font-size: 16px;
   line-height: 1;
 }
 
-.expenses-by-category .category-month-switcher .btn-month-current {
-  padding: 8px 12px;
+/* Icône chevron normale (triangle CSS, net) */
+.expenses-by-category .category-tlp-chevron {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  /* fermé : triangle vers la droite ▶ */
+  border-width: 5px 0 5px 6px;
+  border-color: transparent transparent transparent var(--notion-text-secondary);
+  transition: border-color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.expenses-by-category .category-tlp-chevron.category-tlp-chevron-open {
+  /* ouvert : triangle vers le bas ▼ */
+  border-width: 6px 5px 0 5px;
+  border-color: var(--notion-text-secondary) transparent transparent transparent;
+}
+
+/* Barre du mois sous le titre : mois centré, "Ce mois" à droite (comme l'image) */
+.expenses-by-category .category-month-row.category-tlp-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  padding: 10px 14px;
+  margin-top: 8px;
+  margin-bottom: 12px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  min-height: 52px;
+}
+
+.expenses-by-category .category-month-row .category-month-center {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.expenses-by-category .category-month-row .category-month-btn {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  border-radius: 8px;
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg-tertiary);
+  color: var(--notion-text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+  font-weight: 500;
+}
+
+.expenses-by-category .category-month-row .category-month-btn:hover:not(:disabled) {
+  background: var(--notion-bg-hover);
+  border-color: var(--notion-border-hover);
+}
+
+.expenses-by-category .category-month-row .category-month-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.expenses-by-category .category-month-row .category-month-label {
+  min-width: 140px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  text-align: center;
+  text-transform: capitalize;
+}
+
+.expenses-by-category .category-month-row .category-btn-current {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 14px;
   font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg-tertiary);
+  color: var(--notion-text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
   white-space: nowrap;
 }
 
-.expenses-by-category .category-section-toggle:hover {
+.expenses-by-category .category-month-row .category-btn-current:hover {
   background: var(--notion-bg-hover);
-}
-
-.expenses-by-category .toggle-icon {
-  font-size: 12px;
-  color: var(--notion-text-secondary);
-  margin-left: 8px;
+  border-color: var(--notion-border-hover);
 }
 
 .expenses-by-category .category-dropdown-content {
@@ -1267,6 +1508,7 @@
   max-height: min(70vh, 600px);
   overflow-y: auto;
   overflow-x: hidden;
+  padding-top: 12px;
   padding-bottom: 8px;
 }
 
@@ -1774,21 +2016,48 @@
   color: #b0b0b0;
 }
 
+/* Cartes Revenus / Dépenses / Reste : même design en clair et en sombre (fond clair, bordures colorées) */
 .dark-theme .overview-card {
-  background: #2d2d2d !important;
-  border-color: rgba(255, 255, 255, 0.1);
+  background: #ffffff !important;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .dark-theme .overview-card:hover {
-  background: #353535 !important;
+  background: #f7f6f3 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.dark-theme .overview-card.income .card-icon {
+  background: rgba(16, 185, 129, 0.14);
+}
+
+.dark-theme .overview-card.expenses .card-icon {
+  background: rgba(239, 68, 68, 0.14);
+}
+
+.dark-theme .overview-card.balance .card-icon {
+  background: rgba(59, 130, 246, 0.14);
+}
+
+.dark-theme .overview-card.balance.negative .card-icon {
+  background: rgba(239, 68, 68, 0.14);
 }
 
 .dark-theme .overview-card .card-content h3 {
-  color: #b0b0b0;
+  color: #787774;
 }
 
 .dark-theme .overview-card .card-content .amount {
-  color: #e0e0e0;
+  color: #37352f;
+}
+
+.dark-theme .overview-card .card-content .amount.positive {
+  color: #059669;
+}
+
+.dark-theme .overview-card .card-content .amount.negative {
+  color: #dc2626;
 }
 
 .dark-theme .expenses-by-category,
@@ -1800,6 +2069,36 @@
 
 .dark-theme .expenses-by-category .category-section-toggle:hover {
   background: #353535 !important;
+}
+
+.dark-theme .expenses-by-category .category-month-row.category-tlp-bar {
+  background: #2d2d2d !important;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dark-theme .expenses-by-category .category-month-row .category-month-btn,
+.dark-theme .expenses-by-category .category-month-row .category-btn-current {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #e0e0e0;
+}
+
+.dark-theme .expenses-by-category .category-month-row .category-month-btn:hover:not(:disabled),
+.dark-theme .expenses-by-category .category-month-row .category-btn-current:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-theme .expenses-by-category .category-month-row .category-month-label {
+  color: #e0e0e0;
+}
+
+.dark-theme .expenses-by-category .category-tlp-chevron {
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.7);
+}
+
+.dark-theme .expenses-by-category .category-tlp-chevron.category-tlp-chevron-open {
+  border-color: rgba(255, 255, 255, 0.7) transparent transparent transparent;
 }
 
 .dark-theme .expenses-by-category .category-dropdown-content .category-item {
@@ -1842,17 +2141,28 @@
 .dark-theme .month-selector-bar {
   background: var(--notion-bg-tertiary);
   border-color: var(--notion-border);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .month-selector-bar:focus-within {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
 
 .dark-theme .month-btn {
-  background: #2d2d2d;
+  background: rgba(255, 255, 255, 0.06);
   border-color: rgba(255, 255, 255, 0.1);
   color: #e0e0e0;
 }
 
 .dark-theme .month-btn:hover:not(:disabled) {
-  background: #353535;
+  background: rgba(255, 255, 255, 0.1);
   color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.dark-theme .month-label {
+  color: #e0e0e0;
 }
 
 .expenses-list,

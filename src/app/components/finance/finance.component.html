@@ -8,9 +8,11 @@
   </header>
 
   <div class="month-selector-bar">
-    <button type="button" class="month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate">‹</button>
-    <span class="month-label">{{ selectedMonthLabel }}</span>
-    <button type="button" class="month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate">›</button>
+    <div class="month-selector-center">
+      <button type="button" class="month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate">‹</button>
+      <span class="month-label">{{ selectedMonthLabel }}</span>
+      <button type="button" class="month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate">›</button>
+    </div>
     <button type="button" class="btn btn-secondary btn-today" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
   </div>
 
@@ -127,17 +129,21 @@
       </div>
     </div>
 
-    <div class="expenses-by-category dropdown-section">
+    <div class="expenses-by-category dropdown-section category-tlp-format">
       <div class="category-section-header">
-        <button type="button" class="category-section-toggle" (click)="expensesByCategoryExpanded = !expensesByCategoryExpanded" [attr.aria-expanded]="expensesByCategoryExpanded" [attr.aria-controls]="'category-content'" [attr.aria-label]="'finance.expensesByCategory' | translate">
-          <span class="toggle-title"><span class="toggle-emoji">📊</span> {{ 'finance.expensesByCategory' | translate }} — {{ selectedMonthLabel }}</span>
-          <span class="toggle-icon" aria-hidden="true">{{ expensesByCategoryExpanded ? '▼' : '▶' }}</span>
+        <button type="button" class="category-section-toggle category-tlp-toggle" (click)="expensesByCategoryExpanded = !expensesByCategoryExpanded" [attr.aria-expanded]="expensesByCategoryExpanded" [attr.aria-controls]="'category-content'" [attr.aria-label]="'finance.expensesByCategory' | translate">
+          <span class="category-tlp-icon" aria-hidden="true">📊</span>
+          <span class="category-tlp-title">{{ 'finance.expensesByCategory' | translate }}</span>
+          <span class="category-tlp-chevron" [class.category-tlp-chevron-open]="expensesByCategoryExpanded" aria-hidden="true"></span>
         </button>
-        <div class="category-month-switcher" (click)="$event.stopPropagation()">
-          <button type="button" class="month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate" title="{{ 'common.previous' | translate }}">‹</button>
-          <button type="button" class="month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate" title="{{ 'common.next' | translate }}">›</button>
-          <button type="button" class="btn btn-secondary btn-month-current" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
+      </div>
+      <div class="category-month-row category-tlp-bar" (click)="$event.stopPropagation()">
+        <div class="category-month-center">
+          <button type="button" class="category-month-btn month-prev" (click)="goToPrevMonth()" [attr.aria-label]="'common.previous' | translate" title="{{ 'common.previous' | translate }}">‹</button>
+          <span class="category-month-label">{{ selectedMonthLabel }}</span>
+          <button type="button" class="category-month-btn month-next" (click)="goToNextMonth()" [disabled]="!canGoToNextMonth" [attr.aria-label]="'common.next' | translate" title="{{ 'common.next' | translate }}">›</button>
         </div>
+        <button type="button" class="category-btn-current" (click)="goToCurrentMonth()">{{ 'finance.thisMonth' | translate }}</button>
       </div>
       <div id="category-content" class="category-dropdown-content" [class.is-open]="expensesByCategoryExpanded" [attr.aria-hidden]="!expensesByCategoryExpanded">
         <div *ngFor="let category of expenseCategoriesForOverviewNonZero" class="category-item category-item-with-bar">

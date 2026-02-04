@@ -1082,6 +1082,140 @@
   opacity: 0.9;
 }
 
+/* Liste déroulante : bouton pour ouvrir/fermer les statistiques (taille compacte) */
+.stats-section-dropdown .stats-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  letter-spacing: -0.02em;
+  text-align: left;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.stats-section-dropdown .stats-section-toggle:hover {
+  background: var(--notion-bg-hover);
+  border-color: var(--notion-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.stats-section-dropdown .stats-section-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--notion-blue, #3b82f6);
+}
+
+.stats-section-dropdown .stats-section-title-text {
+  flex: 1;
+}
+
+.stats-section-dropdown .stats-section-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.stats-section-dropdown .stats-section-chevron {
+  font-size: 12px;
+  color: var(--notion-text-secondary);
+  transition: transform 0.25s ease;
+}
+
+.stats-section-dropdown .stats-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out;
+}
+
+.stats-section-dropdown .stats-section-content-open {
+  max-height: 800px;
+  transition: max-height 0.4s ease-in;
+}
+
+.stats-section-dropdown .stats-section-content .stats-grid {
+  padding-top: 14px;
+}
+
+.stats-section-dropdown {
+  margin-bottom: 24px;
+}
+
+/* Liste déroulante : Vue d'ensemble (4 cartes) */
+.overview-section-dropdown .overview-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  letter-spacing: -0.02em;
+  text-align: left;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  font-family: inherit;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.overview-section-dropdown .overview-section-toggle:hover {
+  background: var(--notion-bg-hover);
+  border-color: var(--notion-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.overview-section-dropdown .overview-section-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--notion-blue, #3b82f6);
+}
+
+.overview-section-dropdown .overview-section-title-text {
+  flex: 1;
+}
+
+.overview-section-dropdown .overview-section-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.overview-section-dropdown .overview-section-chevron {
+  font-size: 12px;
+  color: var(--notion-text-secondary);
+  transition: transform 0.25s ease;
+}
+
+.overview-section-dropdown .overview-section-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s ease-out;
+}
+
+.overview-section-dropdown .overview-section-content-open {
+  max-height: 800px;
+  transition: max-height 0.4s ease-in;
+}
+
+.overview-section-dropdown .overview-section-content .cards-container {
+  padding-top: 14px;
+}
+
+.overview-section-dropdown {
+  margin-bottom: 24px;
+}
+
 @media (max-width: 768px) {
   .stats-section {
     margin-bottom: 32px;

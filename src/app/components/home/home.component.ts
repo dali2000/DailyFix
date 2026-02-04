@@ -64,6 +64,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   totalHealthRecords = 0;
   totalSocialEvents = 0;
 
+  /** Section « Statistiques de l'application » en liste déroulante (ouverte par défaut). */
+  statsSectionExpanded = true;
+
+  toggleStatsSection(): void {
+    this.statsSectionExpanded = !this.statsSectionExpanded;
+  }
+
+  /** Section « Vue d'ensemble » (4 cartes) en liste déroulante (ouverte par défaut). */
+  overviewSectionExpanded = true;
+
+  toggleOverviewSection(): void {
+    this.overviewSectionExpanded = !this.overviewSectionExpanded;
+  }
+
   // Résumé santé du jour (pour la carte Suivi Santé)
   todayCalories = 0;
   todayWaterLiters = 0;
