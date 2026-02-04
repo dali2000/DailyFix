@@ -802,9 +802,8 @@ img, video, iframe, svg {
   color: var(--notion-text-secondary);
 }
 
-/* Finance, Social, Wellness, Home-org - cartes en dark theme */
+/* Finance, Social, Wellness, Home-org - cartes en dark theme (bank-card exclue : elle garde sa couleur [style.background]) */
 .dark-theme .finance-overview-card,
-.dark-theme .bank-card,
 .dark-theme .expense-card,
 .dark-theme .budget-card,
 .dark-theme .savings-card,
