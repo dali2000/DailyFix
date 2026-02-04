@@ -201,17 +201,63 @@ const ExpenseCategory = sequelize.define('ExpenseCategory', {
   ]
 });
 
+// Wallet Card Model (user's bank cards for wallet display)
+const WalletCard = sequelize.define('WalletCard', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    references: {
+      model: User,
+      key: 'id'
+    }
+  },
+  holderName: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
+  cardNumber: {
+    type: DataTypes.STRING(50),
+    allowNull: false,
+    comment: 'Display number e.g. 4532 1234 5678 9010'
+  },
+  expiryDate: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    comment: 'MM/YY'
+  },
+  rib: {
+    type: DataTypes.STRING(100),
+    allowNull: true
+  },
+  isDefault: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+    allowNull: false
+  }
+}, {
+  tableName: 'wallet_cards',
+  timestamps: true,
+  indexes: [{ fields: ['userId'] }]
+});
+
 // Define associations
 Expense.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Budget.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 SavingsGoal.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Salary.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 ExpenseCategory.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+WalletCard.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
 module.exports = {
   Expense,
   Budget,
   SavingsGoal,
   Salary,
-  ExpenseCategory
+  ExpenseCategory,
+  WalletCard
 };

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, map, tap, distinctUntilChanged, shareReplay, forkJoin, of } from 'rxjs';
-import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } from '../models/finance.model';
+import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory, WalletCard } from '../models/finance.model';
 import { AuthService } from './auth.service';
 import { ApiService } from './api.service';
 
@@ -20,11 +20,13 @@ export class FinanceService {
   private savingsGoals: SavingsGoal[] = [];
   private salaries: Salary[] = [];
   private customCategories: ExpenseCategory[] = [];
+  private walletCards: WalletCard[] = [];
   private expensesCache$: Observable<Expense[]> | null = null;
   private budgetsCache$: Observable<Budget[]> | null = null;
   private savingsGoalsCache$: Observable<SavingsGoal[]> | null = null;
   private salariesCache$: Observable<Salary[]> | null = null;
   private categoriesCache$: Observable<ExpenseCategory[]> | null = null;
+  private walletCardsCache$: Observable<WalletCard[]> | null = null;
 
   /** Parse API amount (string or number) to number for calculations. */
   private parseAmount(value: unknown): number {
@@ -51,11 +53,13 @@ export class FinanceService {
         this.savingsGoals = [];
         this.salaries = [];
         this.customCategories = [];
+        this.walletCards = [];
         this.expensesCache$ = null;
         this.budgetsCache$ = null;
         this.savingsGoalsCache$ = null;
         this.salariesCache$ = null;
         this.categoriesCache$ = null;
+        this.walletCardsCache$ = null;
       }
     });
   }
@@ -490,6 +494,93 @@ export class FinanceService {
     );
   }
 
+  // Wallet cards
+  getWalletCards(): WalletCard[] {
+    return this.walletCards.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id.toString() : c.id }));
+  }
+
+  getWalletCardsObservable(): Observable<WalletCard[]> {
+    if (!this.walletCardsCache$) {
+      this.walletCardsCache$ = this.apiService.get<ApiResponse<WalletCard[]>>('/finance/wallet-cards').pipe(
+        map(response => (response.data || []).map(c => ({
+          ...c,
+          id: typeof c.id === 'number' ? c.id.toString() : c.id,
+          isDefault: Boolean((c as any).isDefault)
+        }))),
+        tap(cards => { this.walletCards = cards; }),
+        shareReplay(1)
+      );
+    }
+    return this.walletCardsCache$;
+  }
+
+  getDefaultWalletCard(): WalletCard | null {
+    const def = this.walletCards.find(c => c.isDefault);
+    return def ?? this.walletCards[0] ?? null;
+  }
+
+  addWalletCard(card: Omit<WalletCard, 'id' | 'isDefault'> & { isDefault?: boolean }): Observable<WalletCard> {
+    return this.apiService.post<ApiResponse<WalletCard>>('/finance/wallet-cards', {
+      holderName: card.holderName,
+      cardNumber: card.cardNumber,
+      expiryDate: card.expiryDate,
+      rib: card.rib ?? undefined,
+      isDefault: card.isDefault
+    }).pipe(
+      map(response => response.data!),
+      tap(newCard => {
+        const normalized = {
+          ...newCard,
+          id: typeof newCard.id === 'number' ? newCard.id.toString() : newCard.id,
+          isDefault: Boolean((newCard as any).isDefault)
+        };
+        if (!this.walletCards.some(c => String(c.id) === String(normalized.id))) {
+          this.walletCards = [...this.walletCards, normalized];
+        } else {
+          this.walletCards = this.walletCards.map(c => String(c.id) === String(normalized.id) ? normalized : c);
+        }
+        this.walletCardsCache$ = null;
+      })
+    );
+  }
+
+  updateWalletCard(id: string, updates: Partial<Pick<WalletCard, 'holderName' | 'cardNumber' | 'expiryDate' | 'rib' | 'isDefault'>>): Observable<WalletCard> {
+    return this.apiService.put<ApiResponse<WalletCard>>(`/finance/wallet-cards/${id}`, updates).pipe(
+      map(response => response.data!),
+      tap(updated => {
+        const normalized = {
+          ...updated,
+          id: typeof updated.id === 'number' ? updated.id.toString() : updated.id,
+          isDefault: Boolean((updated as any).isDefault)
+        };
+        this.walletCards = this.walletCards.map(c => String(c.id) === String(id) ? normalized : c);
+        if (updates.isDefault === true) {
+          this.walletCards = this.walletCards.map(c => ({
+            ...c,
+            isDefault: String(c.id) === String(id)
+          }));
+        }
+        this.walletCardsCache$ = null;
+      })
+    );
+  }
+
+  deleteWalletCard(id: string): Observable<boolean> {
+    return this.apiService.delete<ApiResponse<unknown>>(`/finance/wallet-cards/${id}`).pipe(
+      map(response => response.success),
+      tap(success => {
+        if (success) {
+          this.walletCards = this.walletCards.filter(c => String(c.id) !== id);
+          this.walletCardsCache$ = null;
+        }
+      })
+    );
+  }
+
+  invalidateWalletCardsCache(): void {
+    this.walletCardsCache$ = null;
+  }
+
   private loadAll(): void {
     if (this.authService.isAuthenticated()) {
       forkJoin({
@@ -497,7 +588,8 @@ export class FinanceService {
         budgets: this.getBudgetsObservable(),
         savingsGoals: this.getSavingsGoalsObservable(),
         salaries: this.getSalariesObservable(),
-        categories: this.getCustomCategoriesObservable()
+        categories: this.getCustomCategoriesObservable(),
+        walletCards: this.getWalletCardsObservable()
       }).subscribe({
         error: (err) => console.error('Error loading finance data:', err)
       });
@@ -507,6 +599,7 @@ export class FinanceService {
       this.savingsGoals = [];
       this.salaries = [];
       this.customCategories = [];
+      this.walletCards = [];
     }
   }
 }

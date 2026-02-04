@@ -9,8 +9,9 @@ import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
 import { FinanceService } from '../../services/finance.service';
 import { ToastService } from '../../services/toast.service';
-import { ExpenseCategory } from '../../models/finance.model';
+import { ExpenseCategory, WalletCard } from '../../models/finance.model';
 import { Subscription } from 'rxjs';
+import { ModalComponent } from '../shared/modal/modal.component';
 
 export const LANGUAGES = [
   { code: 'fr', label: 'Français' },
@@ -21,7 +22,7 @@ export const LANGUAGES = [
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslatePipe],
+  imports: [CommonModule, FormsModule, TranslatePipe, ModalComponent],
   templateUrl: './settings.component.html',
   styleUrl: './settings.component.css'
 })
@@ -40,10 +41,14 @@ export class SettingsComponent implements OnInit, OnDestroy {
   readonly languages = LANGUAGES;
   customCategoryList: ExpenseCategory[] = [];
   categoryToAdd = '';
+  walletCards: WalletCard[] = [];
+  showAddCardModal = false;
+  newCard: Partial<WalletCard> = { holderName: '', cardNumber: '', expiryDate: '', rib: '' };
   private themeSubscription?: Subscription;
   private userSubscription?: Subscription;
   private currencySubscription?: Subscription;
   private categoriesSubscription?: Subscription;
+  private walletCardsSubscription?: Subscription;
 
   constructor(
     private themeService: ThemeService,
@@ -187,6 +192,11 @@ export class SettingsComponent implements OnInit, OnDestroy {
       },
       error: err => console.error('Error loading categories:', err)
     });
+
+    this.walletCardsSubscription = this.financeService.getWalletCardsObservable().subscribe({
+      next: list => { this.walletCards = list; },
+      error: err => console.error('Error loading wallet cards:', err)
+    });
   }
 
   getCategoryIcon(category: string): string {
@@ -248,6 +258,69 @@ export class SettingsComponent implements OnInit, OnDestroy {
     this.userSubscription?.unsubscribe();
     this.currencySubscription?.unsubscribe();
     this.categoriesSubscription?.unsubscribe();
+    this.walletCardsSubscription?.unsubscribe();
+  }
+
+  openAddCardModal(): void {
+    this.newCard = { holderName: '', cardNumber: '', expiryDate: '', rib: '' };
+    this.showAddCardModal = true;
+  }
+
+  closeAddCardModal(): void {
+    this.showAddCardModal = false;
+    this.newCard = {};
+  }
+
+  addWalletCard(): void {
+    const holder = (this.newCard.holderName || '').trim();
+    const number = (this.newCard.cardNumber || '').trim();
+    const expiry = (this.newCard.expiryDate || '').trim();
+    if (!holder || !number || !expiry) {
+      this.toastService.warning(this.i18n.instant('settings.walletCardRequired') || 'Holder, card number and expiry are required.');
+      return;
+    }
+    this.financeService.addWalletCard({
+      holderName: holder,
+      cardNumber: number,
+      expiryDate: expiry,
+      rib: (this.newCard.rib || '').trim() || undefined,
+      isDefault: this.walletCards.length === 0
+    }).subscribe({
+      next: () => {
+        this.closeAddCardModal();
+        this.toastService.success(this.i18n.instant('settings.walletCardAdded') || 'Card added.');
+      },
+      error: err => {
+        this.toastService.error(err?.error?.message || err?.message || this.i18n.instant('common.error') || 'Error');
+      }
+    });
+  }
+
+  setDefaultCard(card: WalletCard): void {
+    this.financeService.updateWalletCard(String(card.id), { isDefault: true }).subscribe({
+      next: () => {
+        this.walletCards = this.financeService.getWalletCards();
+        this.toastService.success(this.i18n.instant('settings.walletCardSetDefault') || 'Default card updated.');
+      },
+      error: err => this.toastService.error(err?.error?.message || 'Error')
+    });
+  }
+
+  deleteWalletCard(card: WalletCard): void {
+    if (!confirm(this.i18n.instant('settings.walletCardDeleteConfirm') || 'Remove this card?')) return;
+    this.financeService.deleteWalletCard(String(card.id)).subscribe({
+      next: () => {
+        this.walletCards = this.financeService.getWalletCards();
+        this.toastService.success(this.i18n.instant('settings.walletCardDeleted') || 'Card removed.');
+      },
+      error: err => this.toastService.error(err?.error?.message || 'Error')
+    });
+  }
+
+  maskCardNumber(number: string): string {
+    if (!number || number.length < 8) return '****';
+    const s = number.replace(/\s/g, '');
+    return s.slice(0, 4) + ' **** **** ' + s.slice(-4);
   }
 
   onCurrencyChange(code: string): void {

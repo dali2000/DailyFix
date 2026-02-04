@@ -37,3 +37,13 @@ export interface ExpenseCategory {
   userId?: number;
   createdAt?: string;
 }
+
+export interface WalletCard {
+  id: string | number;
+  holderName: string;
+  cardNumber: string;
+  expiryDate: string;
+  rib?: string | null;
+  isDefault: boolean;
+  createdAt?: string;
+}

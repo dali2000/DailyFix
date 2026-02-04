@@ -35,24 +35,31 @@
   <!-- Overview Tab -->
   <div *ngIf="activeTab === 'overview'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
-    <!-- Bank Card -->
+    <!-- Bank Card (from wallet or fallback) -->
+    <div class="bank-card-wrapper" *ngIf="walletCards.length > 1">
+      <div class="bank-card-selector" role="tablist" aria-label="Select card">
+        <button type="button" *ngFor="let card of walletCards" class="bank-card-tab" [class.active]="selectedCard?.id === card.id" (click)="selectCard(card)" [attr.aria-selected]="selectedCard?.id === card.id">
+          {{ card.holderName }} •••• {{ (card.cardNumber | slice:-4) }}
+        </button>
+      </div>
+    </div>
     <div class="bank-card" [class.negative-balance]="remainingBalance < 0">
       <div class="card-chip"></div>
       <div class="card-logo">DailyFix</div>
-      <div class="card-number">{{ cardNumber }}</div>
+      <div class="card-number">{{ displayCardNumber }}</div>
       <div class="card-details">
         <div class="card-name-section">
           <div class="card-label">{{ 'finance.holder' | translate }}</div>
-          <div class="card-name">{{ userName }}</div>
+          <div class="card-name">{{ displayCardHolder }}</div>
         </div>
         <div class="card-expiry-section">
           <div class="card-label">{{ 'finance.expires' | translate }}</div>
-          <div class="card-expiry">{{ expiryDate }}</div>
+          <div class="card-expiry">{{ displayExpiry }}</div>
         </div>
       </div>
       <div class="card-rib-section">
         <div class="card-label">RIB</div>
-        <div class="card-rib">{{ rib }}</div>
+        <div class="card-rib">{{ displayRib }}</div>
       </div>
       <div class="card-balance">
         <div class="balance-label">{{ 'finance.availableBalance' | translate }}</div>
@@ -61,6 +68,7 @@
         </div>
       </div>
     </div>
+    <p *ngIf="walletCards.length === 0" class="bank-card-hint">{{ 'settings.noCards' | translate }} <a routerLink="/settings">{{ 'settings.wallet' | translate }}</a>.</p>
 
     <div class="overview-grid">
       <div class="overview-card income">

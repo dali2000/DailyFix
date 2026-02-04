@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
 import { AuthService } from '../../services/auth.service';
 import { CurrencyService } from '../../services/currency.service';
-import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } from '../../models/finance.model';
+import { Expense, Budget, SavingsGoal, Salary, ExpenseCategory, WalletCard } from '../../models/finance.model';
 import { I18nService } from '../../services/i18n.service';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -13,11 +13,12 @@ import { ToastService } from '../../services/toast.service';
 import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { CountUpComponent } from '../shared/count-up/count-up.component';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-finance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent, RouterLink],
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
@@ -130,13 +131,16 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   showDeleteSavingsConfirm = false;
   itemToDelete: string | null = null;
 
-  // User info for bank card
+  // User info for bank card (fallback when no wallet cards)
   userName = '';
   rib = 'FR76 1234 5678 9012 3456 7890 123';
   cardNumber = '4532 1234 5678 9010';
   expiryDate = '12/28';
   cvv = '123';
+  walletCards: WalletCard[] = [];
+  selectedCard: WalletCard | null = null;
   private userSubscription?: Subscription;
+  private walletCardsSubscription?: Subscription;
 
   /** Play a short money/cha-ching sound using Web Audio API */
   private playMoneySound(): void {
@@ -200,6 +204,9 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     if (this.userSubscription) {
       this.userSubscription.unsubscribe();
+    }
+    if (this.walletCardsSubscription) {
+      this.walletCardsSubscription.unsubscribe();
     }
   }
 
@@ -272,6 +279,15 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         this.customCategoryList = list.map(c => ({ ...c, id: typeof c.id === 'number' ? c.id : parseInt(String(c.id), 10) }));
       },
       error: (err) => console.error('Error loading categories:', err)
+    });
+
+    this.walletCardsSubscription = this.financeService.getWalletCardsObservable().subscribe({
+      next: (list) => {
+        this.walletCards = list;
+        const defaultCard = this.financeService.getDefaultWalletCard();
+        this.selectedCard = defaultCard;
+      },
+      error: (err) => console.error('Error loading wallet cards:', err)
     });
   }
 
@@ -733,6 +749,27 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   cancelDeleteSavingsGoal(): void {
     this.showDeleteSavingsConfirm = false;
     this.itemToDelete = null;
+  }
+
+  /** Displayed bank card: selected wallet card or fallback (user name + default values). */
+  get displayCardHolder(): string {
+    return this.selectedCard?.holderName ?? this.userName;
+  }
+
+  get displayCardNumber(): string {
+    return this.selectedCard?.cardNumber ?? this.cardNumber;
+  }
+
+  get displayExpiry(): string {
+    return this.selectedCard?.expiryDate ?? this.expiryDate;
+  }
+
+  get displayRib(): string {
+    return this.selectedCard?.rib ?? this.rib;
+  }
+
+  selectCard(card: WalletCard): void {
+    this.selectedCard = card;
   }
 }
 

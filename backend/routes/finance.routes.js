@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { Expense, Budget, SavingsGoal, Salary, ExpenseCategory } = require('../models/Finance.model');
+const { Op } = require('sequelize');
+const { Expense, Budget, SavingsGoal, Salary, ExpenseCategory, WalletCard } = require('../models/Finance.model');
 const { protect } = require('../middleware/auth.middleware');
 
 // Helper function for CRUD operations (order: e.g. [['date', 'DESC']] or [['createdAt', 'DESC']])
@@ -201,6 +202,106 @@ router.delete('/categories/:id', protect, async (req, res) => {
     res.json({ success: true, message: 'Category deleted' });
   } catch (error) {
     console.error('Delete category error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// ---------- Wallet cards ----------
+router.get('/wallet-cards', protect, async (req, res) => {
+  try {
+    const items = await WalletCard.findAll({
+      where: { userId: req.user.id },
+      order: [['isDefault', 'DESC'], ['createdAt', 'ASC']]
+    });
+    res.json({ success: true, count: items.length, data: items });
+  } catch (error) {
+    console.error('Get wallet-cards error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.post('/wallet-cards', protect, async (req, res) => {
+  try {
+    const userId = typeof req.user.id === 'number' ? req.user.id : parseInt(String(req.user.id), 10);
+    const { holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
+    const holder = (holderName != null ? String(holderName).trim() : '') || '';
+    const number = (cardNumber != null ? String(cardNumber).trim() : '') || '';
+    const expiry = (expiryDate != null ? String(expiryDate).trim() : '') || '';
+    if (!holder || !number || !expiry) {
+      return res.status(400).json({ success: false, message: 'Holder name, card number and expiry are required' });
+    }
+    const isFirst = (await WalletCard.count({ where: { userId } })) === 0;
+    const item = await WalletCard.create({
+      userId,
+      holderName: holder,
+      cardNumber: number,
+      expiryDate: expiry,
+      rib: rib != null ? String(rib).trim() : null,
+      isDefault: isFirst || Boolean(isDefault)
+    });
+    if (isFirst || isDefault) {
+      await WalletCard.update(
+        { isDefault: false },
+        { where: { userId, id: { [Op.ne]: item.id } } }
+      );
+      await item.update({ isDefault: true });
+    }
+    res.status(201).json({ success: true, data: item });
+  } catch (error) {
+    console.error('Create wallet-card error:', error);
+    res.status(500).json({ success: false, message: error.message || 'Server error' });
+  }
+});
+
+router.put('/wallet-cards/:id', protect, async (req, res) => {
+  try {
+    const item = await WalletCard.findOne({
+      where: { id: req.params.id, userId: req.user.id }
+    });
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Wallet card not found' });
+    }
+    const { holderName, cardNumber, expiryDate, rib, isDefault } = req.body;
+    const updates = {};
+    if (holderName !== undefined) updates.holderName = String(holderName).trim();
+    if (cardNumber !== undefined) updates.cardNumber = String(cardNumber).trim();
+    if (expiryDate !== undefined) updates.expiryDate = String(expiryDate).trim();
+    if (rib !== undefined) updates.rib = rib != null ? String(rib).trim() : null;
+    if (isDefault === true) {
+      await WalletCard.update({ isDefault: false }, { where: { userId: req.user.id } });
+      updates.isDefault = true;
+    }
+    await item.update(updates);
+    await item.reload();
+    res.json({ success: true, data: item });
+  } catch (error) {
+    console.error('Update wallet-card error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.delete('/wallet-cards/:id', protect, async (req, res) => {
+  try {
+    const item = await WalletCard.findOne({
+      where: { id: req.params.id, userId: req.user.id }
+    });
+    if (!item) {
+      return res.status(404).json({ success: false, message: 'Wallet card not found' });
+    }
+    const wasDefault = item.isDefault;
+    await item.destroy();
+    if (wasDefault) {
+      const next = await WalletCard.findOne({
+        where: { userId: req.user.id },
+        order: [['createdAt', 'ASC']]
+      });
+      if (next) {
+        await next.update({ isDefault: true });
+      }
+    }
+    res.json({ success: true, message: 'Wallet card deleted' });
+  } catch (error) {
+    console.error('Delete wallet-card error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

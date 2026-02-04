@@ -523,6 +523,53 @@
   }
 }
 
+.bank-card-wrapper {
+  margin-bottom: 12px;
+}
+
+.bank-card-selector {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.bank-card-tab {
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--notion-border);
+  background: var(--notion-bg-tertiary);
+  color: var(--notion-text-secondary);
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.bank-card-tab:hover {
+  background: var(--notion-bg-hover);
+  color: var(--notion-text-primary);
+}
+
+.bank-card-tab.active {
+  background: var(--notion-blue, #3b82f6);
+  border-color: var(--notion-blue, #3b82f6);
+  color: white;
+}
+
+.bank-card-hint {
+  font-size: 14px;
+  color: var(--notion-text-secondary);
+  margin: -8px 0 20px 0;
+}
+
+.bank-card-hint a {
+  color: var(--notion-blue, #3b82f6);
+  text-decoration: none;
+}
+
+.bank-card-hint a:hover {
+  text-decoration: underline;
+}
+
 .bank-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 25px 70px rgba(102, 126, 234, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;

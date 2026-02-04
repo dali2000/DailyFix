@@ -48,6 +48,74 @@
 .settings-section.section-appearance { border-left-color: var(--notion-purple, #7c3aed); }
 .settings-section.custom-categories-section { border-left-color: var(--notion-orange, #ea580c); }
 .settings-section.section-wallet { border-left-color: var(--notion-green, #16a34a); }
+
+/* Wallet cards */
+.wallet-cards-item .wallet-cards-control {
+  margin-top: 4px;
+}
+
+.wallet-cards-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wallet-card-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--notion-bg-secondary);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+}
+
+.wallet-card-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wallet-card-holder {
+  font-weight: 600;
+  color: var(--notion-text-primary);
+  font-size: 14px;
+}
+
+.wallet-card-number,
+.wallet-card-expiry {
+  font-size: 13px;
+  color: var(--notion-text-secondary);
+  font-family: ui-monospace, monospace;
+}
+
+.wallet-card-badge {
+  display: inline-block;
+  margin-top: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  background: var(--notion-green, #16a34a);
+  color: white;
+  border-radius: 6px;
+  width: fit-content;
+}
+
+.wallet-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wallet-cards-empty {
+  font-size: 14px;
+  color: var(--notion-text-secondary);
+  margin: 0 0 12px 0;
+}
 .settings-section.section-account { border-left-color: var(--notion-text-tertiary); }
 .settings-section.section-about { border-left-color: var(--notion-text-tertiary); }
 
