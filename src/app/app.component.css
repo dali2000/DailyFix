@@ -40,10 +40,10 @@
 
 .main-content {
   margin-left: 240px;
-  margin-top: 52px;
-  min-height: calc(100vh - 52px);
+  margin-top: calc(52px + env(safe-area-inset-top, 0));
+  min-height: calc(100vh - 52px - env(safe-area-inset-top, 0));
   background: var(--notion-bg-secondary);
-  transition: margin-left 100ms ease-in 0s;
+  transition: margin-left 100ms ease-in 0s, margin-right 100ms ease-in 0s;
   overflow-x: hidden;
   box-sizing: border-box;
 }
