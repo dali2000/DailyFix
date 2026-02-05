@@ -43,14 +43,33 @@
       <!-- Stack comme sur l’image : carte devant + bandeaux derrière. Clic sur la carte = les bandeaux s’ouvrent un peu pour afficher les autres infos. -->
       <div class="wallet-stack" [class.wallet-stack-opened]="showCardList" *ngIf="walletCards.length > 1" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
         <div class="wallet-stack-peeks" [class.wallet-stack-peeks-opened]="showCardList">
-          <ng-container *ngFor="let card of walletCards">
-            <div *ngIf="selectedCard?.id !== card.id" (click)="selectCard(card)" class="wallet-peek" [style.background]="getCardGradient(card)" tabindex="0" role="tab">
+          <ng-container *ngFor="let card of peekCardsOrdered">
+            <div (click)="selectCard(card)" class="wallet-peek" [style.background]="getCardGradient(card)" tabindex="0" role="tab">
               <span class="wallet-peek-name">{{ card.name || card.holderName }}</span>
               <span class="wallet-peek-last4">•••• {{ (card.cardNumber | slice:-4) }}</span>
             </div>
           </ng-container>
         </div>
-        <div class="bank-card bank-card-front bank-card-front-tappable" (click)="toggleCardList()" (keydown.enter)="toggleCardList()" (keydown.space)="toggleCardList()" tabindex="0" role="button" [attr.aria-label]="'finance.viewAllCards' | translate" [class.card-transitioning]="cardTransitioning" [class.negative-balance]="remainingBalance < 0" [style.background]="getFrontCardGradient()">
+        <div class="bank-card bank-card-front bank-card-front-tappable"
+             appSwipePreventScroll
+             (click)="toggleCardList()"
+             (keydown.enter)="toggleCardList()"
+             (keydown.space)="toggleCardList()"
+             (touchstart)="onCardSwipeStart($event)"
+             (touchmove)="onCardSwipeMove($event)"
+             (touchend)="onCardSwipeEnd()"
+             (mousedown)="onCardSwipeStart($event)"
+             (mouseup)="onCardSwipeEnd()"
+             (transitionend)="onCardSwipeTransitionEnd($event)"
+             [class.card-swipe-dragging]="isSwiping"
+             [class.card-swipe-animating]="isCardSwipeAnimating"
+             [class.card-transitioning]="cardTransitioning"
+             [class.negative-balance]="remainingBalance < 0"
+             [style.background]="getFrontCardGradient()"
+             [style.transform]="cardSwipeTransform || null"
+             tabindex="0"
+             role="button"
+             [attr.aria-label]="'finance.viewAllCards' | translate">
           <div class="card-chip"></div>
           <div class="card-header-row">
             <div class="card-logo">{{ displayCardName }}</div>

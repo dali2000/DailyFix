@@ -644,7 +644,7 @@
 .bank-card-wrapper {
   margin-bottom: 12px;
   overflow: visible;
-  padding: 0 16px;
+  padding: 0 24px 40px 24px;
   box-sizing: border-box;
 }
 
@@ -652,6 +652,7 @@
   padding-top: 24px;
   padding-left: 0;
   padding-right: 0;
+  padding-bottom: 8px;
   max-width: 400px;
   margin-left: auto;
   margin-right: auto;
@@ -688,18 +689,38 @@
 
 .bank-card-front {
   position: relative;
-  z-index: 2;
+  z-index: 10;
   margin-top: calc(-1 * var(--wallet-card-overlap, 10px));
   margin-bottom: 16px;
   color: rgba(255, 255, 255, 0.98);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   overflow: visible !important;
   transition: margin 0.3s ease;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.bank-card-front-tappable.card-swipe-dragging,
+.bank-card-front-tappable.card-swipe-animating {
+  z-index: 20;
 }
 
 .bank-card-front-tappable {
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.3s ease-out, box-shadow 0.2s ease;
+  touch-action: pan-y;
+}
+
+.wallet-stack {
+  perspective: 1200px;
+}
+
+.wallet-stack .bank-card-front {
+  transform-origin: center center;
+}
+
+.bank-card-front-tappable.card-swipe-dragging {
+  transition: none;
 }
 
 .bank-card-front-tappable:hover {

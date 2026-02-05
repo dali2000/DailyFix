@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { FinanceService } from '../../services/finance.service';
@@ -14,6 +14,7 @@ import { EmptyStateComponent } from '../shared/empty-state/empty-state.component
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { CountUpComponent } from '../shared/count-up/count-up.component';
 import { RouterLink } from '@angular/router';
+import { SwipePreventScrollDirective } from './swipe-prevent-scroll.directive';
 
 /** Preset gradient backgrounds for wallet cards (key = stored value in DB). */
 const CARD_COLORS: Record<string, string> = {
@@ -31,7 +32,7 @@ const CARD_COLORS: Record<string, string> = {
 @Component({
   selector: 'app-finance',
   standalone: true,
-  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent, RouterLink],
+  imports: [CommonModule, FormsModule, ModalComponent, TranslatePipe, EmptyStateComponent, ConfirmDialogComponent, CountUpComponent, RouterLink, SwipePreventScrollDirective],
   templateUrl: './finance.component.html',
   styleUrl: './finance.component.css'
 })
@@ -219,6 +220,10 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   ngOnDestroy(): void {
+    if (this.swipeTransitionFallback) {
+      clearTimeout(this.swipeTransitionFallback);
+      this.swipeTransitionFallback = null;
+    }
     if (this.dataSubscription) {
       this.dataSubscription.unsubscribe();
     }
@@ -857,6 +862,187 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   /** true = liste des cartes affichée (style Wallet iPhone, clic sur la carte devant) */
   showCardList = false;
 
+  /** Swipe : offset horizontal en px (carte suit le doigt). */
+  cardSwipeOffset = 0;
+  private swipeStartX = 0;
+  isSwiping = false;
+  /** Évite d'ouvrir la liste au clic après un swipe. */
+  private swipeHandled = false;
+  private pendingSwipeDirection: 'next' | 'prev' | null = null;
+  /** true pendant l'animation de slide après un swipe (carte reste au premier plan). */
+  get isCardSwipeAnimating(): boolean {
+    return this.pendingSwipeDirection !== null;
+  }
+  /** Transform pour la carte : translateX + inclinaison selon la direction du swipe. */
+  get cardSwipeTransform(): string {
+    if (this.cardSwipeOffset === 0 && !this.isSwiping) return '';
+    const tx = this.cardSwipeOffset;
+    // Inclinaison proportionnelle : swipe droite → rotation positive, swipe gauche → négative (max ±12°)
+    const tiltDeg = Math.max(-12, Math.min(12, (tx / this.SWIPE_ANIMATION_DISTANCE) * 14));
+    return `translateX(${tx}px) rotate(${tiltDeg}deg)`;
+  }
+  private readonly SWIPE_THRESHOLD = 40;
+  private readonly SWIPE_ANIMATION_DISTANCE = 320;
+  private readonly SWIPE_TRANSITION_FALLBACK_MS = 450;
+  private swipeTransitionFallback: ReturnType<typeof setTimeout> | null = null;
+  /** true pendant le slide-in (nouvelle carte entre), pour ignorer le transitionend de ce slide-in. */
+  private slideInProgress = false;
+
+  get selectedCardIndex(): number {
+    if (!this.selectedCard || this.walletCards.length === 0) return 0;
+    const idx = this.walletCards.findIndex(c => c.id === this.selectedCard!.id);
+    return idx >= 0 ? idx : 0;
+  }
+
+  get nextCard(): WalletCard | null {
+    const i = this.selectedCardIndex + 1;
+    return i < this.walletCards.length ? this.walletCards[i] : null;
+  }
+
+  get previousCard(): WalletCard | null {
+    const i = this.selectedCardIndex - 1;
+    return i >= 0 ? this.walletCards[i] : null;
+  }
+
+  /** Ordre des bandeaux : suivantes d'abord (au fond), puis précédentes (juste derrière la carte affichée). Au swipe, la carte affichée passe au fond et la suivante/précédente passe devant. */
+  get peekCardsOrdered(): WalletCard[] {
+    const i = this.selectedCardIndex;
+    const prev = this.walletCards.slice(0, i);
+    const next = this.walletCards.slice(i + 1);
+    return [...next, ...prev];
+  }
+
+  onCardSwipeStart(e: TouchEvent | MouseEvent): void {
+    if (this.walletCards.length <= 1) return;
+    if (this.pendingSwipeDirection !== null || this.slideInProgress) {
+      this.pendingSwipeDirection = null;
+      this.slideInProgress = false;
+      this.cardSwipeOffset = 0;
+      if (this.swipeTransitionFallback) {
+        clearTimeout(this.swipeTransitionFallback);
+        this.swipeTransitionFallback = null;
+      }
+      this.cdr.detectChanges();
+    }
+    this.swipeHandled = false;
+    this.isSwiping = true;
+    this.cardTransitioning = false;
+    this.swipeStartX = this.getEventClientX(e);
+    this.cdr.detectChanges();
+  }
+
+  onCardSwipeMove(e: TouchEvent | MouseEvent): void {
+    if (!this.isSwiping) return;
+    const x = this.getEventClientX(e);
+    if (x === 0 && e instanceof TouchEvent && e.touches.length === 0) return;
+    let delta = x - this.swipeStartX;
+    const max = 120;
+    if (delta > max) delta = max + (delta - max) * 0.3;
+    if (delta < -max) delta = -max + (delta + max) * 0.3;
+    this.cardSwipeOffset = delta;
+    this.cdr.detectChanges();
+    if (e.cancelable && Math.abs(delta) > 8) e.preventDefault();
+  }
+
+  onCardSwipeEnd(): void {
+    if (!this.isSwiping) return;
+    this.isSwiping = false;
+    const offset = this.cardSwipeOffset;
+    if (offset < -this.SWIPE_THRESHOLD && this.nextCard) {
+      this.swipeHandled = true;
+      this.pendingSwipeDirection = 'next';
+      this.cardSwipeOffset = -this.SWIPE_ANIMATION_DISTANCE;
+      this.scheduleSwipeTransitionFallback();
+      this.cdr.detectChanges();
+    } else if (offset > this.SWIPE_THRESHOLD && this.previousCard) {
+      this.swipeHandled = true;
+      this.pendingSwipeDirection = 'prev';
+      this.cardSwipeOffset = this.SWIPE_ANIMATION_DISTANCE;
+      this.scheduleSwipeTransitionFallback();
+      this.cdr.detectChanges();
+    } else {
+      this.pendingSwipeDirection = null;
+      this.cardSwipeOffset = 0;
+      this.cdr.detectChanges();
+    }
+  }
+
+  private scheduleSwipeTransitionFallback(): void {
+    if (this.swipeTransitionFallback) clearTimeout(this.swipeTransitionFallback);
+    this.swipeTransitionFallback = setTimeout(() => {
+      this.swipeTransitionFallback = null;
+      if (this.pendingSwipeDirection !== null) this.onCardSwipeTransitionEnd();
+    }, this.SWIPE_TRANSITION_FALLBACK_MS);
+  }
+
+  onCardSwipeTransitionEnd(e?: TransitionEvent): void {
+    if (e && e.propertyName !== 'transform') return;
+    if (this.slideInProgress) {
+      this.slideInProgress = false;
+      return;
+    }
+    if (this.swipeTransitionFallback) {
+      clearTimeout(this.swipeTransitionFallback);
+      this.swipeTransitionFallback = null;
+    }
+    if (this.pendingSwipeDirection === 'next' && this.nextCard) {
+      this.selectCard(this.nextCard, true);
+      this.pendingSwipeDirection = null;
+      this.cardSwipeOffset = this.SWIPE_ANIMATION_DISTANCE;
+      this.slideInProgress = true;
+      this.cdr.detectChanges();
+      requestAnimationFrame(() => {
+        if (!this.isSwiping) {
+          this.cardSwipeOffset = 0;
+          this.cdr.detectChanges();
+        }
+        this.slideInProgress = false;
+      });
+    } else if (this.pendingSwipeDirection === 'prev' && this.previousCard) {
+      this.selectCard(this.previousCard, true);
+      this.pendingSwipeDirection = null;
+      this.cardSwipeOffset = -this.SWIPE_ANIMATION_DISTANCE;
+      this.slideInProgress = true;
+      this.cdr.detectChanges();
+      requestAnimationFrame(() => {
+        if (!this.isSwiping) {
+          this.cardSwipeOffset = 0;
+          this.cdr.detectChanges();
+        }
+        this.slideInProgress = false;
+      });
+    }
+  }
+
+  private getEventClientX(e: TouchEvent | MouseEvent): number {
+    return e instanceof TouchEvent ? e.touches[0]?.clientX ?? e.changedTouches[0]?.clientX ?? 0 : e.clientX;
+  }
+
+  @HostListener('document:touchend')
+  onDocumentTouchEnd(): void {
+    if (this.isSwiping) this.onCardSwipeEnd();
+  }
+
+  @HostListener('document:touchcancel')
+  onDocumentTouchCancel(): void {
+    if (this.isSwiping) this.onCardSwipeEnd();
+    else if (this.cardSwipeOffset !== 0 && !this.pendingSwipeDirection) {
+      this.cardSwipeOffset = 0;
+      this.cdr.detectChanges();
+    }
+  }
+
+  @HostListener('document:mouseup')
+  onDocumentMouseUp(): void {
+    if (this.isSwiping) this.onCardSwipeEnd();
+  }
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocumentMouseMove(e: MouseEvent): void {
+    if (this.isSwiping && e.buttons === 0) this.onCardSwipeEnd();
+    else if (this.isSwiping) this.onCardSwipeMove(e);
+  }
+
   /** Ouvre un peu les bandeaux pour afficher les autres cartes. */
   openCardList(): void {
     this.showCardList = true;
@@ -869,10 +1055,14 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** Clic sur la carte devant : ouvre un peu les bandeaux ou les referme. */
   toggleCardList(): void {
+    if (this.swipeHandled) {
+      this.swipeHandled = false;
+      return;
+    }
     this.showCardList = !this.showCardList;
   }
 
-  selectCard(card: WalletCard): void {
+  selectCard(card: WalletCard, skipShuffleAnimation = false): void {
     if (this.selectedCard?.id === card.id) {
       this.showCardList = false;
       return;
@@ -881,10 +1071,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showCardList = false;
     this.loadData(card.id);
     this.cardTransitioning = false;
-    setTimeout(() => {
-      this.cardTransitioning = true;
-      setTimeout(() => (this.cardTransitioning = false), 850);
-    }, 0);
+    if (!skipShuffleAnimation) {
+      setTimeout(() => {
+        this.cardTransitioning = true;
+        setTimeout(() => (this.cardTransitioning = false), 850);
+      }, 0);
+    }
+    this.cdr.detectChanges();
   }
 }
 
