@@ -884,9 +884,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   private readonly SWIPE_THRESHOLD = 40;
   private readonly SWIPE_ANIMATION_DISTANCE = 320;
   private readonly SWIPE_TRANSITION_FALLBACK_MS = 450;
+  private readonly SLIDE_IN_DURATION_MS = 350;
   private swipeTransitionFallback: ReturnType<typeof setTimeout> | null = null;
+  private slideInClearTimeout: ReturnType<typeof setTimeout> | null = null;
   /** true pendant le slide-in (nouvelle carte entre), pour ignorer le transitionend de ce slide-in. */
   private slideInProgress = false;
+  /** true uniquement après release jusqu'à la fin du slide-out ; évite de traiter un transitionend tardif du slide-in. */
+  private expectingSlideOutEnd = false;
 
   get selectedCardIndex(): number {
     if (!this.selectedCard || this.walletCards.length === 0) return 0;
@@ -914,13 +918,18 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
 
   onCardSwipeStart(e: TouchEvent | MouseEvent): void {
     if (this.walletCards.length <= 1) return;
-    if (this.pendingSwipeDirection !== null || this.slideInProgress) {
+    if (this.pendingSwipeDirection !== null || this.slideInProgress || this.expectingSlideOutEnd) {
       this.pendingSwipeDirection = null;
       this.slideInProgress = false;
+      this.expectingSlideOutEnd = false;
       this.cardSwipeOffset = 0;
       if (this.swipeTransitionFallback) {
         clearTimeout(this.swipeTransitionFallback);
         this.swipeTransitionFallback = null;
+      }
+      if (this.slideInClearTimeout) {
+        clearTimeout(this.slideInClearTimeout);
+        this.slideInClearTimeout = null;
       }
       this.cdr.detectChanges();
     }
@@ -951,17 +960,20 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (offset < -this.SWIPE_THRESHOLD && this.nextCard) {
       this.swipeHandled = true;
       this.pendingSwipeDirection = 'next';
+      this.expectingSlideOutEnd = true;
       this.cardSwipeOffset = -this.SWIPE_ANIMATION_DISTANCE;
       this.scheduleSwipeTransitionFallback();
       this.cdr.detectChanges();
     } else if (offset > this.SWIPE_THRESHOLD && this.previousCard) {
       this.swipeHandled = true;
       this.pendingSwipeDirection = 'prev';
+      this.expectingSlideOutEnd = true;
       this.cardSwipeOffset = this.SWIPE_ANIMATION_DISTANCE;
       this.scheduleSwipeTransitionFallback();
       this.cdr.detectChanges();
     } else {
       this.pendingSwipeDirection = null;
+      this.expectingSlideOutEnd = false;
       this.cardSwipeOffset = 0;
       this.cdr.detectChanges();
     }
@@ -979,8 +991,15 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     if (e && e.propertyName !== 'transform') return;
     if (this.slideInProgress) {
       this.slideInProgress = false;
+      if (this.slideInClearTimeout) {
+        clearTimeout(this.slideInClearTimeout);
+        this.slideInClearTimeout = null;
+      }
       return;
     }
+    // Ne traiter que si on est en fin de slide-out (offset ±320), pas si c’est un transitionend tardif du slide-in (offset ≈ 0)
+    const atSlideOutEnd = Math.abs(this.cardSwipeOffset) >= this.SWIPE_ANIMATION_DISTANCE - 20;
+    if (!atSlideOutEnd) return;
     if (this.swipeTransitionFallback) {
       clearTimeout(this.swipeTransitionFallback);
       this.swipeTransitionFallback = null;
@@ -990,26 +1009,35 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       this.pendingSwipeDirection = null;
       this.cardSwipeOffset = this.SWIPE_ANIMATION_DISTANCE;
       this.slideInProgress = true;
+      if (this.slideInClearTimeout) clearTimeout(this.slideInClearTimeout);
+      this.slideInClearTimeout = setTimeout(() => {
+        this.slideInClearTimeout = null;
+        this.slideInProgress = false;
+      }, this.SLIDE_IN_DURATION_MS);
       this.cdr.detectChanges();
       requestAnimationFrame(() => {
         if (!this.isSwiping) {
           this.cardSwipeOffset = 0;
           this.cdr.detectChanges();
         }
-        this.slideInProgress = false;
       });
     } else if (this.pendingSwipeDirection === 'prev' && this.previousCard) {
+      this.expectingSlideOutEnd = false;
       this.selectCard(this.previousCard, true);
       this.pendingSwipeDirection = null;
       this.cardSwipeOffset = -this.SWIPE_ANIMATION_DISTANCE;
       this.slideInProgress = true;
+      if (this.slideInClearTimeout) clearTimeout(this.slideInClearTimeout);
+      this.slideInClearTimeout = setTimeout(() => {
+        this.slideInClearTimeout = null;
+        this.slideInProgress = false;
+      }, this.SLIDE_IN_DURATION_MS);
       this.cdr.detectChanges();
       requestAnimationFrame(() => {
         if (!this.isSwiping) {
           this.cardSwipeOffset = 0;
           this.cdr.detectChanges();
         }
-        this.slideInProgress = false;
       });
     }
   }
