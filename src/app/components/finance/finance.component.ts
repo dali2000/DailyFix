@@ -151,6 +151,12 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   expiryDate = '12/28';
   cvv = '123';
   walletCards: WalletCard[] = [];
+  /** true après la première émission de getWalletCardsObservable (évite d'afficher "Aucune carte" au refresh). */
+  walletCardsLoaded = false;
+  /** true quand il n'y a pas de cartes : désactive les onglets Salary, Expenses, Budget, Savings. */
+  get tabsDisabled(): boolean {
+    return this.walletCardsLoaded && this.walletCards.length === 0;
+  }
   selectedCard: WalletCard | null = null;
   private userSubscription?: Subscription;
   private walletCardsSubscription?: Subscription;
@@ -289,17 +295,36 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     });
   }
 
+  /** Durée minimale d'affichage du loader des cartes (ms). */
+  private static readonly WALLET_CARDS_LOADER_MIN_MS = 2000;
+
   /** Load wallet cards then load expenses/salaries for the selected card. */
   private loadWalletCardsAndData(): void {
+    const loaderStart = Date.now();
     this.walletCardsSubscription = this.financeService.getWalletCardsObservable().subscribe({
       next: (list) => {
         this.walletCards = list;
         const defaultCard = this.financeService.getDefaultWalletCard();
         this.selectedCard = defaultCard ?? null;
         this.loadData(this.selectedCard?.id ?? null);
-        this.cdr.detectChanges();
+        const elapsed = Date.now() - loaderStart;
+        const remaining = Math.max(0, FinanceComponent.WALLET_CARDS_LOADER_MIN_MS - elapsed);
+        setTimeout(() => {
+          this.walletCardsLoaded = true;
+          if (list.length === 0) this.activeTab = 'overview';
+          this.cdr.detectChanges();
+        }, remaining);
       },
-      error: (err) => console.error('Error loading wallet cards:', err)
+      error: (err) => {
+        const elapsed = Date.now() - loaderStart;
+        const remaining = Math.max(0, FinanceComponent.WALLET_CARDS_LOADER_MIN_MS - elapsed);
+        setTimeout(() => {
+          this.walletCardsLoaded = true;
+          if (this.walletCards.length === 0) this.activeTab = 'overview';
+          this.cdr.detectChanges();
+        }, remaining);
+        console.error('Error loading wallet cards:', err);
+      }
     });
   }
 
@@ -858,7 +883,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     this.cardTransitioning = false;
     setTimeout(() => {
       this.cardTransitioning = true;
-      setTimeout(() => (this.cardTransitioning = false), 350);
+      setTimeout(() => (this.cardTransitioning = false), 850);
     }, 0);
   }
 }

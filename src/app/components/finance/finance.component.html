@@ -17,19 +17,19 @@
   </div>
 
   <nav class="finance-tabs" role="tablist" aria-label="Finance sections">
-    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'overview'" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'overview'" [class.active]="activeTab === 'overview'" [disabled]="tabsDisabled" [attr.aria-disabled]="tabsDisabled" (click)="activeTab = 'overview'">
       <span class="tab-icon">📊</span>{{ 'finance.overview' | translate }}
     </button>
-    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'salary'" [class.active]="activeTab === 'salary'" (click)="activeTab = 'salary'">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'salary'" [class.active]="activeTab === 'salary'" [disabled]="tabsDisabled" [attr.aria-disabled]="tabsDisabled" (click)="activeTab = 'salary'">
       <span class="tab-icon">💵</span>{{ 'finance.salary' | translate }}
     </button>
-    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'expenses'" [class.active]="activeTab === 'expenses'" (click)="activeTab = 'expenses'">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'expenses'" [class.active]="activeTab === 'expenses'" [disabled]="tabsDisabled" [attr.aria-disabled]="tabsDisabled" (click)="activeTab = 'expenses'">
       <span class="tab-icon">💸</span>{{ 'finance.expenses' | translate }}
     </button>
-    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'budget'" [class.active]="activeTab === 'budget'" (click)="activeTab = 'budget'">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'budget'" [class.active]="activeTab === 'budget'" [disabled]="tabsDisabled" [attr.aria-disabled]="tabsDisabled" (click)="activeTab = 'budget'">
       <span class="tab-icon">📋</span>{{ 'finance.budget' | translate }}
     </button>
-    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'savings'" [class.active]="activeTab === 'savings'" (click)="activeTab = 'savings'">
+    <button type="button" role="tab" [attr.aria-selected]="activeTab === 'savings'" [class.active]="activeTab === 'savings'" [disabled]="tabsDisabled" [attr.aria-disabled]="tabsDisabled" (click)="activeTab = 'savings'">
       <span class="tab-icon">🎯</span>{{ 'finance.savings' | translate }}
     </button>
   </nav>
@@ -37,8 +37,8 @@
   <!-- Overview Tab -->
   <div *ngIf="activeTab === 'overview'" class="tab-content tab-content-animate" role="tabpanel">
     <p class="month-context">{{ 'finance.forMonth' | translate }} {{ selectedMonthLabel }}</p>
-    <!-- Bank Card (from wallet or fallback) – each card has its own balance and expenses -->
-    <div class="bank-card-wrapper" *ngIf="walletCards.length >= 1">
+    <!-- Bank Card (from wallet or fallback) – each card has its own balance and expenses (affiché après le loader) -->
+    <div class="bank-card-wrapper" *ngIf="walletCardsLoaded && walletCards.length >= 1">
       <p class="finance-card-context" *ngIf="selectedCard">{{ 'finance.statsForThisCard' | translate }}</p>
       <!-- Stack comme sur l’image : carte devant + bandeaux derrière. Clic sur la carte = les bandeaux s’ouvrent un peu pour afficher les autres infos. -->
       <div class="wallet-stack" [class.wallet-stack-opened]="showCardList" *ngIf="walletCards.length > 1" role="tablist" [attr.aria-label]="'finance.selectCardToView' | translate">
@@ -74,7 +74,7 @@
         </div>
       </div>
     </div>
-    <div class="bank-card" [class.negative-balance]="remainingBalance < 0" [style.background]="getFrontCardGradient()" *ngIf="walletCards.length === 1">
+    <div class="bank-card" [class.negative-balance]="remainingBalance < 0" [style.background]="getFrontCardGradient()" *ngIf="walletCardsLoaded && walletCards.length === 1">
       <div class="card-chip"></div>
       <div class="card-header-row">
         <div class="card-logo">{{ displayCardName }}</div>
@@ -95,7 +95,10 @@
       </div>
       <span class="card-brand" aria-hidden="true">VISA</span>
     </div>
-    <div *ngIf="walletCards.length === 0" class="finance-no-cards">
+    <div *ngIf="!walletCardsLoaded" class="finance-cards-loading" aria-busy="true">
+      <div class="finance-cards-loading-placeholder"></div>
+    </div>
+    <div *ngIf="walletCardsLoaded && walletCards.length === 0" class="finance-no-cards">
       <div class="finance-no-cards-icon" aria-hidden="true">💳</div>
       <h2 class="finance-no-cards-title">{{ 'finance.noCardsTitle' | translate }}</h2>
       <p class="finance-no-cards-desc">{{ 'finance.noCardsDesc' | translate }}</p>

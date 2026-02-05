@@ -176,6 +176,12 @@
   color: var(--notion-text-primary);
 }
 
+.finance-tabs button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
 .finance-tabs button.active {
   background: var(--active-tab-bg);
   color: var(--active-tab-color);
@@ -652,7 +658,6 @@
 }
 
 .bank-card-wrapper:has(.wallet-stack-opened) {
-  padding-bottom: 120px;
   margin-bottom: 0;
 }
 
@@ -667,6 +672,7 @@
   max-width: 400px;
   margin: 0 auto 0 auto;
   overflow: visible;
+  transition: padding 0.3s ease;
 }
 
 .wallet-stack-peeks {
@@ -684,10 +690,11 @@
   position: relative;
   z-index: 2;
   margin-top: calc(-1 * var(--wallet-card-overlap, 10px));
-  margin-bottom: 32px;
+  margin-bottom: 16px;
   color: rgba(255, 255, 255, 0.98);
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
   overflow: visible !important;
+  transition: margin 0.3s ease;
 }
 
 .bank-card-front-tappable {
@@ -748,6 +755,7 @@
 .wallet-stack-peeks-opened {
   gap: 0;
   padding-bottom: 0;
+  transition: padding-bottom 0.3s ease;
 }
 
 .wallet-stack-peeks-opened .wallet-peek:not(:last-child) {
@@ -771,7 +779,6 @@
 .wallet-stack-opened .bank-card-front {
   margin-top: calc(-1 * var(--wallet-card-overlap, 10px));
   margin-bottom: 56px;
-  transition: margin 0.3s ease;
 }
 
 .bank-card-front .card-logo,
@@ -786,19 +793,25 @@
   z-index: 1;
 }
 
-/* Animation de transition entre cartes */
+/* Animation shuffle : la carte choisie sort du paquet et prend la place devant */
 .bank-card-front.card-transitioning {
-  animation: cardTransition 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: cardShuffle 0.85s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+  pointer-events: none;
+  transform-origin: center bottom;
 }
 
-@keyframes cardTransition {
-  from {
-    opacity: 0.88;
-    transform: scale(0.96) translateY(8px);
+@keyframes cardShuffle {
+  0% {
+    opacity: 0.5;
+    transform: translateY(45px) scale(0.88) rotate(-6deg);
   }
-  to {
+  55% {
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: translateY(-6px) scale(1.03) rotate(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1) rotate(0deg);
   }
 }
 
@@ -829,7 +842,7 @@
     0 2px 8px rgba(0, 0, 0, 0.1),
     0 0 0 1px rgba(0, 0, 0, 0.05),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: height 0.3s cubic-bezier(0.34, 1.2, 0.64, 1), margin 0.3s ease, border-radius 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -917,6 +930,26 @@
 
 .bank-card-hint a:hover {
   text-decoration: underline;
+}
+
+/* Placeholder pendant le chargement des cartes (évite le flash "Aucune carte" au refresh) */
+.finance-cards-loading {
+  max-width: 400px;
+  margin: 0 auto 16px auto;
+  padding: 0 16px;
+}
+
+.finance-cards-loading-placeholder {
+  height: 200px;
+  border-radius: 20px;
+  background: var(--notion-bg);
+  border: 1px solid var(--notion-border);
+  animation: financeCardsLoadingPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes financeCardsLoadingPulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
 }
 
 /* Bloc « aucune carte » – design soigné */
