@@ -1644,16 +1644,32 @@
   font-weight: 600;
   color: var(--notion-text-primary);
   transition: background 0.2s;
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 .expense-category-group-toggle:hover {
   background: var(--notion-bg-hover);
 }
 
-.expense-category-group-toggle .group-toggle-icon {
-  font-size: 12px;
-  color: var(--notion-text-secondary);
+/* Chevron (triangle CSS) pour ouvrir/fermer la catégorie */
+.expense-category-group-toggle .group-toggle-chevron {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 5px 0 5px 6px;
+  border-color: transparent transparent transparent var(--notion-text-secondary);
+  transition: transform 0.2s ease, border-color 0.2s ease;
   flex-shrink: 0;
+}
+
+.expense-category-group-toggle .group-toggle-chevron.group-toggle-chevron-open {
+  border-width: 6px 5px 0 5px;
+  border-color: var(--notion-text-secondary) transparent transparent transparent;
 }
 
 .expense-category-group-toggle .group-toggle-icon-emoji {
@@ -1816,6 +1832,13 @@
   font-family: inherit;
   background: var(--notion-bg);
   color: var(--notion-text-primary);
+}
+
+.form-group select {
+  cursor: pointer;
+  min-height: 38px;
+  appearance: auto;
+  pointer-events: auto;
 }
 
 .form-group.category-group {
@@ -2161,6 +2184,14 @@
 
 .dark-theme .expense-category-group-toggle .group-toggle-total {
   color: #ff6b6b;
+}
+
+.dark-theme .expense-category-group-toggle .group-toggle-chevron {
+  border-color: transparent transparent transparent rgba(255, 255, 255, 0.7);
+}
+
+.dark-theme .expense-category-group-toggle .group-toggle-chevron.group-toggle-chevron-open {
+  border-color: rgba(255, 255, 255, 0.7) transparent transparent transparent;
 }
 
 .dark-theme .expenses-by-category .category-progress-bar {

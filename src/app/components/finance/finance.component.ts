@@ -107,15 +107,22 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   /** Catégories repliées dans l’onglet Dépenses (liste déroulante par catégorie). */
   expandedExpenseCategories = new Set<string>();
 
-  /** Dépenses du mois regroupées par catégorie (pour l’onglet Dépenses). */
+  /** Dépenses du mois regroupées par catégorie (pour l’onglet Dépenses). Liste mise en cache pour éviter recréation DOM. */
+  private _expenseGroupsCache: { category: string; categoryName: string; expenses: Expense[]; total: number }[] | null = null;
+  private _expenseGroupsCacheKey = '';
+
   getExpensesGroupedByCategory(): { category: string; categoryName: string; expenses: Expense[]; total: number }[] {
+    const key = `${this.currentYear}-${this.currentMonth}-${this.expensesForMonth.length}-${this.expensesForMonth.map(e => e.id).join(',')}`;
+    if (this._expenseGroupsCache !== null && this._expenseGroupsCacheKey === key) {
+      return this._expenseGroupsCache;
+    }
     const byCategory = new Map<string, Expense[]>();
     for (const e of this.expensesForMonth) {
       const list = byCategory.get(e.category) || [];
       list.push(e);
       byCategory.set(e.category, list);
     }
-    return Array.from(byCategory.entries())
+    this._expenseGroupsCache = Array.from(byCategory.entries())
       .map(([category, expenses]) => ({
         category,
         categoryName: this.getCategoryName(category),
@@ -123,6 +130,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
         total: expenses.reduce((sum, ex) => sum + this.parseAmount(ex.amount), 0)
       }))
       .sort((a, b) => b.total - a.total);
+    this._expenseGroupsCacheKey = key;
+    return this._expenseGroupsCache;
+  }
+
+  /** trackBy pour l’onglet Dépenses par catégorie (stabilise le DOM). */
+  trackByExpenseCategory(_index: number, group: { category: string }): string {
+    return group.category;
   }
 
   isExpenseCategoryExpanded(category: string): boolean {
@@ -136,6 +150,7 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
       this.expandedExpenseCategories.add(category);
     }
     this.expandedExpenseCategories = new Set(this.expandedExpenseCategories);
+    this.cdr.detectChanges();
   }
 
   // Confirm dialogs

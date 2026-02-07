@@ -233,14 +233,14 @@
     </div>
 
     <div class="expenses-by-category-list" *ngIf="getExpensesGroupedByCategory().length > 0">
-      <div *ngFor="let group of getExpensesGroupedByCategory()" class="expense-category-group">
-        <button type="button" class="expense-category-group-toggle" (click)="toggleExpenseCategory(group.category)" [attr.aria-expanded]="isExpenseCategoryExpanded(group.category)">
-          <span class="group-toggle-icon" aria-hidden="true">{{ isExpenseCategoryExpanded(group.category) ? '▼' : '▶' }}</span>
+      <div *ngFor="let group of getExpensesGroupedByCategory(); trackBy: trackByExpenseCategory" class="expense-category-group">
+        <div class="expense-category-group-toggle" role="button" tabindex="0" [attr.aria-expanded]="isExpenseCategoryExpanded(group.category)" (click)="toggleExpenseCategory(group.category)" (keydown.enter)="toggleExpenseCategory(group.category); $event.preventDefault()" (keydown.space)="$event.preventDefault(); toggleExpenseCategory(group.category)">
+          <span class="group-toggle-chevron" [class.group-toggle-chevron-open]="isExpenseCategoryExpanded(group.category)" aria-hidden="true"></span>
           <span class="group-toggle-icon-emoji">{{ getCategoryIcon(group.category) }}</span>
           <span class="group-toggle-title">{{ group.categoryName }}</span>
           <span class="group-toggle-meta">{{ group.expenses.length }} {{ 'finance.expenses' | translate }}</span>
           <span class="group-toggle-total">{{ group.total | number:'1.0-0' }} {{ currencySymbol }}</span>
-        </button>
+        </div>
         <div class="expense-category-group-content" *ngIf="isExpenseCategoryExpanded(group.category)">
           <div *ngFor="let expense of group.expenses" class="finance-card expense-card finance-card-expense">
             <div class="finance-card-accent"></div>
@@ -252,7 +252,7 @@
                   <small class="finance-date">{{ expense.date | date:'short' }}</small>
                 </div>
                 <span class="finance-amount negative">{{ expense.amount | number:'1.0-0' }} {{ currencySymbol }}</span>
-                <button type="button" class="btn-icon btn-icon-danger" (click)="deleteExpense(expense.id)" [attr.aria-label]="'common.delete' | translate">×</button>
+                <button type="button" class="btn-icon btn-icon-danger" (click)="deleteExpense(expense.id); $event.stopPropagation()" [attr.aria-label]="'common.delete' | translate">×</button>
               </div>
             </div>
           </div>
