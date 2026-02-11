@@ -1,4 +1,6 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface ChatMessage {
@@ -21,9 +23,14 @@ export interface UserHealthProfile {
 })
 export class GeminiService {
   private apiKey = environment.geminiApiKey;
+  private apiUrl = environment.apiUrl || '';
 
+  constructor(private http: HttpClient) {}
+
+  /** Disponible si clé locale ou en prod (proxy backend avec GEMINI_API_KEY sur Render). */
   isAvailable(): boolean {
-    return !!this.apiKey && this.apiKey.length > 0;
+    if (!!this.apiKey && this.apiKey.length > 0) return true;
+    return !!this.apiUrl && environment.production;
   }
 
   /** Clé i18n pour afficher le message de quota dépassé (health.discussionQuotaExceeded). */
@@ -34,6 +41,31 @@ export class GeminiService {
    * En cas de 429 (quota), tente une seule fois après le délai indiqué par l'API (ou 6 s).
    */
   private async sendWithInstruction(userMessage: string, history: ChatMessage[], systemInstruction: string): Promise<string> {
+    const useBackend = (!this.apiKey || !this.apiKey.length) && !!this.apiUrl;
+
+    if (useBackend) {
+      try {
+        const res = await firstValueFrom(
+          this.http.post<{ success: boolean; text?: string; message?: string }>(`${this.apiUrl}/gemini/chat`, {
+            userMessage,
+            history,
+            systemInstruction
+          })
+        );
+        if (res?.success && res.text != null) return res.text;
+        if (res?.message === GeminiService.QUOTA_ERROR_KEY) throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        throw new Error(res?.message || 'Backend Gemini error');
+      } catch (err: unknown) {
+        const status = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : 0;
+        const bodyMsg = err && typeof err === 'object' && 'error' in err && typeof (err as { error: unknown }).error === 'object' && (err as { error: { message?: string } }).error?.message;
+        const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+        if (status === 429 || bodyMsg === GeminiService.QUOTA_ERROR_KEY || msg === GeminiService.QUOTA_ERROR_KEY) {
+          throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        }
+        throw err;
+      }
+    }
+
     const run = async (): Promise<string> => {
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(this.apiKey);
@@ -87,7 +119,7 @@ export class GeminiService {
   /** Chat santé (nutrition, sommeil, activité, etc.). */
   async sendMessage(userMessage: string, history: ChatMessage[]): Promise<string> {
     if (!this.isAvailable()) {
-      throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey).');
+      throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey) or on the server (GEMINI_API_KEY).');
     }
     return this.sendWithInstruction(userMessage, history, HEALTH_SYSTEM_INSTRUCTION);
   }
@@ -95,7 +127,7 @@ export class GeminiService {
   /** Chat maison / cuisine : idées repas à partir des ingrédients, recettes, listes de courses, astuces. */
   async sendHouseholdMessage(userMessage: string, history: ChatMessage[]): Promise<string> {
     if (!this.isAvailable()) {
-      throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey).');
+      throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey) or on the server (GEMINI_API_KEY).');
     }
     return this.sendWithInstruction(userMessage, history, HOUSEHOLD_SYSTEM_INSTRUCTION);
   }
@@ -121,6 +153,31 @@ export class GeminiService {
     if (profile.gender) parts.push(`genre ${profile.gender}`);
     const lang = locale === 'ar' ? 'arabe' : locale === 'en' ? 'anglais' : 'français';
     const prompt = `Profil utilisateur : ${parts.join(', ') || 'non renseigné'}. Donne exactement 2 ou 3 conseils santé très courts et personnalisés pour la journée (nutrition, eau, sommeil, activité). Réponds UNIQUEMENT dans la langue : ${lang}. Pas de titre, pas de numérotation, juste des phrases courtes séparées par des retours à la ligne.`;
+
+    const useBackend = (!this.apiKey || !this.apiKey.length) && !!this.apiUrl;
+    if (useBackend) {
+      try {
+        const res = await firstValueFrom(
+          this.http.post<{ success: boolean; text?: string; message?: string }>(`${this.apiUrl}/gemini/advice`, { prompt })
+        );
+        if (res?.success && res.text != null) {
+          const text = res.text.trim() || 'Pas de conseil disponible.';
+          this.dailyAdviceCache = { dateKey, profileKey, text };
+          return text;
+        }
+        if (res?.message === GeminiService.QUOTA_ERROR_KEY) throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        throw new Error(res?.message || 'Backend Gemini error');
+      } catch (err: unknown) {
+        const status = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : 0;
+        const bodyMsg = err && typeof err === 'object' && 'error' in err && typeof (err as { error: unknown }).error === 'object' && (err as { error: { message?: string } }).error?.message;
+        const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+        if (status === 429 || bodyMsg === GeminiService.QUOTA_ERROR_KEY || msg === GeminiService.QUOTA_ERROR_KEY) {
+          throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        }
+        throw err;
+      }
+    }
+
     try {
       const { GoogleGenerativeAI } = await import('@google/generative-ai');
       const genAI = new GoogleGenerativeAI(this.apiKey);

@@ -1,7 +1,7 @@
 export const environment = {
   production: false,
   apiUrl: 'https://dailyfix-backend.onrender.com/api',
-  // Paste your Gemini API key here (get one at https://aistudio.google.com/apikey). Do not commit.
-  geminiApiKey: 'AIzaSyBT7MC5XT5xgJ4aNu6pR6UYjB0taX7GTn8'
+  // En local : tu peux mettre ta clé ici pour tester (NE PAS COMMITER). En prod (GitHub Pages), Gemini passe par le backend (variable GEMINI_API_KEY sur Render).
+  geminiApiKey: ''
 };
 

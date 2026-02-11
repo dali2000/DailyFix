@@ -117,6 +117,7 @@ app.use('/api/home', require('./routes/home.routes'));
 app.use('/api/wellness', require('./routes/wellness.routes'));
 app.use('/api/social', require('./routes/social.routes'));
 app.use('/api/admin', require('./routes/admin.routes'));
+app.use('/api/gemini', require('./routes/gemini.routes'));
 
 // Root endpoint
 app.get('/', (req, res) => {
