@@ -27,10 +27,10 @@ export class GeminiService {
 
   constructor(private http: HttpClient) {}
 
-  /** Disponible si clé locale ou en prod (proxy backend avec GEMINI_API_KEY sur Render). */
+  /** Disponible si clé locale ou URL backend configurée (proxy avec GEMINI_API_KEY sur Render). */
   isAvailable(): boolean {
     if (!!this.apiKey && this.apiKey.length > 0) return true;
-    return !!this.apiUrl && environment.production;
+    return !!(this.apiUrl && this.apiUrl.length > 0);
   }
 
   /** Clé i18n pour afficher le message de quota dépassé (health.discussionQuotaExceeded). */
