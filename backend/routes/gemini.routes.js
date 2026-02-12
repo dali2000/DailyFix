@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = (process.env.GEMINI_API_KEY || '').trim();
 
 function isQuotaError(err) {
   const msg = err && err.message ? String(err.message) : '';
