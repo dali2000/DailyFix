@@ -301,6 +301,7 @@
     "takeOrChoosePhoto": "Prendre ou choisir une photo",
     "estimatingCalories": "Calcul en cours…",
     "estimateCaloriesError": "Impossible d'estimer les calories. Vérifiez la clé Gemini ou réessaiez.",
+    "mealNotRecognized": "Repas non reconnu. Prenez une photo plus nette du plat ou saisissez à la main.",
     "activityTitle": "Activité Physique",
     "addActivity": "Ajouter une activité",
     "sleepTracking": "Suivi du Sommeil",
