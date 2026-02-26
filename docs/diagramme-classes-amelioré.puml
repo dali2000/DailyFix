@@ -1,0 +1,317 @@
+@startuml diagramme-classes-dailyfix-ameliore
+!theme plain
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+title Diagramme de classes DailyFix - Relations entre entités (User réduit)
+
+' ============ CŒUR : UTILISATEUR ============
+package "Authentification" as Auth {
+  class User {
+    + id: string
+    + fullName: string
+    + email: string
+    + password: string
+    + role: string
+    + currency: string
+    + theme: string
+    + locale: string
+    + createdAt: Date
+    + updatedAt: Date
+  }
+}
+
+' ============ DOMAINE PRODUCTIVITÉ ============
+package "Productivité" as Prod {
+  class Planning {
+    <<aggregat>>
+  }
+  
+  class Task {
+    + id: string
+    + title: string
+    + description?: string
+    + dueDate?: Date
+    + completed: boolean
+    + priority: string
+    + status: string
+    + category?: string
+    + reminder?: Date
+  }
+  
+  class CalendarEvent {
+    + id: string
+    + title: string
+    + startDate: Date
+    + endDate?: Date
+    + description?: string
+    + type: string
+    + color?: string
+  }
+}
+
+' ============ DOMAINE FINANCES ============
+package "Finances" as Finance {
+  class Wallet {
+    <<aggregat>>
+  }
+  
+  class WalletCard {
+    + id: string
+    + name?: string
+    + holderName: string
+    + cardNumber: string
+    + expiryDate: string
+    + currency?: string
+    + isDefault: boolean
+  }
+  
+  class ExpenseCategory {
+    + id: number
+    + name: string
+  }
+  
+  class Expense {
+    + id: string
+    + amount: number
+    + category: string
+    + description: string
+    + date: Date
+    + paymentMethod?: string
+  }
+  
+  class Salary {
+    + id: string
+    + amount: number
+    + period: string
+    + date: Date
+  }
+  
+  class Budget {
+    + id: string
+    + category: string
+    + limit: number
+    + period: string
+    + spent: number
+  }
+  
+  class SavingsGoal {
+    + id: string
+    + name: string
+    + targetAmount: number
+    + currentAmount: number
+    + deadline?: Date
+  }
+}
+
+' ============ DOMAINE SANTÉ ============
+package "Santé" as Sante {
+  class HealthTracker {
+    <<aggregat>>
+  }
+  
+  class Meal {
+    + id: string
+    + name: string
+    + type: string
+    + calories?: number
+    + date: Date
+    + notes?: string
+  }
+  
+  class PhysicalActivity {
+    + id: string
+    + type: string
+    + duration: number
+    + calories?: number
+    + date: Date
+  }
+  
+  class SleepRecord {
+    + id: string
+    + date: Date
+    + sleepTime: Date
+    + wakeTime: Date
+    + quality: string
+    + hours: number
+  }
+  
+  class WaterIntake {
+    + id: string
+    + date: Date
+    + amount: number
+  }
+  
+  class MeditationSession {
+    + id: string
+    + date: Date
+    + duration: number
+    + type: string
+    + notes?: string
+  }
+}
+
+' ============ DOMAINE BIEN-ÊTRE ============
+package "Bien-être" as Wellness {
+  class WellnessProfile {
+    <<aggregat>>
+  }
+  
+  class JournalEntry {
+    + id: string
+    + date: Date
+    + title?: string
+    + content: string
+    + mood?: string
+    + tags?: string[]
+  }
+  
+  class PersonalGoal {
+    + id: string
+    + title: string
+    + description?: string
+    + targetDate?: Date
+    + progress: number
+    + completed: boolean
+    + category: string
+  }
+  
+  class GoalMilestone {
+    + id: string
+    + title: string
+    + completed: boolean
+    + targetDate?: Date
+  }
+  
+  class StressManagement {
+    + id: string
+    + date: Date
+    + stressLevel: number
+    + triggers?: string[]
+    + copingStrategies?: string[]
+  }
+}
+
+' ============ DOMAINE FOYER ============
+package "Organisation du foyer" as Home {
+  class HomeSpace {
+    <<aggregat>>
+  }
+  
+  class ShoppingList {
+    + id: string
+    + name: string
+    + createdAt: Date
+    + completed: boolean
+  }
+  
+  class ShoppingItem {
+    + id: string
+    + name: string
+    + quantity?: string
+    + purchased: boolean
+    + priority?: string
+  }
+  
+  class HouseholdTask {
+    + id: string
+    + name: string
+    + description?: string
+    + frequency: string
+    + dueDate?: Date
+    + completed: boolean
+    + lastCompleted?: Date
+    + nextDueDate?: Date
+  }
+}
+
+' ============ DOMAINE SOCIAL ============
+package "Social" as Social {
+  class SocialCalendar {
+    <<aggregat>>
+  }
+  
+  class SocialEvent {
+    + id: string
+    + title: string
+    + description?: string
+    + date: Date
+    + type: string
+    + attendees?: string[]
+    + location?: string
+  }
+  
+  class ActivitySuggestion {
+    + id: string
+    + title: string
+    + description: string
+    + category: string
+    + estimatedCost?: number
+    + estimatedDuration?: number
+  }
+}
+
+' ============ RELATIONS USER → AGRÉGATS UNIQUEMENT (6 liens au lieu de 20+) ============
+User "1" *-- "1" Planning : possède
+User "1" *-- "1" Wallet : possède
+User "1" *-- "1" HealthTracker : possède
+User "1" *-- "1" WellnessProfile : possède
+User "1" *-- "1" HomeSpace : possède
+User "1" *-- "1" SocialCalendar : possède
+
+' ============ AGRÉGATS → ENTITÉS (contenu de chaque domaine) ============
+Planning "1" *-- "0..*" Task : contient
+Planning "1" *-- "0..*" CalendarEvent : contient
+Wallet "1" *-- "0..*" WalletCard : contient
+Wallet "1" *-- "0..*" ExpenseCategory : contient
+Wallet "1" *-- "0..*" Budget : contient
+Wallet "1" *-- "0..*" SavingsGoal : contient
+HealthTracker "1" *-- "0..*" Meal : contient
+HealthTracker "1" *-- "0..*" PhysicalActivity : contient
+HealthTracker "1" *-- "0..*" SleepRecord : contient
+HealthTracker "1" *-- "0..*" WaterIntake : contient
+HealthTracker "1" *-- "0..*" MeditationSession : contient
+WellnessProfile "1" *-- "0..*" JournalEntry : contient
+WellnessProfile "1" *-- "0..*" PersonalGoal : contient
+WellnessProfile "1" *-- "0..*" StressManagement : contient
+HomeSpace "1" *-- "0..*" ShoppingList : contient
+HomeSpace "1" *-- "0..*" HouseholdTask : contient
+SocialCalendar "1" *-- "0..*" SocialEvent : contient
+SocialCalendar "1" *-- "0..*" ActivitySuggestion : contient
+
+' ============ RELATIONS ENTRE ENTITÉS - PRODUCTIVITÉ ============
+Task "0..*" -- "0..1" CalendarEvent : génère événement
+
+' ============ RELATIONS ENTRE ENTITÉS - FINANCES ============
+WalletCard "1" -- "0..*" Expense : enregistre
+WalletCard "1" -- "0..*" Salary : reçoit
+Expense "*" -- "1" ExpenseCategory : catégorisé par
+Budget "1" -- "1" ExpenseCategory : cible la catégorie
+SavingsGoal "0..*" -- "0..1" WalletCard : financé par
+
+' ============ RELATIONS ENTRE ENTITÉS - SANTÉ (regroupées par date) ============
+Meal "0..*" ..> PhysicalActivity : même date
+PhysicalActivity "0..*" ..> WaterIntake : même date
+SleepRecord "0..1" ..> MeditationSession : bilan jour
+
+' ============ RELATIONS ENTRE ENTITÉS - BIEN-ÊTRE ============
+PersonalGoal "1" *-- "0..*" GoalMilestone : jalons
+JournalEntry "0..*" ..> StressManagement : même date
+
+' ============ RELATIONS ENTRE ENTITÉS - FOYER ============
+ShoppingList "1" *-- "0..*" ShoppingItem : contient
+HouseholdTask "0..*" ..> ShoppingList : courses
+
+' ============ RELATIONS ENTRE ENTITÉS - SOCIAL ============
+ActivitySuggestion "0..*" ..> SocialEvent : peut créer
+
+' ============ RELATIONS INTER-DOMAINES (Productivité ↔ Social) ============
+SocialEvent "0..*" -- "0..1" CalendarEvent : affiché sur calendrier
+
+note bottom of User
+  **User** ne possède que 6 agrégats.
+  Les entités sont reliées entre elles
+  (finances, santé, foyer, social, productivité).
+end note
+
+@enduml

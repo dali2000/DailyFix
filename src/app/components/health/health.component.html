@@ -280,6 +280,18 @@
   <!-- Health Modals -->
   <app-modal *ngIf="showMealForm" [title]="'health.addMeal' | translate" size="md" (closeModal)="closeMealModal()">
     <form #mealForm="ngForm" (ngSubmit)="addMeal()">
+      <div class="form-group meal-photo-estimate" *ngIf="geminiAvailable">
+        <label>{{ 'health.estimateCaloriesWithPhoto' | translate }}</label>
+        <p class="meal-photo-hint">{{ 'health.estimateCaloriesWithPhotoHint' | translate }}</p>
+        <div class="meal-photo-actions">
+          <label class="btn btn-secondary btn-meal-photo">
+            <input type="file" accept="image/*" (change)="onMealPhotoSelected($event)" class="meal-photo-input" [disabled]="mealPhotoLoading">
+            <span *ngIf="!mealPhotoLoading">{{ 'health.takeOrChoosePhoto' | translate }}</span>
+            <span *ngIf="mealPhotoLoading">{{ 'health.estimatingCalories' | translate }}</span>
+          </label>
+        </div>
+        <p class="meal-photo-error" *ngIf="mealPhotoError">{{ mealPhotoError.startsWith('health.') ? (mealPhotoError | translate) : mealPhotoError }}</p>
+      </div>
       <div class="form-group">
         <label>{{ 'common.name' | translate }} *</label>
         <input type="text" [(ngModel)]="newMeal.name" name="name" #mealName="ngModel" required>

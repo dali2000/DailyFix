@@ -1,0 +1,367 @@
+% Chapitre Sprint 0 : Mise en œuvre du projet DailyFix
+
+\chapter{Sprint 0 : Mise en œuvre du projet}
+\minitoc
+
+% en-tête
+\renewcommand{\headrulewidth}{1pt}
+\fancyhead[C]{} 
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{}
+
+% pied de page
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[L]{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{}
+
+\newpage
+\section{Introduction}
+
+\lettrine[lines=2]{La}{partie} spécification des besoins est conçue pour la présentation des différentes fonctionnalités attendues de notre système. Dans ce chapitre nous présentons tout d'abord les acteurs concernés par notre application DailyFix, application de gestion de la vie quotidienne (tâches, calendrier, santé, finances, organisation du foyer, social et bien-être). Puis nous entamons l'étude des besoins fonctionnels et non fonctionnels. Ces besoins sont exprimés sous forme de diagramme de cas d'utilisation et de classe, suivis du backlog du produit et de la planification des sprints. Finalement, nous présentons l'environnement de travail logiciel et matériel adopté.
+
+\section{Spécification des besoins}
+
+\subsection{Identification des acteurs}
+Tout système interactif doit assurer et faciliter l'interaction avec ses utilisateurs. Un acteur représente un type de rôle interagissant avec le système et ses fonctionnalités. Dans notre application DailyFix, nous avons identifié les deux acteurs principaux suivants :
+
+\begin{itemize}
+  \item \textbf{Utilisateur :} Acteur principal du système. Il gère ses tâches (vue Kanban et liste), son calendrier et ses événements, son suivi santé (repas, activités, sommeil, hydratation), ses finances (dépenses, budgets, objectifs d'épargne), l'organisation du foyer (listes de courses, tâches ménagères), le social (événements et suggestions) et le bien-être (journal, stress). Il consulte son tableau de bord, modifie son profil et ses paramètres (langue, thème).
+
+  \item \textbf{Administrateur :} Responsable de la supervision du système. Il gère les comptes utilisateurs et assure le bon fonctionnement de la plateforme.
+\end{itemize}
+
+\subsection{Besoins fonctionnels}
+Les besoins fonctionnels décrivent les fonctionnalités que le système doit offrir à ses utilisateurs. Ces besoins sont regroupés par type d'acteur comme suit :
+
+\textbf{Utilisateur :}
+\begin{itemize}
+  \item \textbf{S'authentifier :} Connexion par email et mot de passe, inscription, connexion avec Google ; récupération et réinitialisation du mot de passe.
+  \item \textbf{Gérer les tâches :} Créer, modifier, supprimer des tâches ; vue Kanban et vue liste ; filtrage par statut.
+  \item \textbf{Gérer le calendrier :} Créer, modifier, supprimer des événements ; vues mensuelle, hebdomadaire et quotidienne.
+  \item \textbf{Gérer la santé :} Saisir et consulter repas, activités, sommeil, hydratation, méditation.
+  \item \textbf{Gérer les finances :} Saisir dépenses et revenus, définir budgets et objectifs d'épargne, consulter les statistiques.
+  \item \textbf{Organiser le foyer :} Gérer les listes de courses et les tâches ménagères.
+  \item \textbf{Gérer le social :} Créer et consulter les événements sociaux et les suggestions.
+  \item \textbf{Gérer le bien-être :} Tenir un journal, suivre les objectifs et le stress.
+  \item \textbf{Consulter le tableau de bord :} Vue d'ensemble (dépenses, objectifs d'épargne, dossiers santé, événements, tâches) et conseils du jour (intégration IA optionnelle).
+  \item \textbf{Gérer le profil et les paramètres :} Modifier les informations personnelles, la langue (i18n) et le thème (clair/sombre).
+\end{itemize}
+
+\textbf{Administrateur :}
+\begin{itemize}
+  \item \textbf{S'authentifier :} Accès sécurisé à l'interface d'administration.
+  \item \textbf{Gérer les utilisateurs :} Consulter, créer, modifier ou désactiver les comptes ; superviser l'utilisation du système.
+\end{itemize}
+
+\subsection{Besoins non fonctionnels}
+
+Les besoins non fonctionnels représentent les contraintes techniques, ergonomiques et de qualité auxquelles le système doit répondre afin d'assurer son bon fonctionnement, sa maintenabilité et la satisfaction des utilisateurs.
+
+\begin{itemize}
+  \item \textbf{Sécurité :} Le système garantit l'authentification par JWT, le hachage des mots de passe (bcrypt), la protection des routes et l'isolation des données par utilisateur (userId).
+
+  \item \textbf{Confidentialité :} Les données personnelles et financières sont protégées ; l'accès est réservé au titulaire du compte et à l'administrateur selon les rôles.
+
+  \item \textbf{Performance :} Le système offre un temps de réponse réduit pour la consultation et la mise à jour des données (tâches, calendrier, finances, etc.).
+
+  \item \textbf{Disponibilité :} L'application est accessible en permanence (déploiement sur GitHub Pages et API backend hébergée sur Render).
+
+  \item \textbf{Ergonomie et convivialité :} L'interface est claire et cohérente (design inspiré de Notion), avec une navigation par sidebar et un affichage responsive (mobile et desktop).
+
+  \item \textbf{Évolutivité :} L'architecture modulaire (Angular, API REST) permet l'ajout de nouveaux modules ou fonctionnalités sans dégradation des performances.
+\end{itemize}
+
+\section{Analyse des besoins}
+L'analyse des besoins vise à identifier les exigences du projet et à faire le point sur les éléments attendus.
+
+\subsection{Diagramme de cas d'utilisation général}
+Le diagramme de cas d'utilisation joue un rôle essentiel dans la représentation et la structuration des besoins des utilisateurs, offrant ainsi une vue globale du fonctionnement de notre système.
+
+\begin{figure}[H]\centering
+\includegraphics[width=17cm,height=19cm]{images/img_new/use case.jpg} 
+\caption[~ Diagramme de cas d'utilisation général]{Diagramme de cas d'utilisation général \color{black}\\}
+\label{prosSCom}
+\end{figure}
+
+\subsection{Diagramme de classe globale}
+Le diagramme de classe offre une vue d'ensemble du système en montrant ses classes, interfaces, collaborations et leurs relations.
+
+\begin{figure}[H]\centering
+\includegraphics[width=18cm,height=15cm]{images/img_new/diag_classe_globale.jpg} 
+\caption[~ Diagramme de classe globale]{Diagramme de classe globale \color{black}\\}
+\label{diagClass}
+\end{figure}
+
+\subsection{Backlog du Produit}
+Le SCRUM Product Backlog est une liste dynamique de toutes les tâches à réaliser pour le projet. Il centralise les exigences clients et les livrables nécessaires à la réussite du projet. Les éléments sont classés par priorité, basée sur l'importance du travail à accomplir.
+
+Le tableau~\ref{tab:backlog} présente ce backlog, composé d'histoires utilisateurs avec leurs priorités définies par le Product Owner.
+
+\begin{longtable}{|c|c|p{9cm}|c|}
+\caption{Backlog du produit} \label{tab:backlog} \\
+\hline
+\textbf{Module} &
+\textbf{ID} &
+\textbf{User Story} &
+\textbf{Priorité} \\
+\hline
+\endfirsthead
+
+\hline
+\multicolumn{4}{|c|}{\small\textit{Suite du Tableau \thetable: Backlog du produit}} \\
+\hline
+\textbf{Module} & \textbf{ID} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{4}{|r|}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+\textbf{Authentification} &
+US-01 &
+En tant qu'utilisateur, je souhaite m'authentifier (inscription, connexion, Google) afin d'accéder à la plateforme en toute sécurité. &
+Élevée \\ \hline
+
+\multirow{2}{*}{\textbf{Gestion des utilisateurs}} &
+US-02 &
+En tant qu'utilisateur, je souhaite consulter et modifier mon profil afin de garder mes informations à jour. &
+Moyenne \\ \cline{2-4}
+
+&
+US-03 &
+En tant qu'administrateur, je souhaite gérer les comptes utilisateurs afin de superviser la plateforme. &
+Élevée \\ \hline
+
+\textbf{Gestion des tâches} &
+US-04 &
+En tant qu'utilisateur, je souhaite gérer mes tâches (créer, modifier, supprimer, vue Kanban/liste) afin d'organiser mon travail. &
+Élevée \\ \hline
+
+\textbf{Calendrier} &
+US-05 &
+En tant qu'utilisateur, je souhaite gérer mes événements et consulter le calendrier (mois/semaine/jour) afin de planifier mes activités. &
+Élevée \\ \hline
+
+\textbf{Santé} &
+US-06 &
+En tant qu'utilisateur, je souhaite suivre ma santé (repas, activités, sommeil, hydratation, méditation) afin de suivre mon état de santé. &
+Moyenne \\ \hline
+
+\textbf{Finances} &
+US-07 &
+En tant qu'utilisateur, je souhaite gérer mes dépenses, budgets et objectifs d'épargne afin de maîtriser ma situation financière. &
+Élevée \\ \hline
+
+\textbf{Organisation du foyer} &
+US-08 &
+En tant qu'utilisateur, je souhaite gérer mes listes de courses et tâches ménagères afin d'organiser mon foyer. &
+Moyenne \\ \hline
+
+\textbf{Social} &
+US-09 &
+En tant qu'utilisateur, je souhaite gérer mes événements sociaux et suggestions afin de planifier ma vie sociale. &
+Moyenne \\ \hline
+
+\textbf{Bien-être} &
+US-10 &
+En tant qu'utilisateur, je souhaite tenir un journal et suivre mon stress afin d'améliorer mon bien-être. &
+Moyenne \\ \hline
+
+\textbf{Tableau de bord} &
+US-11 &
+En tant qu'utilisateur, je souhaite consulter un tableau de bord (statistiques, conseils du jour) afin d'avoir une vue d'ensemble. &
+Moyenne \\ \hline
+
+\textbf{Paramètres} &
+US-12 &
+En tant qu'utilisateur, je souhaite modifier la langue et le thème afin d'adapter l'interface à mes préférences. &
+Moyenne \\ \hline
+
+\end{longtable}
+
+
+\subsection{Planification des sprints}
+Dans SCRUM, chaque projet est décomposé en blocs de temps appelés SPRINTS. Ces derniers peuvent varier de 2 à 4 semaines.
+Pour notre projet, nous avons choisi de développer 4 sprints.
+
+Le tableau~\ref{tab:sprints} illustre la planification des sprints.
+
+\begin{longtable}{|c|p{12cm}|}
+\caption{Planification des sprints} \label{tab:sprints} \\
+\hline
+\endfirsthead
+
+\hline
+\multicolumn{2}{|c|}{\small\textit{Suite du Tableau \thetable: Planification des sprints}} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{2}{|r|}{\small\textit{Suite à la page suivante}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+\multicolumn{2}{|c|}{\textbf{Sprint 1}} \\ \hline
+\cellcolor{pastelblue}\textbf{Description} & Authentification et gestion des utilisateurs (profil, paramètres). \\ \hline
+\cellcolor{pastelblue}\textbf{Durée de sprint} & 4 semaines. \\ \hline
+\cellcolor{pastelblue}\textbf{Période} & À définir. \\ \hline
+\multicolumn{2}{|c|}{\textbf{Sprint 2}} \\ \hline
+\cellcolor{pastelblue}\textbf{Description} & Gestion des tâches et du calendrier. \\ \hline
+\cellcolor{pastelblue}\textbf{Durée de sprint} & 4 semaines. \\ \hline
+\cellcolor{pastelblue}\textbf{Période} & À définir. \\ \hline
+\multicolumn{2}{|c|}{\textbf{Sprint 3}} \\ \hline
+\cellcolor{pastelblue}\textbf{Description} & Santé, finances et organisation du foyer. \\ \hline
+\cellcolor{pastelblue}\textbf{Durée de sprint} & 4 semaines. \\ \hline
+\cellcolor{pastelblue}\textbf{Période} & À définir. \\ \hline
+\multicolumn{2}{|c|}{\textbf{Sprint 4}} \\ \hline
+\cellcolor{pastelblue}\textbf{Description} & Social, bien-être, tableau de bord, module administrateur et déploiement. \\ \hline
+\cellcolor{pastelblue}\textbf{Durée de sprint} & 4 semaines. \\ \hline
+\cellcolor{pastelblue}\textbf{Période} & À définir. \\ \hline
+
+\end{longtable}
+
+\section{Architecture de la solution}
+
+\subsection{Architecture logique}
+L'architecture logique adoptée pour notre solution est le Modèle Vue Contrôleur (MVC). Ce modèle sépare l'application en trois parties :
+
+\begin{itemize}[label=\textbullet]
+\item \textbf{Le Modèle :} gère les données de l'application. Il récupère les informations dans la base de données, les organise et les assemble pour qu'elles soient traitées par le contrôleur.
+\item \textbf{La Vue :} interface graphique de l'application. C'est via cet élément que se font les interactions entre l'utilisateur et le code métier. Son but est de construire, à partir des réponses du serveur, une interface et de l'afficher à l'utilisateur.
+\item \textbf{Le Contrôleur :} comporte la logique métier. Il est l'intermédiaire entre la vue et le modèle et gère les événements pour mettre à jour la vue ou le modèle.
+\end{itemize}
+
+Comme représenté dans la figure~\ref{global} :
+
+\vspace{0.4cm}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=5cm,width=16cm]{images/Architecture_de_la_solution.drawio.png} 
+\caption[~ Architecture MVC]{Architecture MVC \color{black}\\}
+\label{global}
+\end{center}
+\end{figure}
+
+\vspace{0,5cm}
+
+\section{Environnement de travail}
+
+\subsection{Environnement matériel}
+Pour la mise en œuvre de ce projet, nous avons utilisé un ordinateur portable qui présente les spécifications suivantes :
+
+\begin{table}[h]
+\centering
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{|>{\columncolor{pastelblue}}c|l|}
+\hline
+\textbf{Fabricant}              & MSI \\ \hline
+\textbf{Mémoire Vive (RAM)}      & 32 Go \\ \hline
+\textbf{Type du système}         & 64 bits \\ \hline
+\textbf{Microprocesseur}         & Intel(R) Core(TM) i5-10110U CPU \\ \hline
+\textbf{Système d'exploitation}  & Windows 10 \\ \hline
+\end{tabular}
+\caption{Caractéristiques du matériel}
+\label{envMateriel}
+\end{table}
+
+\subsection{Environnement logiciel}
+Dans cette section, nous décrivons les outils de développement et de modélisation, les langages de programmation et les technologies employés dans notre projet.
+
+\begin{itemize}
+\item \textbf{Visual Studio Code :} éditeur de code libre développé par Microsoft, supportant de nombreux langages par le biais d'extensions. Il intègre la complétion automatique, la coloration syntaxique, le débogage et les commandes git.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=2cm]{images/vs_code.png} 
+\label{visualstudiocode}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{MySQL/PostgreSQL et outil de gestion :} base de données relationnelle utilisée pour la persistance des données (utilisateurs, tâches, événements, santé, finances, etc.). Un outil tel que MySQL Workbench, phpMyAdmin ou DBeaver permet d'administrer la base.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=2cm]{images/postgres.png} 
+\label{mysql}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{NPM :} NPM (Node Package Manager) est le gestionnaire de paquets officiel sous Node.js. C'est un outil en ligne de commande qui permet d'installer les dépendances du frontend (Angular) et du backend (Express).
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=1.5cm,width=2cm]{images/images.png} 
+\label{npm}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{Postman :} outil graphique permettant le test rapide des requêtes HTTP. Nous l'avons utilisé pour visualiser les réponses des requêtes envoyées vers le back-end.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=5cm]{images/img_new/logo_postman.png} 
+\label{postman}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{GitHub Pages :} service d'hébergement gratuit de GitHub permettant de déployer des applications web statiques. Le frontend Angular de DailyFix est déployé sur GitHub Pages afin de le rendre accessible aux utilisateurs.
+\end{itemize}
+
+\begin{itemize}
+\item \textbf{Render :} plateforme cloud permettant d'héberger des applications web et des services backend. L'API backend (Node.js/Express) de DailyFix est déployée sur Render, assurant ainsi la disponibilité du serveur, la base de données PostgreSQL et les fonctionnalités d'authentification et de persistance des données en production.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=2cm]{images/img_new/logo_render.png} 
+\label{render}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{LaTeX :} langage et système de composition de documents, utilisé pour rédiger ce rapport.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=1.5cm]{images/overleaf-o-logo-primary.png} 
+\label{latex}
+\end{center}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{Draw.io :} application web de modélisation UML. Nous l'avons utilisée pour modéliser nos diagrammes décrivant l'application.
+\end{itemize}
+\begin{figure}[H]
+\begin{center}
+\includegraphics[height=2cm,width=2cm]{images/draw io.png} 
+\label{drawio}
+\end{center}
+\end{figure}
+
+\subsection{Technologies utilisées}
+Dans cette section, nous présentons les technologies utilisées pour la mise en place de notre solution.
+
+\begin{itemize}
+\item \textbf{Node.js et Express :} Node.js est un environnement d'exécution JavaScript côté serveur. Express est un framework minimaliste pour construire l'API REST du backend. L'authentification est assurée par JWT, les mots de passe sont hashés avec bcrypt et les données sont persistées avec Sequelize (MySQL/PostgreSQL).
+\end{itemize}
+
+\begin{itemize}
+\item \textbf{Angular :} framework frontend orienté composants, conçu pour créer des interfaces web dynamiques. Les parties de l'interface sont des composants réutilisables. Angular est développé avec TypeScript, qui apporte un typage statique et des fonctionnalités avancées à JavaScript. Notre application utilise Angular 17.
+\end{itemize}
+
+\begin{itemize}
+\item \textbf{MySQL/PostgreSQL et Sequelize :} MySQL ou PostgreSQL est la base de données relationnelle du projet. Sequelize est un ORM pour Node.js qui gère les modèles (User, Task, Event, Health, Finance, Home, Wellness, Social) et les relations avec la base.
+\end{itemize}
+
+\section{Conclusion}
+Tout au long de ce chapitre, nous avons spécifié les besoins de notre application DailyFix. Nous avons ensuite élaboré le backlog du produit, les diagrammes de cas d'utilisation et de classes globaux, et la planification des sprints incluant le déploiement dans le Sprint 4. Puis nous avons exposé l'architecture de la solution (MVC, frontend Angular, backend Node.js/Express, base MySQL/PostgreSQL), l'environnement logiciel (dont GitHub Pages et Render pour le déploiement) et les choix technologiques utilisés pour le développement de l'application.

@@ -1,0 +1,77 @@
+@startuml diagramme-classes-vue-domaines
+!theme plain
+skinparam packageStyle rectangle
+
+title Diagramme de classes DailyFix - Vue par domaines (simplifié)
+
+' Vue simplifiée : User possède des "domaines" de données
+' Chaque domaine regroupe des entités liées entre elles
+
+class User {
+  + id: string
+  + fullName: string
+  + email: string
+  + role: string
+  --
+  Propriétés de profil...
+}
+
+package "Productivité" as Prod {
+  [Task]
+  [CalendarEvent]
+}
+
+package "Finances" as Finance {
+  [WalletCard] --> [Expense] : enregistre
+  [WalletCard] --> [Salary] : reçoit
+  [Expense] --> [ExpenseCategory] : catégorisé par
+  [Budget]
+  [SavingsGoal]
+}
+
+package "Santé" as Sante {
+  [Meal]
+  [PhysicalActivity]
+  [SleepRecord]
+  [WaterIntake]
+  [MeditationSession]
+}
+
+package "Bien-être" as Wellness {
+  [JournalEntry]
+  [PersonalGoal] *--> [GoalMilestone] : contient
+  [StressManagement]
+}
+
+package "Foyer" as Home {
+  [ShoppingList] *--> [ShoppingItem] : contient
+  [HouseholdTask]
+}
+
+package "Social" as Social {
+  [SocialEvent]
+  [ActivitySuggestion]
+}
+
+User --> Prod : possède
+User --> Finance : possède
+User --> Sante : possède
+User --> Wellness : possède
+User --> Home : possède
+User --> Social : possède
+
+note right of Finance
+  **Relations internes logiques :**
+  - WalletCard (1) → (*) Expense
+  - Expense (*) → (1) ExpenseCategory
+  - Plus de lien aberrant Expense-Salary
+end note
+
+note bottom of User
+  User est le propriétaire unique,
+  mais les entités sont regroupées
+  par domaine métier avec des
+  relations internes cohérentes.
+end note
+
+@enduml

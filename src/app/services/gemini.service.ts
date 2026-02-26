@@ -18,6 +18,11 @@ export interface UserHealthProfile {
   gender?: string | null;
 }
 
+export interface MealCaloriesEstimate {
+  calories: number;
+  name?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -130,6 +135,77 @@ export class GeminiService {
       throw new Error('GEMINI_API_KEY is not configured. Add it in environment (geminiApiKey) or on the server (GEMINI_API_KEY).');
     }
     return this.sendWithInstruction(userMessage, history, HOUSEHOLD_SYSTEM_INSTRUCTION);
+  }
+
+  /**
+   * Estime les calories et le nom du repas à partir d'une photo (vision Gemini).
+   * Utilise la clé API côté client si configurée, sinon appelle le backend (apiUrl + GEMINI_API_KEY).
+   */
+  async estimateCaloriesFromImage(imageBase64: string, mimeType: string): Promise<MealCaloriesEstimate> {
+    const useBackend = (!this.apiKey || !this.apiKey.length) && !!this.apiUrl;
+
+    if (useBackend) {
+      try {
+        const res = await firstValueFrom(
+          this.http.post<{ success: boolean; calories?: number; name?: string; message?: string }>(
+            `${this.apiUrl}/gemini/calories-from-image`,
+            { imageBase64, mimeType: mimeType || 'image/jpeg' }
+          )
+        );
+        if (res?.success && typeof res.calories === 'number') {
+          return {
+            calories: Math.round(res.calories),
+            name: typeof res.name === 'string' ? res.name.trim() : undefined
+          };
+        }
+        if (res?.message === GeminiService.QUOTA_ERROR_KEY) throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        throw new Error(res?.message || 'Erreur serveur');
+      } catch (err: unknown) {
+        const status = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : 0;
+        const bodyMsg = err && typeof err === 'object' && 'error' in err && typeof (err as { error: unknown }).error === 'object' && (err as { error: { message?: string } }).error?.message;
+        const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+        if (status === 429 || bodyMsg === GeminiService.QUOTA_ERROR_KEY || msg === GeminiService.QUOTA_ERROR_KEY) {
+          throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        }
+        if (status === 503) {
+          throw new Error('L\'estimation par photo n\'est pas configurée sur le serveur (GEMINI_API_KEY).');
+        }
+        throw err;
+      }
+    }
+
+    if (!this.apiKey || !this.apiKey.length) {
+      throw new Error('Gemini (clé API) est requis pour l\'estimation par photo. Configurez geminiApiKey dans l\'environnement ou utilisez un backend avec GEMINI_API_KEY.');
+    }
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(this.apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.2
+      }
+    });
+    const prompt = `Analyze this food/meal image. Return ONLY a valid JSON object with exactly these two keys (no other text, no markdown):
+- "calories": number (estimated total calories for the whole meal/plate shown)
+- "name": string (short meal name in the same language as the user, e.g. "Salade César", "Grilled chicken with rice")
+
+Be realistic with calorie estimates. If you cannot see food clearly, use calories: 0 and name: "Repas non reconnu".`;
+    const imagePart = { inlineData: { mimeType, data: imageBase64 } as { mimeType: string; data: string } };
+    const result = await model.generateContent([imagePart, prompt]);
+    const response = result.response;
+    const text = response.text();
+    if (!text || !text.trim()) {
+      throw new Error('Réponse vide de l\'IA.');
+    }
+    try {
+      const json = JSON.parse(text.trim()) as { calories?: number; name?: string };
+      const calories = typeof json.calories === 'number' && json.calories >= 0 ? Math.round(json.calories) : 0;
+      const name = typeof json.name === 'string' ? json.name.trim() : undefined;
+      return { calories, name };
+    } catch {
+      throw new Error('Impossible de lire l\'estimation. Réessaie avec une photo plus nette.');
+    }
   }
 
   private dailyAdviceCache: { dateKey: string; profileKey: string; text: string } | null = null;

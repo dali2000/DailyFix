@@ -40,6 +40,8 @@ export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
   meals: Meal[] = [];
   showMealForm = false;
   newMeal: Partial<Meal> = { type: 'breakfast' };
+  mealPhotoLoading = false;
+  mealPhotoError: string | null = null;
 
   // Activities
   activities: PhysicalActivity[] = [];
@@ -197,6 +199,52 @@ export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
   closeMealModal(): void {
     this.showMealForm = false;
     this.newMeal = { type: 'breakfast' };
+    this.mealPhotoError = null;
+  }
+
+  async onMealPhotoSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    this.mealPhotoLoading = true;
+    this.mealPhotoError = null;
+    try {
+      const base64 = await this.fileToBase64(file);
+      const mimeType = file.type || 'image/jpeg';
+      const estimate = await this.geminiService.estimateCaloriesFromImage(base64, mimeType);
+      this.newMeal = {
+        ...this.newMeal,
+        calories: estimate.calories,
+        name: estimate.name || this.newMeal.name || ''
+      };
+      this.toastService.success(this.geminiCaloriesSuccessMessage(estimate));
+    } catch (e) {
+      const msg = e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : '';
+      this.mealPhotoError = msg || 'health.estimateCaloriesError';
+    } finally {
+      this.mealPhotoLoading = false;
+      input.value = '';
+    }
+  }
+
+  private fileToBase64(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+        resolve(base64 || '');
+      };
+      reader.onerror = () => reject(new Error('Impossible de lire l\'image'));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private geminiCaloriesSuccessMessage(estimate: { calories: number; name?: string }): string {
+    if (estimate.name) {
+      return `${estimate.calories} kcal – ${estimate.name}`;
+    }
+    return `${estimate.calories} kcal estimés`;
   }
 
   closeActivityModal(): void {

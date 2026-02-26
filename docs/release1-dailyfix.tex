@@ -1,0 +1,225 @@
+% Chapitre Release 1 adapté à l'application DailyFix
+% (Authentification, Gestion des utilisateurs, Calendrier et événements)
+
+\chapter{Release 1 : Authentification, Gestion des utilisateurs et Calendrier}
+\minitoc
+
+% en-tête
+\renewcommand{\headrulewidth}{1pt}
+\fancyhead[C]{} 
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{}
+
+% pied de page
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[L]{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{}
+
+\newpage
+
+\section{Introduction}
+
+\lettrine[lines=2]{C}e chapitre est consacré à la Release 1 de l'application DailyFix. \textbf{Chaque release regroupe deux sprints} : la Release 1 correspond au Sprint 1 et au Sprint 2. Elle couvre l'authentification, la gestion des utilisateurs (profil, paramètres), la gestion des tâches et du calendrier. DailyFix est une application de gestion de la vie quotidienne permettant à l'utilisateur d'organiser ses tâches, son calendrier, sa santé, ses finances, l'organisation du foyer, les événements sociaux et le bien-être. Durant ce chapitre, nous présentons en premier lieu le backlog des sprints 1 et 2, puis la section d'analyse fonctionnelle et la section de conception. Le chapitre se clôture par des captures d'écran des interfaces réalisées.
+
+\section{Backlog Sprint 1 \& 2}
+
+Cette release regroupe le \textbf{Sprint 1} (Authentification et gestion des utilisateurs) et le \textbf{Sprint 2} (Gestion des tâches et du calendrier). Au début de chaque sprint, une réunion avec le Product Owner et le Scrum Master est tenue. Lors de cette réunion, nous faisons la sélection des tâches à réaliser pour chaque user story et nous leur attribuons une estimation reflétant la complexité.
+
+Le tableau~\ref{tab31} présente le Backlog des sprints 1 \& 2 adapté à DailyFix.
+
+\begin{longtable}{|c|l|l|c|}
+\caption[Description du Backlog du Sprint 1 \& 2]{Description du Backlog du Sprint 1 \& 2}
+\label{tab31}
+\\
+\hline
+\textbf{Module} &
+\textbf{ID} &
+\textbf{User Story} &
+\textbf{Priorité} \\
+\hline
+\endfirsthead
+
+\hline
+\multicolumn{4}{|c|}{\small\textit{Suite du Tableau \thetable}} \\
+\hline
+\textbf{Module} & \textbf{ID} & \textbf{User Story} & \textbf{Priorité} \\
+\hline
+\endhead
+
+\textbf{Authentification} &
+US-01 &
+En tant qu'utilisateur, je souhaite m'authentifier (connexion, inscription, Google, mot de passe oublié) afin d'accéder à l'application en toute sécurité. &
+Élevée \\
+\hline
+
+\multirow{2}{*}{\textbf{Gestion des utilisateurs}} &
+US-02 &
+En tant qu'utilisateur, je souhaite consulter et modifier les informations de mon compte afin de garder mon profil à jour. &
+Moyenne \\
+\cline{2-4}
+&
+US-03 &
+En tant qu'administrateur, je souhaite consulter, créer, modifier et supprimer les comptes utilisateurs afin de superviser la plateforme. &
+Élevée \\
+\hline
+
+\multirow{3}{*}{\textbf{Gestion des tâches}} &
+US-04 &
+En tant qu'utilisateur, je souhaite gérer mes tâches (créer, modifier, supprimer, vue Kanban/liste) afin d'organiser mon travail. &
+Élevée \\
+\cline{2-4}
+&
+US-05 &
+En tant qu'utilisateur, je souhaite filtrer mes tâches par statut et priorité afin de mieux les organiser. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{3}{*}{\textbf{Gestion du calendrier}} &
+US-06 &
+En tant qu'utilisateur, je souhaite créer, modifier et supprimer des événements afin de planifier mes activités. &
+Élevée \\
+\cline{2-4}
+&
+US-07 &
+En tant qu'utilisateur, je souhaite consulter le calendrier (vues mensuelle, hebdomadaire, quotidienne) afin d'avoir une vue d'ensemble. &
+Moyenne \\
+\hline
+\end{longtable}
+
+\section{Analyse fonctionnelle}
+
+Cette section présente le diagramme de cas d'utilisation détaillé du sprint 1 \& 2, ainsi que les descriptions textuelles associées.
+
+\subsection{Diagramme de cas d'utilisation détaillé}
+
+La figure~\ref{authCUgen18} illustre le diagramme de cas d'utilisation raffiné du sprint 1 \& 2 pour DailyFix. Les acteurs identifiés sont l'utilisateur (utilisateur standard) et l'administrateur. Les cas d'utilisation principaux incluent : S'authentifier, Modifier le profil, Gérer les utilisateurs (administrateur), Gérer les tâches (créer, modifier, supprimer, vues Kanban/liste), Gérer le calendrier et les événements (créer, modifier, supprimer, consulter les vues).
+
+\begin{figure}[H]
+\centering
+% Remplacer par votre fichier Draw.io exporté en PNG
+% \includegraphics[width=18cm, height=17cm]{images/img_new/use-case-sprint1-dailyfix.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{4cm} Diagramme de cas d'utilisation (à ajouter : export Draw.io) \vspace{4cm}}}
+\caption{Diagramme de cas d'utilisation raffiné du Sprint 1 \& 2}
+\label{authCUgen18}
+\end{figure}
+
+\section{Conception}
+
+\subsection{Diagramme de classes}
+
+La figure~\ref{diagClasseR1} illustre le diagramme de classes pour la Release 1. Les classes principales sont : User (id, fullName, email, password, role, provider, etc.), Task (id, userId, name, completed, status, priority, etc.), Event (id, userId, name, date, startTime, endTime, description) et leurs associations. L'administrateur dispose des droits de gestion sur les utilisateurs.
+
+\begin{figure}[H]
+\centering
+% Remplacer par votre fichier Draw.io exporté en PNG
+% \includegraphics[width=18cm, height=17cm]{images/img_new/classe-sprint1-dailyfix.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{4cm} Diagramme de classes (à ajouter : export Draw.io) \vspace{4cm}}}
+\caption{Diagramme de classes du Release 1}
+\label{diagClasseR1}
+\end{figure}
+
+\subsection{Diagrammes de séquence}
+
+Dans cette section, nous présentons les diagrammes de séquence relatifs aux fonctionnalités suivantes :
+\begin{itemize}[label=\textbullet]
+\item Diagramme de séquence de « S'authentifier »
+\item Diagramme de séquence de « Créer une tâche » ou « Créer un événement »
+\end{itemize}
+
+\vspace{0.4cm}
+\textbf{Diagramme de séquence de « S'authentifier »}
+
+L'utilisateur envoie ses identifiants (email, mot de passe) au frontend. Le frontend transmet la requête à l'API d'authentification. Le backend vérifie les identifiants, génère un JWT et renvoie le token avec les données utilisateur. Le frontend stocke le token et redirige vers le tableau de bord.
+
+\vspace{0.4cm}
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=15cm]{images/img_new/diag-sequence-authentifier.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{3cm} Diagramme de séquence « S'authentifier » \vspace{3cm}}}
+\caption{Diagramme de séquence « S'authentifier »}
+\label{inscSE1}
+\end{figure}
+
+\vspace{0.4cm}
+\textbf{Diagramme de séquence de « Créer un événement »}
+
+L'utilisateur saisit les informations de l'événement (nom, date, heure de début, heure de fin, description). Le frontend envoie une requête POST à l'API avec le token JWT. Le backend valide les données, associe l'événement à l'utilisateur (userId) et l'enregistre en base. La réponse contient l'événement créé. Le frontend met à jour l'affichage du calendrier.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=17cm, height=16cm]{images/img_new/diag-sequence-ajout-event.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{3cm} Diagramme de séquence « Créer un événement » \vspace{3cm}}}
+\caption{Diagramme de séquence « Créer un événement »}
+\label{authSE16}
+\end{figure}
+
+\section{Réalisation}
+
+Après avoir présenté le backlog, l'analyse des besoins fonctionnels et la conception du sprint 1 \& 2, nous présentons la partie réalisation. DailyFix a été développé avec Angular~17 (frontend), Node.js et Express (backend API REST), JWT pour l'authentification, bcrypt pour le hachage des mots de passe, et Sequelize avec PostgreSQL/MySQL pour la persistance.
+
+\subsection{Interfaces}
+
+\subsubsection{Interface de connexion}
+
+La figure~\ref{fig:login} représente la page de connexion à l'application DailyFix. L'utilisateur peut se connecter par email et mot de passe, créer un compte ou utiliser la connexion avec Google. Un lien permet de récupérer un mot de passe oublié.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=14cm, height=7cm]{images/img_new/login.png}
+\caption{Interface de « Connexion »}
+\label{fig:login}
+\end{figure}
+
+\subsubsection{Interface de gestion des utilisateurs (Admin)}
+
+La figure~\ref{fig:admin-users} représente l'interface de gestion des comptes utilisateurs accessible aux administrateurs. Elle permet de consulter la liste des utilisateurs, de créer un nouvel utilisateur, de modifier ou supprimer un compte.
+
+\begin{figure}[H]
+\centering
+% Remplacer par une capture de l'interface admin DailyFix
+% \includegraphics[width=14cm, height=7cm]{images/img_new/admin-gestion-users.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Gestion des utilisateurs » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface de « Gestion des utilisateurs »}
+\label{fig:admin-users}
+\end{figure}
+
+\subsubsection{Interface de modification du profil}
+
+L'utilisateur peut modifier ses informations personnelles (nom, photo de profil, taille, poids, genre) depuis la page Paramètres. La figure~\ref{fig:settings} illustre cette interface.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=14cm, height=7cm]{images/img_new/settings-profil.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Paramètres / Profil » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface de « Modification du profil »}
+\label{fig:settings}
+\end{figure}
+
+\subsubsection{Interface du calendrier}
+
+La figure~\ref{fig:calendar} représente l'interface du calendrier permettant de créer, modifier et supprimer des événements. Les vues mensuelle, hebdomadaire et quotidienne sont disponibles.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=14cm, height=7cm]{images/img_new/calendar.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Calendrier » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface de « Gestion du calendrier »}
+\label{fig:calendar}
+\end{figure}
+
+\subsubsection{Interface de gestion des tâches}
+
+La figure~\ref{fig:tasks} représente l'interface de gestion des tâches avec les vues Kanban et liste, le filtrage par statut et priorité, ainsi que la création, modification et suppression de tâches.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=14cm, height=7cm]{images/img_new/tasks.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Gestion des tâches » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface de « Gestion des tâches »}
+\label{fig:tasks}
+\end{figure}
+
+\section{Conclusion}
+
+Durant ce chapitre, nous avons présenté la Release 1 (Sprint 1 \& Sprint 2) adaptée à l'application DailyFix, ainsi que la partie analyse, conception et réalisation. Les cas d'utilisation « Authentification », « Gestion des utilisateurs », « Gestion des tâches » et « Gestion du calendrier » ont été décrits et illustrés. L'application DailyFix intègre une authentification sécurisée (JWT, bcrypt, Google OAuth), une gestion des profils utilisateur et un module d'administration, la gestion des tâches (vues Kanban et liste) et un calendrier complet avec création, modification et suppression d'événements.

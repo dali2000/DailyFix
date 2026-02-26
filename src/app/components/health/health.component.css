@@ -849,6 +849,48 @@
   color: var(--notion-orange);
 }
 
+/* Estimation calories par photo (Gemini) */
+.meal-photo-estimate {
+  padding: 12px;
+  background: var(--notion-bg-secondary);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.meal-photo-hint {
+  font-size: 0.85rem;
+  color: var(--notion-text-secondary);
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+.meal-photo-actions {
+  margin-bottom: 6px;
+}
+.btn-meal-photo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+}
+.btn-meal-photo:has(.meal-photo-input:disabled) {
+  opacity: 0.8;
+  cursor: wait;
+}
+.meal-photo-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+.meal-photo-error {
+  font-size: 0.85rem;
+  color: var(--notion-red, #dc2626);
+  margin: 6px 0 0 0;
+}
+
 .health-detail {
   font-size: 0.875rem;
   color: var(--notion-text-secondary);

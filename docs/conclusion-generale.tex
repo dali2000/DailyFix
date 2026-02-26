@@ -1,0 +1,24 @@
+% Conclusion générale adaptée à l'application DailyFix
+
+\chapter*{Conclusion générale et Perspectives\markboth{Conclusion générale}{}}
+
+\lettrine[lines=2]{C}e projet de fin d'études a abouti à la conception et au développement d'une application web innovante dédiée à la gestion de la vie quotidienne, répondant aux besoins réels des utilisateurs souhaitant organiser leurs tâches, leur santé, leurs finances et leur bien-être au quotidien. Face aux limites des outils éparpillés (agendas papier, feuilles de calcul, applications multiples), notre solution DailyFix propose une approche centralisée, numérique et intuitive regroupant l'ensemble des aspects de la vie personnelle et domestique.
+
+Le projet a été conduit en \textbf{quatre sprints} répartis en deux releases. La Release~1 (Sprint~1 et Sprint~2) a livré l'authentification, la gestion des utilisateurs, des tâches et du calendrier. La Release~2 (Sprint~3 et Sprint~4) a couvert le suivi santé, les finances, l'organisation du foyer, le social, le bien-être, le tableau de bord, le module administrateur et le \textbf{déploiement en production}. L'application est actuellement déployée : le frontend est hébergé sur \textbf{GitHub Pages} et l'API backend sur \textbf{Render}, garantissant sa disponibilité pour les utilisateurs.
+
+L'application repose sur une architecture technique moderne combinant \textbf{Node.js et Express} pour le développement du back-end et \textbf{Angular~17} pour l'interface front-end, permettant ainsi une expérience utilisateur fluide, réactive et ergonomique. Les fonctionnalités principales couvrent l'authentification sécurisée (JWT, bcrypt, Google OAuth), la gestion des tâches (vues Kanban et liste), le calendrier et les événements, le suivi santé (repas, activité, sommeil, hydratation, méditation), les finances (dépenses, budgets, objectifs d'épargne), l'organisation du foyer (listes de courses, tâches ménagères), le social, le bien-être, un tableau de bord synthétique avec conseils du jour et un assistant IA (Gemini) pour des conseils personnalisés. L'accès aux données est personnalisé selon le profil (utilisateur ou administrateur).
+
+La réalisation de ce projet nous a permis de mettre en pratique nos connaissances en développement full-stack, de gérer les échanges entre les différentes couches d'une application web (frontend Angular, API REST, base de données PostgreSQL/MySQL), et d'intégrer des notions essentielles de sécurité, performance et confidentialité. L'intégration de l'intelligence artificielle (Gemini) pour les conseils du jour et l'assistant conversationnel illustre l'évolution des applications vers des services plus personnalisés et adaptatifs.
+
+Bien que la solution développée soit pleinement fonctionnelle et déployée, plusieurs perspectives d'évolution sont envisageables afin de renforcer ses capacités et répondre aux attentes futures :
+
+\begin{itemize}
+\item \textbf{Conteneurisation Docker} afin de faciliter la portabilité, les tests et les mises à jour en production.
+\item \textbf{Mise en place d'une chaîne CI/CD} pour automatiser les processus de test, de validation et de déploiement à chaque mise à jour du projet.
+\item \textbf{Application mobile} (PWA ou natif) afin de faciliter un accès optimisé à la plateforme sur smartphone ou tablette.
+\item \textbf{Mode collaboratif} pour permettre le partage de listes de courses, de tâches ménagères ou de budgets avec les membres d'un foyer.
+\item \textbf{Archivage et export des données} (CSV, PDF) pour garantir une traçabilité et permettre à l'utilisateur de conserver une copie de ses données personnelles.
+\item \textbf{Intégrations tierces} (calendrier Google, services bancaires, objets connectés santé) pour enrichir les données et offrir une expérience plus interconnectée.
+\end{itemize}
+
+En conclusion, ce projet constitue une réponse pertinente aux enjeux d'organisation personnelle et de bien-être au quotidien. Il jette les bases d'un système évolutif, fiable et centré sur l'utilisateur, déployé et accessible en production, tout en ouvrant la voie à de nouvelles améliorations technologiques et fonctionnelles.

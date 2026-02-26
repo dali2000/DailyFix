@@ -1,0 +1,248 @@
+% Chapitre Release 2 adapté à l'application DailyFix
+% (Suivi santé, Assistant IA / Chatbot, Statistiques et tableau de bord)
+
+\chapter{Release 2 : Suivi santé, Assistant IA et Tableau de bord}
+\minitoc
+
+% en-tête
+\renewcommand{\headrulewidth}{1pt}
+\fancyhead[C]{} 
+\fancyhead[L]{\leftmark}
+\fancyhead[R]{}
+
+% pied de page
+\renewcommand{\footrulewidth}{1pt}
+\fancyfoot[L]{}
+\fancyfoot[C]{\thepage}
+\fancyfoot[R]{}
+
+\newpage
+
+\section{Introduction}
+
+\lettrine[lines=2]{C}e chapitre est consacré à la Release 2 de l'application DailyFix. \textbf{Chaque release regroupe deux sprints} : la Release 2 correspond au Sprint 3 et au Sprint 4. Elle couvre la santé, les finances, l'organisation du foyer, le social, le bien-être, le tableau de bord, le module administrateur et le déploiement. L'utilisateur peut suivre sa santé (repas, activité, sommeil, hydratation, méditation), gérer ses finances, organiser son foyer, planifier sa vie sociale, suivre son bien-être et interagir avec un assistant IA (Gemini) pour des conseils personnalisés. Durant ce chapitre, nous présentons en premier lieu le backlog des sprints 3 et 4, ensuite la section d'analyse puis la section de conception. Le chapitre se clôture par des captures d'écran des interfaces réalisées.
+
+\section{Backlog Sprint 3 \& 4}
+
+Cette release regroupe le \textbf{Sprint 3} (Santé, finances et organisation du foyer) et le \textbf{Sprint 4} (Social, bien-être, tableau de bord, module administrateur et déploiement). Le plan de cette itération inclut les User Stories définis dans le tableau~\ref{backlog2}.
+
+\vspace{0.4cm}
+\begin{longtable}{|c|l|l|c|}
+\caption{Description du Backlog du Sprint 3 \& 4} \label{backlog2}
+\\
+\hline
+\textbf{Module} &
+\textbf{ID} &
+\textbf{User Story} &
+\textbf{Priorité} \\
+\hline
+\endfirsthead
+
+\hline
+\textbf{Module} &
+\textbf{ID} &
+\textbf{User Story} &
+\textbf{Priorité} \\
+\hline
+\endhead
+
+\hline
+\multicolumn{4}{r|}{\textit{Suite à la page suivante...}} \\
+\endfoot
+
+\hline
+\endlastfoot
+
+\multirow{4}{*}{\textbf{Suivi santé}} &
+US-01 &
+En tant qu'utilisateur, je souhaite enregistrer et consulter repas, activités, sommeil, hydratation et méditation afin de suivre mon bien-être. &
+Moyenne \\
+\cline{2-4}
+&
+US-02 &
+En tant qu'utilisateur, je souhaite modifier ou supprimer un enregistrement santé afin de gérer mes données. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Finances}} &
+US-03 &
+En tant qu'utilisateur, je souhaite gérer mes dépenses, budgets et objectifs d'épargne afin de maîtriser ma situation financière. &
+Élevée \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Organisation du foyer}} &
+US-04 &
+En tant qu'utilisateur, je souhaite gérer mes listes de courses et tâches ménagères afin d'organiser mon foyer. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Social}} &
+US-05 &
+En tant qu'utilisateur, je souhaite gérer mes événements sociaux et suggestions afin de planifier ma vie sociale. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Bien-être}} &
+US-06 &
+En tant qu'utilisateur, je souhaite tenir un journal et suivre mon stress afin d'améliorer mon bien-être. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Tableau de bord et Assistant IA}} &
+US-07 &
+En tant qu'utilisateur, je souhaite consulter un tableau de bord (statistiques, conseils du jour) et interagir avec l'assistant IA (Gemini) pour des conseils personnalisés. &
+Moyenne \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Module administrateur}} &
+US-08 &
+En tant qu'administrateur, je souhaite consulter les statistiques globales et superviser l'utilisation du système. &
+Élevée \\
+\cline{1-4}
+
+\multirow{1}{*}{\textbf{Déploiement}} &
+US-09 &
+En tant qu'équipe projet, nous souhaitons déployer l'application (frontend et backend) en production afin de la rendre accessible aux utilisateurs. &
+Élevée \\
+\cline{1-4}
+
+\end{longtable}
+
+\section{Analyse fonctionnelle}
+
+Cette section présente le diagramme de cas d'utilisation détaillé du sprint 3 \& 4, les descriptions textuelles et le diagramme de classes associé.
+
+\subsection{Diagramme de cas d'utilisation détaillé}
+
+La figure~\ref{authCUgen} illustre le diagramme de cas d'utilisation raffiné du sprint 3 \& 4 pour DailyFix. Les acteurs sont l'utilisateur et l'administrateur. Les cas d'utilisation incluent : Suivi santé (repas, activité, sommeil, hydratation, méditation), Gestion des finances, Organisation du foyer (listes de courses, tâches ménagères), Gestion du social (événements, suggestions), Bien-être (journal, stress), Tableau de bord et conseils du jour, Assistant IA (Gemini), Module administrateur (statistiques) et Déploiement de l'application en production.
+
+\begin{figure}[H]
+\centering
+% Remplacer par votre export Draw.io
+% \includegraphics[width=18cm, height=16cm]{images/img_new/diag-use-case-release2-dailyfix.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{4cm} Diagramme de cas d'utilisation Sprint 3 \& 4 (à ajouter : export Draw.io) \vspace{4cm}}}
+\caption{Diagramme de cas d'utilisation détaillé du Sprint 3 \& 4}
+\label{authCUgen}
+\end{figure}
+
+\section{Conception}
+
+\subsection{Diagramme de classes}
+
+La figure~\ref{authCUgen20} illustre le diagramme de classes de la Release 2. Les classes principales sont : User, Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession (santé), Expense, Budget, SavingsGoal (finances), ShoppingList, HouseholdTask (foyer), SocialEvent, ActivitySuggestion (social), JournalEntry, PersonalGoal, StressManagement (bien-être), et leurs associations avec User via userId.
+
+\begin{figure}[H]
+\centering
+% Remplacer par votre export Draw.io
+% \includegraphics[width=18cm, height=15cm]{images/img_new/diag-classe-release2-dailyfix.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{4cm} Diagramme de classes Release 2 (à ajouter : export Draw.io) \vspace{4cm}}}
+\caption{Diagramme de classes de la Release 2}
+\label{authCUgen20}
+\end{figure}
+
+\subsection{Diagrammes de séquence}
+
+Dans cette section, nous présentons les diagrammes de séquence relatifs aux fonctionnalités suivantes :
+\begin{itemize}
+\item Créer un enregistrement santé (repas, activité, sommeil, etc.)
+\item Interaction entre l'utilisateur et l'assistant IA (Gemini)
+\end{itemize}
+
+\textbf{Diagramme de séquence de « Créer un enregistrement santé »}
+
+L'utilisateur saisit les données (par exemple : type de repas, calories, date). Le frontend envoie une requête POST à l'API avec le token JWT. Le backend valide les données, associe l'enregistrement à l'utilisateur et le persiste en base. La réponse contient l'enregistrement créé. Le frontend met à jour la vue (onglet Repas, Activité, Sommeil, etc.).
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=15cm]{images/img_new/seq-ajout-enregistrement-sante.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{3cm} Diagramme de séquence « Créer un enregistrement santé » \vspace{3cm}}}
+\caption{Diagramme de séquence « Créer un enregistrement santé »}
+\label{inscSE16}
+\end{figure}
+
+\textbf{Diagramme de séquence de « Interaction avec l'assistant IA »}
+
+L'utilisateur envoie un message dans le chat de l'assistant santé ou de la section Organisation du foyer. Le frontend transmet le message à l'API backend (ou directement à l'API Gemini si la clé est configurée côté client). Le modèle Gemini génère une réponse selon une instruction système (conseils nutrition, sommeil, activité, méditation). La réponse est renvoyée au frontend et affichée dans le chat.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=16cm]{images/img_new/diag-seq-assistant-ia.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{3cm} Diagramme de séquence « Interaction avec l'assistant IA » \vspace{3cm}}}
+\caption{Diagramme de séquence « Interaction entre l'utilisateur et l'assistant IA »}
+\label{authSE18}
+\end{figure}
+
+\section{Réalisation}
+
+Après avoir présenté le backlog, l'analyse et la conception du sprint 3 \& 4, nous présentons la partie réalisation. L'assistant IA s'appuie sur l'API Google Gemini (modèle gemini-2.5-flash) via un service backend ou côté client. Les données santé sont persistées avec Sequelize (PostgreSQL/MySQL).
+
+\subsection{Interfaces}
+
+\subsubsection{Interface du suivi santé}
+
+La figure~\ref{fig:health} représente l'interface du module Santé. Elle propose des onglets pour la vue d'ensemble (score santé, calories, activité, eau, sommeil), les repas, l'activité physique, le sommeil et la méditation. L'utilisateur peut créer, modifier et supprimer des enregistrements.
+
+\begin{figure}[H]
+\centering
+% Remplacer par une capture du module Santé
+% \includegraphics[width=18cm, height=8cm]{images/img_new/sante-overview.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Suivi santé » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface du module « Suivi santé »}
+\label{fig:health}
+\end{figure}
+
+\subsubsection{Interface d'ajout d'un repas}
+
+La figure~\ref{fig:meal} illustre l'interface d'enregistrement d'un repas (nom, calories, type, date).
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=8cm]{images/img_new/ajout-repas.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Ajouter un repas » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface « Ajouter un repas »}
+\label{fig:meal}
+\end{figure}
+
+\subsubsection{Interface de consultation des statistiques santé}
+
+La vue d'ensemble affiche le score santé (calculé à partir des objectifs calories, eau, activité, sommeil), les calories du jour, l'activité physique, l'hydratation et le dernier sommeil enregistré.
+
+\subsubsection{Interface de l'assistant IA (chatbot)}
+
+La figure~\ref{fig:chatbot} représente le panneau de chat intégré au module Santé ou à la section Organisation du foyer. L'utilisateur peut poser des questions sur la nutrition, le sommeil, l'activité physique ou la méditation. L'assistant Gemini répond avec des conseils pratiques et personnalisés, sans poser de diagnostic médical.
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=8cm]{images/img_new/assistant-ia-chat.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Assistant IA (chatbot) » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface « Interagir avec l'assistant IA »}
+\label{fig:chatbot}
+\end{figure}
+
+\subsubsection{Interface du tableau de bord (statistiques)}
+
+La figure~\ref{fig:dashboard} représente la page d'accueil DailyFix avec le tableau de bord : conseils du jour (générés par Gemini selon le profil utilisateur), statistiques (dépenses, objectifs d'épargne, enregistrements santé, événements, tâches), vue d'ensemble (tâches du jour, score santé, solde restant, événements à venir) et graphiques (avancement des tâches, dépenses par catégorie, évolution des dépenses).
+
+\begin{figure}[H]
+\centering
+% \includegraphics[width=18cm, height=8cm]{images/img_new/dashboard-home.png}
+\fbox{\parbox{0.9\textwidth}{\centering\vspace{2.5cm} Interface « Tableau de bord / Statistiques » (capture à ajouter) \vspace{2.5cm}}}
+\caption{Interface « Tableau de bord et statistiques »}
+\label{fig:dashboard}
+\end{figure}
+
+\subsubsection{Interfaces Finances, Organisation du foyer, Social et Bien-être}
+
+Les modules Finance, Organisation du foyer (listes de courses, tâches ménagères), Social (événements et suggestions) et Bien-être (journal, objectifs, gestion du stress) offrent des interfaces dédiées pour la saisie et la consultation des données.
+
+\subsubsection{Interface administrateur}
+
+L'administrateur dispose d'un tableau de bord avec des statistiques globales (utilisateurs, tâches, événements, santé, finances, etc.) et peut consulter la liste des utilisateurs récents.
+
+\subsubsection{Déploiement}
+
+Le déploiement de l'application (Sprint~4) a été réalisé en production : le frontend Angular est hébergé sur \textbf{GitHub Pages} et l'API backend (Node.js/Express) sur \textbf{Render}. Cela garantit la disponibilité de la plateforme et permet un accès permanent aux utilisateurs.
+
+\section{Conclusion}
+
+Durant ce chapitre, nous avons présenté la Release 2 (Sprint 3 \& Sprint 4) adaptée à l'application DailyFix, ainsi que la partie analyse, conception et réalisation. Les cas d'utilisation « Suivi santé », « Finances », « Organisation du foyer », « Social », « Bien-être », « Tableau de bord et Assistant IA », « Module administrateur » et « Déploiement » ont été décrits. DailyFix intègre un module santé complet, la gestion des finances, l'organisation du foyer, le social, le bien-être, un tableau de bord avec conseils du jour (Gemini), un assistant IA conversationnel, un module d'administration pour la supervision de la plateforme, et le déploiement en production (frontend sur GitHub Pages, backend sur Render).
