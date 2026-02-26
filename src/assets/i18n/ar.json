@@ -362,6 +362,7 @@
     "takeOrChoosePhoto": "التقاط أو اختيار صورة",
     "estimatingCalories": "جاري الحساب…",
     "estimateCaloriesError": "تعذر تقدير السعرات. تحقق من مفتاح Gemini أو أعد المحاولة.",
+    "mealNotRecognized": "الوجبة غير معروفة. صور الصحن بوضوح أو أدخل يدوياً.",
     "activityTitle": "السبور",
     "addActivity": "زيد سبور",
     "sleepTracking": "تبع النوم",

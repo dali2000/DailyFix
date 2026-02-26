@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HealthService } from '../../services/health.service';
 import { GeminiService, ChatMessage } from '../../services/gemini.service';
 import { ToastService } from '../../services/toast.service';
+import { I18nService } from '../../services/i18n.service';
 import { Meal, PhysicalActivity, SleepRecord, WaterIntake, MeditationSession } from '../../models/health.model';
 import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
@@ -98,7 +99,8 @@ export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
   constructor(
     private healthService: HealthService,
     private geminiService: GeminiService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private i18n: I18nService
   ) {}
 
   get geminiAvailable(): boolean {
@@ -212,12 +214,17 @@ export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
       const base64 = await this.fileToBase64(file);
       const mimeType = file.type || 'image/jpeg';
       const estimate = await this.geminiService.estimateCaloriesFromImage(base64, mimeType);
+      const isUnrecognized = this.isMealUnrecognized(estimate);
       this.newMeal = {
         ...this.newMeal,
         calories: estimate.calories,
         name: estimate.name || this.newMeal.name || ''
       };
-      this.toastService.success(this.geminiCaloriesSuccessMessage(estimate));
+      if (isUnrecognized) {
+        this.toastService.error(this.i18n.instant('health.mealNotRecognized'));
+      } else {
+        this.toastService.success(this.geminiCaloriesSuccessMessage(estimate));
+      }
     } catch (e) {
       const msg = e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : '';
       this.mealPhotoError = msg || 'health.estimateCaloriesError';
@@ -238,6 +245,12 @@ export class HealthComponent implements OnInit, OnDestroy, AfterViewInit {
       reader.onerror = () => reject(new Error('Impossible de lire l\'image'));
       reader.readAsDataURL(file);
     });
+  }
+
+  private isMealUnrecognized(estimate: { calories: number; name?: string }): boolean {
+    if (estimate.calories === 0) return true;
+    const n = (estimate.name || '').toLowerCase();
+    return /repas non reconnu|meal not recognized|non reconnu|not recognized|unrecognized/i.test(n);
   }
 
   private geminiCaloriesSuccessMessage(estimate: { calories: number; name?: string }): string {

@@ -301,6 +301,7 @@
     "takeOrChoosePhoto": "Take or choose photo",
     "estimatingCalories": "Estimating…",
     "estimateCaloriesError": "Could not estimate calories. Check Gemini API key or try again.",
+    "mealNotRecognized": "Meal not recognized. Take a clearer photo of the plate or enter manually.",
     "activityTitle": "Physical Activity",
     "addActivity": "Add activity",
     "sleepTracking": "Sleep Tracking",
