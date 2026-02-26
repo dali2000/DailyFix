@@ -57,6 +57,65 @@ router.post('/chat', async (req, res) => {
   }
 });
 
+/** POST /api/gemini/calories-from-image - Estimation des calories à partir d'une photo de plat (vision). */
+router.post('/calories-from-image', async (req, res) => {
+  if (!apiKey || !apiKey.trim()) {
+    return res.status(503).json({
+      success: false,
+      message: 'GEMINI_API_KEY is not configured on the server.'
+    });
+  }
+  const { imageBase64, mimeType } = req.body;
+  if (!imageBase64 || typeof imageBase64 !== 'string') {
+    return res.status(400).json({ success: false, message: 'imageBase64 is required.' });
+  }
+  const type = (mimeType && typeof mimeType === 'string') ? mimeType : 'image/jpeg';
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: {
+        responseMimeType: 'application/json',
+        temperature: 0.2
+      }
+    });
+    const prompt = `Analyze this food/meal image. Return ONLY a valid JSON object with exactly these two keys (no other text, no markdown):
+- "calories": number (estimated total calories for the whole meal/plate shown)
+- "name": string (short meal name in the same language as the user, e.g. "Salade César", "Grilled chicken with rice")
+
+Be realistic with calorie estimates. If you cannot see food clearly, use calories: 0 and name: "Repas non reconnu".`;
+    const imagePart = { inlineData: { mimeType: type, data: imageBase64 } };
+    const result = await model.generateContent([imagePart, prompt]);
+    const response = result.response;
+    let text = '';
+    if (response && typeof response.text === 'function') {
+      const out = response.text();
+      text = (typeof out?.then === 'function' ? await out : out) || '';
+    }
+    let json = {};
+    try {
+      json = JSON.parse((text || '{}').trim());
+    } catch (_) {
+      // ignore invalid JSON
+    }
+    const calories = typeof json.calories === 'number' && json.calories >= 0 ? Math.round(json.calories) : 0;
+    const name = typeof json.name === 'string' ? json.name.trim() : undefined;
+    res.json({ success: true, calories, name });
+  } catch (err) {
+    if (isQuotaError(err)) {
+      return res.status(429).json({
+        success: false,
+        message: 'health.discussionQuotaExceeded'
+      });
+    }
+    console.error('Gemini calories-from-image error:', err);
+    res.status(500).json({
+      success: false,
+      message: err.message || 'Estimation failed.'
+    });
+  }
+});
+
 /** POST /api/gemini/advice - Conseil du jour (prompt unique). */
 router.post('/advice', async (req, res) => {
   if (!apiKey || !apiKey.trim()) {
