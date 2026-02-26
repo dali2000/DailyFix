@@ -23,6 +23,15 @@ export interface MealCaloriesEstimate {
   name?: string;
 }
 
+/** Résultat de l'analyse d'une facture/reçu par photo (vision Gemini). */
+export interface ReceiptEstimate {
+  amount?: number;
+  description?: string;
+  date?: string;
+  category?: string;
+  paymentMethod?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -205,6 +214,81 @@ Be realistic with calorie estimates. If you cannot see food clearly, use calorie
       return { calories, name };
     } catch {
       throw new Error('Impossible de lire l\'estimation. Réessaie avec une photo plus nette.');
+    }
+  }
+
+  /**
+   * Analyse une photo de facture/reçu et extrait montant, description, date, catégorie.
+   * Utilise le backend si pas de clé API côté client.
+   */
+  async analyzeReceiptFromImage(imageBase64: string, mimeType: string): Promise<ReceiptEstimate> {
+    const useBackend = (!this.apiKey || !this.apiKey.length) && !!this.apiUrl;
+
+    if (useBackend) {
+      try {
+        const res = await firstValueFrom(
+          this.http.post<{ success: boolean; amount?: number; description?: string; date?: string; category?: string; paymentMethod?: string; message?: string }>(
+            `${this.apiUrl}/gemini/receipt-from-image`,
+            { imageBase64, mimeType: mimeType || 'image/jpeg' }
+          )
+        );
+        if (res?.success) {
+          return {
+            amount: typeof res.amount === 'number' ? res.amount : undefined,
+            description: typeof res.description === 'string' ? res.description.trim() : undefined,
+            date: typeof res.date === 'string' ? res.date.trim() : undefined,
+            category: typeof res.category === 'string' ? res.category.trim() : undefined,
+            paymentMethod: typeof res.paymentMethod === 'string' ? res.paymentMethod.trim() : undefined
+          };
+        }
+        if (res?.message === GeminiService.QUOTA_ERROR_KEY) throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        throw new Error(res?.message || 'Erreur serveur');
+      } catch (err: unknown) {
+        const status = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : 0;
+        const bodyMsg = err && typeof err === 'object' && 'error' in err && typeof (err as { error: unknown }).error === 'object' && (err as { error: { message?: string } }).error?.message;
+        const msg = err && typeof err === 'object' && 'message' in err ? String((err as { message: string }).message) : '';
+        if (status === 429 || bodyMsg === GeminiService.QUOTA_ERROR_KEY || msg === GeminiService.QUOTA_ERROR_KEY) {
+          throw new Error(GeminiService.QUOTA_ERROR_KEY);
+        }
+        if (status === 503) {
+          throw new Error('L\'analyse de facture n\'est pas configurée sur le serveur (GEMINI_API_KEY).');
+        }
+        throw err;
+      }
+    }
+
+    if (!this.apiKey || !this.apiKey.length) {
+      throw new Error('Gemini (clé API) est requis pour l\'analyse de facture. Configurez geminiApiKey ou utilisez un backend avec GEMINI_API_KEY.');
+    }
+    const { GoogleGenerativeAI } = await import('@google/generative-ai');
+    const genAI = new GoogleGenerativeAI(this.apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-2.5-flash',
+      generationConfig: { responseMimeType: 'application/json', temperature: 0.2 }
+    });
+    const prompt = `This image is a receipt or invoice (facture). Extract the following and return ONLY a valid JSON object (no other text, no markdown):
+- "amount": number (total amount to pay, as a number without currency symbol)
+- "description": string (store name, merchant, or short description of the receipt)
+- "date": string (date of the receipt in YYYY-MM-DD format if visible, otherwise empty string)
+- "category": string (one of: food, shopping, health, leisure, transport, bills, other - choose the best match)
+- "paymentMethod": string (e.g. Card, Cash, Visa) if visible, otherwise empty string
+
+If you cannot read a field, omit it or use empty string. Always try to extract at least amount and description.`;
+    const imagePart = { inlineData: { mimeType, data: imageBase64 } as { mimeType: string; data: string } };
+    const result = await model.generateContent([imagePart, prompt]);
+    const text = result.response.text();
+    if (!text || !text.trim()) throw new Error('Réponse vide de l\'IA.');
+    try {
+      const json = JSON.parse(text.trim()) as ReceiptEstimate;
+      return {
+        amount: typeof json.amount === 'number' ? json.amount : undefined,
+        description: typeof json.description === 'string' ? json.description.trim() : undefined,
+        date: typeof json.date === 'string' ? json.date.trim() : undefined,
+        category: typeof json.category === 'string' ? json.category.trim() : undefined,
+        paymentMethod: typeof json.paymentMethod === 'string' ? json.paymentMethod.trim() : undefined
+      };
+    } catch {
+      throw new Error('Impossible de lire la facture. Réessaie avec une photo plus nette.');
     }
   }
 

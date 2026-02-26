@@ -10,6 +10,7 @@ import { TranslatePipe } from '../../pipes/translate.pipe';
 import { Subscription } from 'rxjs';
 import { ModalComponent } from '../shared/modal/modal.component';
 import { ToastService } from '../../services/toast.service';
+import { GeminiService } from '../../services/gemini.service';
 import { EmptyStateComponent } from '../shared/empty-state/empty-state.component';
 import { ConfirmDialogComponent } from '../shared/confirm-dialog/confirm-dialog.component';
 import { CountUpComponent } from '../shared/count-up/count-up.component';
@@ -58,6 +59,8 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
   savingsAdjustAmount = 0;
 
   newExpense: Partial<Expense> = { category: 'other' };
+  receiptPhotoLoading = false;
+  receiptPhotoError: string | null = null;
   newBudget: Partial<Budget> = { period: 'monthly' };
   newSavingsGoal: Partial<SavingsGoal> = {};
   newSalary: Partial<Salary> = { period: 'monthly' };
@@ -208,8 +211,13 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     public currencyService: CurrencyService,
     private i18n: I18nService,
     private toastService: ToastService,
+    private geminiService: GeminiService,
     private cdr: ChangeDetectorRef
   ) {}
+
+  get geminiAvailable(): boolean {
+    return this.geminiService.isAvailable();
+  }
 
   ngAfterViewInit(): void {
     setTimeout(() => (this.progressReady = true), 80);
@@ -442,6 +450,53 @@ export class FinanceComponent implements OnInit, OnDestroy, AfterViewInit {
     this.showExpenseForm = false;
     this.newExpense = { category: 'other' };
     this.newCategoryName = '';
+    this.receiptPhotoError = null;
+  }
+
+  async onReceiptPhotoSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input?.files?.[0];
+    if (!file || !file.type.startsWith('image/')) return;
+    this.receiptPhotoLoading = true;
+    this.receiptPhotoError = null;
+    try {
+      const base64 = await this.fileToBase64ForReceipt(file);
+      const mimeType = file.type || 'image/jpeg';
+      const estimate = await this.geminiService.analyzeReceiptFromImage(base64, mimeType);
+      const category = estimate.category && this.expenseCategories.includes(estimate.category)
+        ? estimate.category
+        : (estimate.category || 'other');
+      const dateStr = estimate.date || this.firstDayOfSelectedMonth;
+      this.newExpense = {
+        ...this.newExpense,
+        amount: estimate.amount ?? this.newExpense.amount,
+        description: estimate.description ?? this.newExpense.description ?? '',
+        date: dateStr as unknown as Date,
+        category,
+        paymentMethod: estimate.paymentMethod ?? this.newExpense.paymentMethod
+      };
+      this.cdr.detectChanges();
+      this.toastService.success(this.i18n.instant('finance.receiptAnalyzed') || 'Facture analysée. Vérifiez les champs.');
+    } catch (e) {
+      const msg = e && typeof e === 'object' && 'message' in e ? String((e as { message: string }).message) : '';
+      this.receiptPhotoError = msg || 'finance.receiptAnalysisError';
+    } finally {
+      this.receiptPhotoLoading = false;
+      input.value = '';
+    }
+  }
+
+  private fileToBase64ForReceipt(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+        resolve(base64 || '');
+      };
+      reader.onerror = () => reject(new Error('Impossible de lire l\'image'));
+      reader.readAsDataURL(file);
+    });
   }
 
   openExpenseForm(): void {

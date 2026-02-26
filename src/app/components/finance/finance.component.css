@@ -1845,6 +1845,48 @@
   margin-bottom: 16px;
 }
 
+/* Photo de facture (analyse IA) */
+.receipt-photo-estimate {
+  padding: 12px;
+  background: var(--notion-bg-secondary);
+  border: 1px solid var(--notion-border);
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+.receipt-photo-hint {
+  font-size: 0.85rem;
+  color: var(--notion-text-secondary);
+  margin: 0 0 10px 0;
+  line-height: 1.4;
+}
+.receipt-photo-actions {
+  margin-bottom: 6px;
+}
+.btn-receipt-photo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  cursor: pointer;
+}
+.btn-receipt-photo:has(.receipt-photo-input:disabled) {
+  opacity: 0.8;
+  cursor: wait;
+}
+.receipt-photo-input {
+  position: absolute;
+  width: 0.1px;
+  height: 0.1px;
+  opacity: 0;
+  overflow: hidden;
+  z-index: -1;
+}
+.receipt-photo-error {
+  font-size: 0.85rem;
+  color: var(--notion-red, #dc2626);
+  margin: 6px 0 0 0;
+}
+
 .add-category-row {
   display: flex;
   gap: 8px;

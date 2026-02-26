@@ -393,6 +393,18 @@
   <!-- Expense Modal -->
   <app-modal *ngIf="showExpenseForm" [title]="'finance.newExpenseTitle' | translate" size="md" (closeModal)="closeExpenseModal()">
     <form #expenseForm="ngForm" (ngSubmit)="addExpense()">
+      <div class="form-group receipt-photo-estimate" *ngIf="geminiAvailable">
+        <label>{{ 'finance.receiptPhotoLabel' | translate }}</label>
+        <p class="receipt-photo-hint">{{ 'finance.receiptPhotoHint' | translate }}</p>
+        <div class="receipt-photo-actions">
+          <label class="btn btn-secondary btn-receipt-photo">
+            <input type="file" accept="image/*" (change)="onReceiptPhotoSelected($event)" class="receipt-photo-input" [disabled]="receiptPhotoLoading">
+            <span *ngIf="!receiptPhotoLoading">{{ 'finance.takeOrChooseReceiptPhoto' | translate }}</span>
+            <span *ngIf="receiptPhotoLoading">{{ 'finance.analyzingReceipt' | translate }}</span>
+          </label>
+        </div>
+        <p class="receipt-photo-error" *ngIf="receiptPhotoError">{{ receiptPhotoError.startsWith('finance.') ? (receiptPhotoError | translate) : receiptPhotoError }}</p>
+      </div>
       <div class="form-group">
         <label for="expense-description">{{ 'finance.descriptionLabel' | translate }} *</label>
         <input id="expense-description" type="text" [(ngModel)]="newExpense.description" name="description" #expenseDesc="ngModel" required aria-required="true">
